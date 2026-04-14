@@ -16,6 +16,17 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
 
+## Artifacts
+
+### Trivia Master (`artifacts/trivia-game`)
+- React + Vite single-player trivia game
+- 5 categories: Genius (science/history), Entertainment, Sports, Culture Pop, Random Facts
+- Question types: multiple choice, true/false, short answer
+- Game mechanics: 3 lives, streak multiplier (up to ×4), 2 skips per game, progressive difficulty
+- State management: Zustand (persists high score to localStorage)
+- All game logic is frontend-only — no backend required
+- Preview path: `/`
+
 ## Key Commands
 
 - `pnpm run typecheck` — full typecheck across all packages

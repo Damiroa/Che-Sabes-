@@ -1,0 +1,109 @@
+Actúa como un desarrollador senior de videojuegos con experiencia en diseño de juegos, arquitectura de software y UX.
+
+Quiero que desarrolles un juego de trivia estilo Preguntados para computadora, en modo individual (single player), con un enfoque en jugabilidad adictiva, clara y escalable.
+
+### 🎯 Objetivo del juego
+
+El jugador debe responder preguntas correctamente para acumular puntos, generar rachas y superar su propio récord antes de quedarse sin vidas o tiempo.
+
+---
+
+### 🧠 Mecánicas principales
+
+* Sistema de preguntas por categorías:
+
+  * Modo Genio (ciencia, historia, cultura general)
+  * Entretenimiento
+  * Deportes
+  * Cultura Pop
+  * Datos Random
+
+* Tipos de preguntas:
+
+  * Opción múltiple (4 opciones)
+  * Verdadero / Falso
+  * Respuesta corta
+
+* Sistema de juego:
+
+  * 3 vidas iniciales
+  * Cada respuesta correcta suma puntos
+  * Cada respuesta incorrecta resta una vida
+  * Sistema de racha (bonus por respuestas consecutivas correctas)
+  * Posibilidad de "skip" limitado (ej: 2 por partida)
+
+---
+
+### ⚡ Dinámicas avanzadas
+
+* Sistema de dificultad progresiva
+* Preguntas más difíciles otorgan más puntos
+* Bonus por racha (ej: cada 3 aciertos consecutivos = multiplicador)
+* Feedback inmediato (correcto/incorrecto)
+
+---
+
+### 🏁 Condición de fin
+
+* El juego termina cuando:
+
+  * El jugador pierde todas sus vidas
+  * O se cumple un límite de tiempo (modo opcional)
+
+* Mostrar:
+
+  * Puntaje final
+  * Mejor racha
+  * Récord histórico
+
+---
+
+### 💻 Requisitos técnicos
+
+* Lenguaje: Python
+* Versión inicial en consola (texto)
+* Código limpio, modular y bien comentado
+* Uso de funciones y estructuras claras
+* Sistema de preguntas almacenado en estructuras (listas o diccionarios)
+
+---
+
+### 🧱 Arquitectura esperada
+
+* Módulo de preguntas
+* Motor del juego (game loop)
+* Sistema de puntaje
+* Sistema de vidas
+* Sistema de input del usuario
+* Validación de respuestas
+
+---
+
+### 🎨 Experiencia de usuario
+
+* Interfaz clara en consola
+* Mensajes dinámicos (acierto, error, racha)
+* Flujo rápido y sin fricción
+
+---
+
+### 🔁 Escalabilidad futura
+
+Prepara el código para que luego se pueda:
+
+* Agregar interfaz gráfica (ej: Tkinter)
+* Convertir a versión web (JavaScript)
+* Agregar base de datos de preguntas
+
+---
+
+### 📦 Entregables
+
+1. Código completo funcional
+2. Explicación breve de cada parte
+3. Ejemplo de ejecución
+4. Sugerencias de mejora
+
+---
+
+Genera el código completo listo para ejecutar, optimizado y estructurado como lo haría un desarrollador profesional.
