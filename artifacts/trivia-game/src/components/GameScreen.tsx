@@ -25,6 +25,10 @@ export function GameScreen() {
 
   const diffColor = { easy: "#22c55e", medium: "#f59e0b", hard: "#ef4444" }[currentQuestion.difficulty];
   const diffLabel = { easy: "Fácil", medium: "Medio", hard: "Difícil" }[currentQuestion.difficulty];
+  const catLabel = {
+    genius: "Genio", entertainment: "Entretenimiento",
+    sports: "Deportes", culture: "Cultura Pop", random: "Random",
+  }[currentQuestion.category];
 
   return (
     <motion.div
@@ -36,21 +40,19 @@ export function GameScreen() {
     >
       {/* HUD */}
       <div className="flex items-center justify-between mb-7">
-        {/* Lives */}
         <div className="flex gap-1">
           {Array.from({ length: 3 }).map((_, i) => (
             <motion.span
               key={i}
-              animate={{ opacity: i < lives ? 1 : 0.18, scale: i < lives ? 1 : 0.8 }}
+              animate={{ opacity: i < lives ? 1 : 0.15, scale: i < lives ? 1 : 0.8 }}
               transition={{ type: "spring", stiffness: 280 }}
-              style={{ fontSize: "1.15rem" }}
+              style={{ fontSize: "1.1rem" }}
             >
               ❤️
             </motion.span>
           ))}
         </div>
 
-        {/* Score */}
         <AnimatePresence mode="wait">
           <motion.span
             key={score}
@@ -62,7 +64,7 @@ export function GameScreen() {
               fontFamily: "'Outfit', sans-serif",
               fontSize: "1.35rem",
               fontWeight: 900,
-              color: "#e2e8f0",
+              color: "#ffffff",
               letterSpacing: "-0.02em",
             }}
           >
@@ -70,18 +72,16 @@ export function GameScreen() {
           </motion.span>
         </AnimatePresence>
 
-        {/* Skip */}
         <button
           onClick={skipQuestion}
           disabled={skipsLeft <= 0}
           style={{
-            fontSize: "0.72rem",
-            fontWeight: 600,
-            color: skipsLeft > 0 ? "#64748b" : "#2d3748",
+            fontSize: "0.7rem", fontWeight: 700,
+            color: skipsLeft > 0 ? "#3b82f6" : "#1e2d45",
             background: "transparent",
             border: "none",
             cursor: skipsLeft > 0 ? "pointer" : "default",
-            letterSpacing: "0.04em",
+            letterSpacing: "0.06em",
             textTransform: "uppercase",
           }}
         >
@@ -97,9 +97,9 @@ export function GameScreen() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="mb-4"
+            style={{ marginBottom: "0.75rem" }}
           >
-            <p style={{ fontSize: "0.78rem", fontWeight: 700, color: "#facc15", letterSpacing: "0.06em" }}>
+            <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#facc15", letterSpacing: "0.06em" }}>
               🔥 RACHA {streak} — ×{multiplier} puntos
             </p>
           </motion.div>
@@ -113,37 +113,36 @@ export function GameScreen() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
           className="flex-1 flex flex-col"
         >
-          {/* Category + difficulty */}
+          {/* Meta */}
           <div className="flex items-center gap-2 mb-4">
-            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: catColor }}>
-              {CATEGORY_ICONS[currentQuestion.category]} {currentQuestion.category === "genius" ? "Genio" : currentQuestion.category === "entertainment" ? "Entretenimiento" : currentQuestion.category === "sports" ? "Deportes" : currentQuestion.category === "culture" ? "Cultura Pop" : "Random"}
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: catColor }}>
+              {CATEGORY_ICONS[currentQuestion.category]} {catLabel}
             </span>
-            <span style={{ color: "#334155", fontSize: "0.78rem" }}>·</span>
-            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: diffColor }}>{diffLabel}</span>
-            <span style={{ fontSize: "0.78rem", color: "#334155", marginLeft: "auto" }}>
+            <span style={{ color: "#1e2d45", fontSize: "0.75rem" }}>·</span>
+            <span style={{ fontSize: "0.75rem", fontWeight: 600, color: diffColor }}>{diffLabel}</span>
+            <span style={{ fontSize: "0.73rem", color: "#1e2d45", marginLeft: "auto" }}>
               +{currentQuestion.points * multiplier} pts
             </span>
           </div>
 
-          {/* Question text */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <p style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: "1.2rem",
-              fontWeight: 600,
-              color: "#e2e8f0",
-              lineHeight: 1.45,
-            }}>
-              {currentQuestion.question}
-            </p>
-          </div>
+          {/* Question */}
+          <p style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: "1.15rem",
+            fontWeight: 600,
+            color: "#eef2ff",
+            lineHeight: 1.48,
+            marginBottom: "1.5rem",
+          }}>
+            {currentQuestion.question}
+          </p>
 
-          {/* Answer options */}
+          {/* Options */}
           {currentQuestion.type !== "short" && currentQuestion.options && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
               {currentQuestion.options.map((opt) => {
                 const isSelected = selectedAnswer === opt;
                 return (
@@ -153,17 +152,17 @@ export function GameScreen() {
                     onClick={() => handleAnswer(opt)}
                     disabled={!!selectedAnswer}
                     style={{
-                      padding: "0.9rem 1.1rem",
+                      padding: "0.85rem 1rem",
                       borderRadius: "12px",
                       textAlign: "left",
                       fontFamily: "'Space Grotesk', sans-serif",
-                      fontSize: "0.97rem",
+                      fontSize: "0.94rem",
                       fontWeight: 600,
-                      color: isSelected ? "#fff" : "#cbd5e1",
-                      background: isSelected ? catColor : "rgba(255,255,255,0.04)",
-                      border: `1.5px solid ${isSelected ? catColor : "rgba(255,255,255,0.08)"}`,
+                      color: isSelected ? "#fff" : "#93c5fd",
+                      background: isSelected ? "#1d6fe8" : "rgba(255,255,255,0.03)",
+                      border: `1.5px solid ${isSelected ? "#3b82f6" : "rgba(255,255,255,0.07)"}`,
                       cursor: selectedAnswer ? "default" : "pointer",
-                      transition: "background 0.12s, border 0.12s",
+                      transition: "background 0.1s, border 0.1s",
                     }}
                   >
                     {opt}
@@ -175,7 +174,7 @@ export function GameScreen() {
 
           {/* Short answer */}
           {currentQuestion.type === "short" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
               <input
                 type="text"
                 value={shortInput}
@@ -185,13 +184,13 @@ export function GameScreen() {
                 autoFocus
                 style={{
                   width: "100%",
-                  padding: "0.9rem 1.1rem",
+                  padding: "0.85rem 1rem",
                   borderRadius: "12px",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1.5px solid rgba(255,255,255,0.1)",
-                  color: "#e2e8f0",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1.5px solid rgba(255,255,255,0.08)",
+                  color: "#eef2ff",
                   fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: "0.97rem",
+                  fontSize: "0.94rem",
                   outline: "none",
                 }}
               />
@@ -199,14 +198,14 @@ export function GameScreen() {
                 onClick={() => shortInput.trim() && handleAnswer(shortInput.trim())}
                 disabled={!shortInput.trim() || !!selectedAnswer}
                 style={{
-                  padding: "0.9rem",
+                  padding: "0.85rem",
                   borderRadius: "12px",
-                  background: catColor,
+                  background: "#1d6fe8",
                   color: "#fff",
                   fontFamily: "'Outfit', sans-serif",
                   fontWeight: 700,
-                  fontSize: "0.97rem",
-                  opacity: !shortInput.trim() ? 0.4 : 1,
+                  fontSize: "0.94rem",
+                  opacity: !shortInput.trim() ? 0.35 : 1,
                   cursor: shortInput.trim() ? "pointer" : "default",
                   border: "none",
                 }}

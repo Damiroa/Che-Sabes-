@@ -22,11 +22,11 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 };
 
 export const CATEGORY_COLORS: Record<Category, string> = {
-  genius: "#6366f1",
-  entertainment: "#ec4899",
-  sports: "#22c55e",
-  culture: "#f59e0b",
-  random: "#06b6d4",
+  genius: "#3b82f6",
+  entertainment: "#60a5fa",
+  sports: "#93c5fd",
+  culture: "#818cf8",
+  random: "#a5b4fc",
 };
 
 export const CATEGORY_ICONS: Record<Category, string> = {
