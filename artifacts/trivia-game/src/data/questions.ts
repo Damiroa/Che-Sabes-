@@ -587,4 +587,526 @@ export const questions: Question[] = [
     correct: "384,400 km",
     options: ["150,000 km", "250,000 km", "384,400 km", "500,000 km"],
   },
+
+  // ── LOTE 3 — GENIUS EASY ──────────────────────────────────────────────────
+  {
+    id: 89, category: "genius", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cuántas letras tiene el alfabeto español?",
+    correct: "27",
+    options: ["24", "25", "27", "29"],
+  },
+  {
+    id: 90, category: "genius", difficulty: "easy", type: "truefalse", points: 100,
+    question: "El Sol es una estrella.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 91, category: "genius", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cuántas horas tiene un día?",
+    correct: "24",
+    options: ["12", "24", "36", "48"],
+  },
+  {
+    id: 92, category: "genius", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Qué planeta está más cerca del Sol?",
+    correct: "Mercurio",
+    options: ["Venus", "Mercurio", "Marte", "Tierra"],
+  },
+  {
+    id: 93, category: "genius", difficulty: "easy", type: "truefalse", points: 100,
+    question: "El corazón humano está del lado izquierdo del pecho.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 94, category: "genius", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cuál es el elemento más ligero de la tabla periódica?",
+    correct: "Hidrógeno",
+    options: ["Helio", "Hidrógeno", "Litio", "Boro"],
+  },
+  {
+    id: 95, category: "genius", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cuántos lados tiene un triángulo?",
+    correct: "3",
+    options: ["2", "3", "4", "5"],
+  },
+  {
+    id: 96, category: "genius", difficulty: "easy", type: "truefalse", points: 100,
+    question: "Los pingüinos viven en el Ártico (Polo Norte).",
+    correct: "Falso",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 97, category: "genius", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cuántas semanas tiene un año?",
+    correct: "52",
+    options: ["48", "50", "52", "54"],
+  },
+  {
+    id: 98, category: "genius", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Qué gas respiramos principalmente?",
+    correct: "Nitrógeno",
+    options: ["Oxígeno", "Nitrógeno", "CO₂", "Argón"],
+  },
+
+  // ── LOTE 3 — GENIUS MEDIUM ────────────────────────────────────────────────
+  {
+    id: 99, category: "genius", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuántos huesos tiene la columna vertebral humana?",
+    correct: "33",
+    options: ["26", "29", "33", "37"],
+  },
+  {
+    id: 100, category: "genius", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿En qué país nació Marie Curie?",
+    correct: "Polonia",
+    options: ["Francia", "Alemania", "Polonia", "Rusia"],
+  },
+  {
+    id: 101, category: "genius", difficulty: "medium", type: "truefalse", points: 200,
+    question: "El sonido viaja más rápido que la luz.",
+    correct: "Falso",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 102, category: "genius", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuál es el río más largo de América del Sur?",
+    correct: "Amazonas",
+    options: ["Paraná", "Orinoco", "Amazonas", "Río de la Plata"],
+  },
+  {
+    id: 103, category: "genius", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuántos países tiene América del Sur?",
+    correct: "12",
+    options: ["10", "11", "12", "14"],
+  },
+  {
+    id: 104, category: "genius", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuál es la capital de Australia?",
+    correct: "Canberra",
+    options: ["Sídney", "Melbourne", "Canberra", "Brisbane"],
+  },
+  {
+    id: 105, category: "genius", difficulty: "medium", type: "truefalse", points: 200,
+    question: "El Everest crece aproximadamente 4 mm cada año por movimiento de placas tectónicas.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 106, category: "genius", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuál es el metal más conductor de la electricidad?",
+    correct: "Plata",
+    options: ["Cobre", "Oro", "Plata", "Aluminio"],
+  },
+  {
+    id: 107, category: "genius", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuántos meses tienen 31 días?",
+    correct: "7",
+    options: ["5", "6", "7", "8"],
+  },
+  {
+    id: 108, category: "genius", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Qué país tiene más premios Nobel per cápita?",
+    correct: "Suiza",
+    options: ["Estados Unidos", "Suecia", "Suiza", "Alemania"],
+  },
+
+  // ── LOTE 3 — GENIUS HARD ──────────────────────────────────────────────────
+  {
+    id: 109, category: "genius", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿Cuál es la fórmula de la velocidad en física clásica?",
+    correct: "v = d/t",
+    options: ["v = m×a", "v = d/t", "v = F/m", "v = P/t"],
+  },
+  {
+    id: 110, category: "genius", difficulty: "hard", type: "truefalse", points: 400,
+    question: "El universo tiene aproximadamente 13,800 millones de años.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 111, category: "genius", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿Cómo se llama la parte del átomo con carga negativa?",
+    correct: "Electrón",
+    options: ["Protón", "Neutrón", "Electrón", "Fotón"],
+  },
+  {
+    id: 112, category: "genius", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿En qué año publicó Darwin 'El Origen de las Especies'?",
+    correct: "1859",
+    options: ["1842", "1851", "1859", "1871"],
+  },
+
+  // ── LOTE 3 — ENTRETENIMIENTO EASY ────────────────────────────────────────
+  {
+    id: 113, category: "entertainment", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cómo se llama el personaje principal de 'El Rey León'?",
+    correct: "Simba",
+    options: ["Pumba", "Simba", "Nala", "Mufasa"],
+  },
+  {
+    id: 114, category: "entertainment", difficulty: "easy", type: "truefalse", points: 100,
+    question: "Spider-Man fue creado por Marvel Comics.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 115, category: "entertainment", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿En qué ciudad ficticia vive Batman?",
+    correct: "Gotham",
+    options: ["Metrópolis", "Gotham", "Star City", "Central City"],
+  },
+  {
+    id: 116, category: "entertainment", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cuántas películas principales tiene la saga 'El Señor de los Anillos' de Jackson?",
+    correct: "3",
+    options: ["2", "3", "4", "6"],
+  },
+  {
+    id: 117, category: "entertainment", difficulty: "easy", type: "truefalse", points: 100,
+    question: "The Beatles eran originalmente de Liverpool, Inglaterra.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 118, category: "entertainment", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Qué estudio produjo 'Toy Story'?",
+    correct: "Pixar",
+    options: ["DreamWorks", "Pixar", "Warner Bros", "Disney"],
+  },
+  {
+    id: 119, category: "entertainment", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Quién interpreta a Hermione Granger en las películas de Harry Potter?",
+    correct: "Emma Watson",
+    options: ["Emma Stone", "Emma Watson", "Keira Knightley", "Helena Carter"],
+  },
+
+  // ── LOTE 3 — ENTRETENIMIENTO MEDIUM ──────────────────────────────────────
+  {
+    id: 120, category: "entertainment", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Qué película ganó el Óscar a Mejor Película en 2020?",
+    correct: "Parásitos",
+    options: ["1917", "Joker", "Parásitos", "Había una vez en Hollywood"],
+  },
+  {
+    id: 121, category: "entertainment", difficulty: "medium", type: "truefalse", points: 200,
+    question: "El personaje de 'The Mandalorian' se llama Din Djarin.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 122, category: "entertainment", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuántos episodios tiene la primera temporada de 'Stranger Things'?",
+    correct: "8",
+    options: ["6", "8", "9", "10"],
+  },
+  {
+    id: 123, category: "entertainment", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Quién dirigió la película 'Oppenheimer' (2023)?",
+    correct: "Christopher Nolan",
+    options: ["Denis Villeneuve", "Ridley Scott", "Christopher Nolan", "Martin Scorsese"],
+  },
+  {
+    id: 124, category: "entertainment", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿En qué año se estrenó 'Jurassic Park'?",
+    correct: "1993",
+    options: ["1990", "1992", "1993", "1995"],
+  },
+  {
+    id: 125, category: "entertainment", difficulty: "medium", type: "truefalse", points: 200,
+    question: "Heath Ledger ganó el Óscar póstumo por su papel de The Joker.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+
+  // ── LOTE 3 — ENTRETENIMIENTO HARD ────────────────────────────────────────
+  {
+    id: 126, category: "entertainment", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿En qué película Marlon Brando interpreta al Padrino?",
+    correct: "The Godfather (1972)",
+    options: ["Apocalypse Now", "The Godfather (1972)", "Streetcar Named Desire", "Last Tango"],
+  },
+  {
+    id: 127, category: "entertainment", difficulty: "hard", type: "truefalse", points: 400,
+    question: "La serie 'The Wire' fue creada por David Simon.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+
+  // ── LOTE 3 — DEPORTES EASY ────────────────────────────────────────────────
+  {
+    id: 128, category: "sports", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cuántos minutos dura un partido de fútbol reglamentario?",
+    correct: "90",
+    options: ["60", "80", "90", "120"],
+  },
+  {
+    id: 129, category: "sports", difficulty: "easy", type: "truefalse", points: 100,
+    question: "La natación es un deporte olímpico.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 130, category: "sports", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cuántos jugadores hay en un equipo de baloncesto en la cancha?",
+    correct: "5",
+    options: ["4", "5", "6", "7"],
+  },
+  {
+    id: 131, category: "sports", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿De qué país es el deporte llamado 'sumo'?",
+    correct: "Japón",
+    options: ["China", "Corea", "Japón", "Mongolia"],
+  },
+  {
+    id: 132, category: "sports", difficulty: "easy", type: "truefalse", points: 100,
+    question: "El tenis se juega en una cancha con red.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+
+  // ── LOTE 3 — DEPORTES MEDIUM ──────────────────────────────────────────────
+  {
+    id: 133, category: "sports", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuántos Grand Slams ganó Roger Federer en su carrera?",
+    correct: "20",
+    options: ["17", "19", "20", "22"],
+  },
+  {
+    id: 134, category: "sports", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Qué país organizó la Copa del Mundo de fútbol en 2018?",
+    correct: "Rusia",
+    options: ["Francia", "Rusia", "Brasil", "Qatar"],
+  },
+  {
+    id: 135, category: "sports", difficulty: "medium", type: "truefalse", points: 200,
+    question: "Argentina ganó la Copa del Mundo 2022 en Qatar.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 136, category: "sports", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuántos equipos participan en la NBA?",
+    correct: "30",
+    options: ["28", "29", "30", "32"],
+  },
+  {
+    id: 137, category: "sports", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿En qué deporte se usa el término 'hat-trick'?",
+    correct: "Fútbol",
+    options: ["Rugby", "Cricket", "Fútbol", "Hockey"],
+  },
+  {
+    id: 138, category: "sports", difficulty: "medium", type: "truefalse", points: 200,
+    question: "Michael Jordan jugó para los Chicago Bulls toda su carrera.",
+    correct: "Falso",
+    options: ["Verdadero", "Falso"],
+  },
+
+  // ── LOTE 3 — DEPORTES HARD ────────────────────────────────────────────────
+  {
+    id: 139, category: "sports", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿Cuántos goles marcó Pelé en su carrera oficial?",
+    correct: "767",
+    options: ["650", "700", "767", "800"],
+  },
+  {
+    id: 140, category: "sports", difficulty: "hard", type: "truefalse", points: 400,
+    question: "El maratón mide exactamente 42.195 km.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+
+  // ── LOTE 3 — CULTURA POP EASY ─────────────────────────────────────────────
+  {
+    id: 141, category: "culture", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cómo se llama el protagonista de 'Naruto'?",
+    correct: "Naruto Uzumaki",
+    options: ["Sasuke Uchiha", "Naruto Uzumaki", "Sakura Haruno", "Kakashi"],
+  },
+  {
+    id: 142, category: "culture", difficulty: "easy", type: "truefalse", points: 100,
+    question: "BTS es un grupo de k-pop surcoreano.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 143, category: "culture", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Qué videojuego tiene al personaje 'Link'?",
+    correct: "The Legend of Zelda",
+    options: ["Final Fantasy", "The Legend of Zelda", "Dark Souls", "Pokémon"],
+  },
+  {
+    id: 144, category: "culture", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cómo se llama el drag queen que conduce 'RuPaul's Drag Race'?",
+    correct: "RuPaul",
+    options: ["Lady Gaga", "RuPaul", "Divine", "Alaska"],
+  },
+  {
+    id: 145, category: "culture", difficulty: "easy", type: "truefalse", points: 100,
+    question: "Instagram fue comprada por Facebook (Meta).",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+
+  // ── LOTE 3 — CULTURA POP MEDIUM ───────────────────────────────────────────
+  {
+    id: 146, category: "culture", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿En qué año lanzó Adele su álbum '25'?",
+    correct: "2015",
+    options: ["2013", "2014", "2015", "2016"],
+  },
+  {
+    id: 147, category: "culture", difficulty: "medium", type: "truefalse", points: 200,
+    question: "Minecraft fue desarrollado originalmente por Markus 'Notch' Persson.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 148, category: "culture", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cómo se llama el alter ego de Beyoncé?",
+    correct: "Sasha Fierce",
+    options: ["Lemonade", "Sasha Fierce", "Queen Bey", "Ivy Park"],
+  },
+  {
+    id: 149, category: "culture", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Qué serie de Netflix tiene a un personaje llamado 'El Profesor'?",
+    correct: "La Casa de Papel",
+    options: ["Élite", "La Casa de Papel", "Narcos", "Club de Cuervos"],
+  },
+  {
+    id: 150, category: "culture", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuál fue el primer anime en ganar el Óscar a Mejor Película Animada?",
+    correct: "El viaje de Chihiro",
+    options: ["Akira", "Ghost in the Shell", "El viaje de Chihiro", "Princesa Mononoke"],
+  },
+
+  // ── LOTE 3 — CULTURA POP HARD ─────────────────────────────────────────────
+  {
+    id: 151, category: "culture", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿Qué artista tuvo el álbum más vendido del siglo XXI hasta 2020?",
+    correct: "Adele — 21",
+    options: ["Taylor Swift — 1989", "Adele — 21", "Ed Sheeran — ÷", "Michael Jackson — Thriller"],
+  },
+  {
+    id: 152, category: "culture", difficulty: "hard", type: "truefalse", points: 400,
+    question: "El juego 'Among Us' fue desarrollado por un estudio llamado InnerSloth.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+
+  // ── LOTE 3 — RANDOM EASY ──────────────────────────────────────────────────
+  {
+    id: 153, category: "random", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿De qué color es la sangre oxigenada?",
+    correct: "Rojo brillante",
+    options: ["Azul", "Morado", "Rojo brillante", "Verde"],
+  },
+  {
+    id: 154, category: "random", difficulty: "easy", type: "truefalse", points: 100,
+    question: "Los gatos tienen 4 patas.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 155, category: "random", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Cuántos lados tiene un cubo?",
+    correct: "6",
+    options: ["4", "5", "6", "8"],
+  },
+  {
+    id: 156, category: "random", difficulty: "easy", type: "multiple", points: 100,
+    question: "¿Qué animal es conocido como el rey de la selva?",
+    correct: "León",
+    options: ["Tigre", "Leopardo", "León", "Jaguar"],
+  },
+  {
+    id: 157, category: "random", difficulty: "easy", type: "truefalse", points: 100,
+    question: "El café contiene cafeína.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+
+  // ── LOTE 3 — RANDOM MEDIUM ────────────────────────────────────────────────
+  {
+    id: 158, category: "random", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuántas rayas tiene la bandera de Estados Unidos?",
+    correct: "13",
+    options: ["10", "12", "13", "15"],
+  },
+  {
+    id: 159, category: "random", difficulty: "medium", type: "truefalse", points: 200,
+    question: "Los tiburones son mamíferos.",
+    correct: "Falso",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 160, category: "random", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿En qué continente está Egipto?",
+    correct: "África",
+    options: ["Asia", "Europa", "África", "Medio Oriente"],
+  },
+  {
+    id: 161, category: "random", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Cuántos ojos tiene una araña típica?",
+    correct: "8",
+    options: ["2", "4", "6", "8"],
+  },
+  {
+    id: 162, category: "random", difficulty: "medium", type: "multiple", points: 200,
+    question: "¿Qué planeta tiene los anillos más visibles?",
+    correct: "Saturno",
+    options: ["Júpiter", "Urano", "Neptuno", "Saturno"],
+  },
+  {
+    id: 163, category: "random", difficulty: "medium", type: "truefalse", points: 200,
+    question: "El chocolate negro es más amargo que el chocolate con leche.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+
+  // ── LOTE 3 — RANDOM HARD ──────────────────────────────────────────────────
+  {
+    id: 164, category: "random", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿Cuántos huesos tiene la mano humana incluyendo la muñeca?",
+    correct: "27",
+    options: ["21", "25", "27", "30"],
+  },
+  {
+    id: 165, category: "random", difficulty: "hard", type: "truefalse", points: 400,
+    question: "El oro puro (24 quilates) es demasiado blando para usarse en joyería sin alearse.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 166, category: "random", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿Cuál es el país con mayor número de lagos del mundo?",
+    correct: "Canadá",
+    options: ["Finlandia", "Rusia", "Canadá", "Brasil"],
+  },
+  {
+    id: 167, category: "genius", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿Cuántos bits tiene 1 byte?",
+    correct: "8",
+    options: ["4", "8", "16", "32"],
+  },
+  {
+    id: 168, category: "genius", difficulty: "hard", type: "truefalse", points: 400,
+    question: "La tabla periódica fue propuesta por Dmitri Mendeléyev en 1869.",
+    correct: "Verdadero",
+    options: ["Verdadero", "Falso"],
+  },
+  {
+    id: 169, category: "sports", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿Cuánto mide la red en un partido oficial de voleibol?",
+    correct: "2.43 m (hombres)",
+    options: ["2.20 m", "2.35 m", "2.43 m (hombres)", "2.50 m"],
+  },
+  {
+    id: 170, category: "entertainment", difficulty: "hard", type: "multiple", points: 400,
+    question: "¿Qué novela es la base de la película 'Blade Runner'?",
+    correct: "¿Sueñan los androides con ovejas eléctricas?",
+    options: ["Neuromancer", "¿Sueñan los androides con ovejas eléctricas?", "1984", "Brave New World"],
+  },
 ];

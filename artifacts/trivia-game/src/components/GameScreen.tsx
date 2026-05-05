@@ -1,27 +1,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore, getStreakMultiplier } from "../engine/gameStore";
-import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_LABELS } from "../data/questions";
+import { CATEGORY_COLORS, CATEGORY_ICONS } from "../data/questions";
 
 export function GameScreen() {
-  const {
-    lives,
-    score,
-    streak,
-    skipsLeft,
-    currentQuestion,
-    answerQuestion,
-    skipQuestion,
-  } = useGameStore();
-
+  const { lives, score, streak, skipsLeft, currentQuestion, answerQuestion, skipQuestion } = useGameStore();
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [shortInput, setShortInput] = useState("");
 
   if (!currentQuestion) return null;
 
   const catColor = CATEGORY_COLORS[currentQuestion.category];
-  const catIcon = CATEGORY_ICONS[currentQuestion.category];
-  const catLabel = CATEGORY_LABELS[currentQuestion.category];
   const multiplier = getStreakMultiplier(streak);
 
   const handleAnswer = (ans: string) => {
@@ -31,177 +20,196 @@ export function GameScreen() {
       answerQuestion(ans);
       setSelectedAnswer(null);
       setShortInput("");
-    }, 400);
+    }, 300);
   };
 
-  const handleShortSubmit = () => {
-    if (!shortInput.trim()) return;
-    handleAnswer(shortInput.trim());
-  };
-
-  const difficultyLabel = {
-    easy: { label: "Fácil", color: "#22c55e" },
-    medium: { label: "Medio", color: "#f59e0b" },
-    hard: { label: "Difícil", color: "#ef4444" },
-  }[currentQuestion.difficulty];
+  const diffColor = { easy: "#22c55e", medium: "#f59e0b", hard: "#ef4444" }[currentQuestion.difficulty];
+  const diffLabel = { easy: "Fácil", medium: "Medio", hard: "Difícil" }[currentQuestion.difficulty];
 
   return (
     <motion.div
-      className="flex flex-col min-h-screen px-4 pt-6 pb-8"
+      className="flex flex-col min-h-screen px-5 pt-5 pb-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
     >
       {/* HUD */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-7">
+        {/* Lives */}
         <div className="flex gap-1">
           {Array.from({ length: 3 }).map((_, i) => (
             <motion.span
               key={i}
-              animate={{ scale: i < lives ? 1 : 0.7, opacity: i < lives ? 1 : 0.25 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="text-2xl"
+              animate={{ opacity: i < lives ? 1 : 0.18, scale: i < lives ? 1 : 0.8 }}
+              transition={{ type: "spring", stiffness: 280 }}
+              style={{ fontSize: "1.15rem" }}
             >
               ❤️
             </motion.span>
           ))}
         </div>
 
-        <div className="flex flex-col items-center">
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={score}
-              initial={{ y: -10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 10, opacity: 0 }}
-              className="text-2xl font-black"
-              style={{ color: "#e2e8f0" }}
-            >
-              {score.toLocaleString()}
-            </motion.span>
-          </AnimatePresence>
-          <span className="text-xs" style={{ color: "#64748b" }}>puntos</span>
-        </div>
-
-        <div className="flex flex-col items-end">
-          {streak > 0 && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
-              style={{ background: "rgba(250,204,21,0.15)", color: "#facc15", border: "1px solid rgba(250,204,21,0.3)" }}
-            >
-              🔥 ×{multiplier} racha {streak}
-            </motion.div>
-          )}
-          <button
-            onClick={skipQuestion}
-            disabled={skipsLeft <= 0}
-            className="mt-1 text-xs font-semibold px-3 py-1 rounded-full transition-all disabled:opacity-30"
-            style={{ background: "rgba(100,116,139,0.2)", color: "#94a3b8" }}
+        {/* Score */}
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={score}
+            initial={{ y: -8, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 8, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              fontFamily: "'Outfit', sans-serif",
+              fontSize: "1.35rem",
+              fontWeight: 900,
+              color: "#e2e8f0",
+              letterSpacing: "-0.02em",
+            }}
           >
-            Skip ({skipsLeft})
-          </button>
-        </div>
-      </div>
+            {score.toLocaleString()}
+          </motion.span>
+        </AnimatePresence>
 
-      {/* Category badge */}
-      <div className="flex items-center gap-2 mb-4">
-        <span
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
+        {/* Skip */}
+        <button
+          onClick={skipQuestion}
+          disabled={skipsLeft <= 0}
           style={{
-            background: `${catColor}22`,
-            color: catColor,
-            border: `1px solid ${catColor}44`,
+            fontSize: "0.72rem",
+            fontWeight: 600,
+            color: skipsLeft > 0 ? "#64748b" : "#2d3748",
+            background: "transparent",
+            border: "none",
+            cursor: skipsLeft > 0 ? "pointer" : "default",
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
           }}
         >
-          {catIcon} {catLabel}
-        </span>
-        <span
-          className="px-2 py-0.5 rounded-full text-xs font-bold"
-          style={{
-            background: `${difficultyLabel.color}22`,
-            color: difficultyLabel.color,
-            border: `1px solid ${difficultyLabel.color}44`,
-          }}
-        >
-          {difficultyLabel.label} · +{currentQuestion.points * multiplier}pts
-        </span>
+          Skip {skipsLeft > 0 ? `(${skipsLeft})` : "—"}
+        </button>
       </div>
 
-      {/* Question */}
+      {/* Streak */}
+      <AnimatePresence>
+        {streak >= 3 && (
+          <motion.div
+            key="streak"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-4"
+          >
+            <p style={{ fontSize: "0.78rem", fontWeight: 700, color: "#facc15", letterSpacing: "0.06em" }}>
+              🔥 RACHA {streak} — ×{multiplier} puntos
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Question card */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentQuestion.id}
-          initial={{ opacity: 0, x: 30 }}
+          initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -30 }}
-          transition={{ type: "spring", stiffness: 280, damping: 22 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
           className="flex-1 flex flex-col"
         >
-          <div
-            className="rounded-2xl p-6 mb-6"
-            style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
-            }}
-          >
-            <p className="text-xl font-bold leading-snug" style={{ color: "#e2e8f0" }}>
+          {/* Category + difficulty */}
+          <div className="flex items-center gap-2 mb-4">
+            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: catColor }}>
+              {CATEGORY_ICONS[currentQuestion.category]} {currentQuestion.category === "genius" ? "Genio" : currentQuestion.category === "entertainment" ? "Entretenimiento" : currentQuestion.category === "sports" ? "Deportes" : currentQuestion.category === "culture" ? "Cultura Pop" : "Random"}
+            </span>
+            <span style={{ color: "#334155", fontSize: "0.78rem" }}>·</span>
+            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: diffColor }}>{diffLabel}</span>
+            <span style={{ fontSize: "0.78rem", color: "#334155", marginLeft: "auto" }}>
+              +{currentQuestion.points * multiplier} pts
+            </span>
+          </div>
+
+          {/* Question text */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <p style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: "1.2rem",
+              fontWeight: 600,
+              color: "#e2e8f0",
+              lineHeight: 1.45,
+            }}>
               {currentQuestion.question}
             </p>
           </div>
 
-          {/* Options */}
+          {/* Answer options */}
           {currentQuestion.type !== "short" && currentQuestion.options && (
-            <div className="grid grid-cols-1 gap-3">
-              {currentQuestion.options.map((opt) => (
-                <motion.button
-                  key={opt}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handleAnswer(opt)}
-                  disabled={!!selectedAnswer}
-                  className="py-4 px-5 rounded-2xl text-left font-semibold text-base transition-all duration-150"
-                  style={{
-                    background:
-                      selectedAnswer === opt
-                        ? `${catColor}33`
-                        : "rgba(255,255,255,0.05)",
-                    border:
-                      selectedAnswer === opt
-                        ? `2px solid ${catColor}`
-                        : "1.5px solid rgba(255,255,255,0.1)",
-                    color: "#e2e8f0",
-                    transform: selectedAnswer === opt ? "scale(0.98)" : "scale(1)",
-                  }}
-                >
-                  {opt}
-                </motion.button>
-              ))}
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {currentQuestion.options.map((opt) => {
+                const isSelected = selectedAnswer === opt;
+                return (
+                  <motion.button
+                    key={opt}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleAnswer(opt)}
+                    disabled={!!selectedAnswer}
+                    style={{
+                      padding: "0.9rem 1.1rem",
+                      borderRadius: "12px",
+                      textAlign: "left",
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "0.97rem",
+                      fontWeight: 600,
+                      color: isSelected ? "#fff" : "#cbd5e1",
+                      background: isSelected ? catColor : "rgba(255,255,255,0.04)",
+                      border: `1.5px solid ${isSelected ? catColor : "rgba(255,255,255,0.08)"}`,
+                      cursor: selectedAnswer ? "default" : "pointer",
+                      transition: "background 0.12s, border 0.12s",
+                    }}
+                  >
+                    {opt}
+                  </motion.button>
+                );
+              })}
             </div>
           )}
 
           {/* Short answer */}
           {currentQuestion.type === "short" && (
-            <div className="flex flex-col gap-3">
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <input
                 type="text"
                 value={shortInput}
                 onChange={(e) => setShortInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleShortSubmit()}
-                placeholder="Escribe tu respuesta..."
-                className="w-full py-4 px-5 rounded-2xl text-base outline-none"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1.5px solid rgba(255,255,255,0.15)",
-                  color: "#e2e8f0",
-                }}
+                onKeyDown={(e) => e.key === "Enter" && shortInput.trim() && handleAnswer(shortInput.trim())}
+                placeholder="Tu respuesta..."
                 autoFocus
+                style={{
+                  width: "100%",
+                  padding: "0.9rem 1.1rem",
+                  borderRadius: "12px",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1.5px solid rgba(255,255,255,0.1)",
+                  color: "#e2e8f0",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: "0.97rem",
+                  outline: "none",
+                }}
               />
               <button
-                onClick={handleShortSubmit}
+                onClick={() => shortInput.trim() && handleAnswer(shortInput.trim())}
                 disabled={!shortInput.trim() || !!selectedAnswer}
-                className="py-4 rounded-2xl font-bold text-base transition-all disabled:opacity-40"
-                style={{ background: catColor, color: "#fff" }}
+                style={{
+                  padding: "0.9rem",
+                  borderRadius: "12px",
+                  background: catColor,
+                  color: "#fff",
+                  fontFamily: "'Outfit', sans-serif",
+                  fontWeight: 700,
+                  fontSize: "0.97rem",
+                  opacity: !shortInput.trim() ? 0.4 : 1,
+                  cursor: shortInput.trim() ? "pointer" : "default",
+                  border: "none",
+                }}
               >
                 Confirmar →
               </button>

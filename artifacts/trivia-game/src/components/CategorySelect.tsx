@@ -1,96 +1,106 @@
 import { motion } from "framer-motion";
 import { useGameStore } from "../engine/gameStore";
-import {
-  CATEGORY_LABELS,
-  CATEGORY_COLORS,
-  CATEGORY_ICONS,
-  Category,
-} from "../data/questions";
+import { CATEGORY_COLORS, CATEGORY_ICONS, Category } from "../data/questions";
 
-const categories: (Category | "all")[] = [
-  "all",
-  "genius",
-  "entertainment",
-  "sports",
-  "culture",
-  "random",
-];
+const categories: (Category | "all")[] = ["all", "genius", "entertainment", "sports", "culture", "random"];
 
-const ALL_LABEL = "Todas las categorías";
-const ALL_ICON = "🌟";
-const ALL_COLOR = "#a78bfa";
+const META: Record<string, { label: string; sub: string }> = {
+  all: { label: "Todas las categorías", sub: "Preguntas mezcladas" },
+  genius: { label: "Modo Genio", sub: "Ciencia · Historia · Cultura" },
+  entertainment: { label: "Entretenimiento", sub: "Cine · Series · Libros" },
+  sports: { label: "Deportes", sub: "Fútbol · Olimpiadas · Récords" },
+  culture: { label: "Cultura Pop", sub: "Música · Anime · Videojuegos" },
+  random: { label: "Datos Random", sub: "Curiosidades del mundo" },
+};
 
 export function CategorySelect() {
   const { startGame, goToMenu } = useGameStore();
 
   return (
     <motion.div
-      className="flex flex-col items-center min-h-screen px-6 py-10"
+      className="flex flex-col min-h-screen px-5 pt-5 pb-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
     >
-      <motion.button
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
+      <button
         onClick={goToMenu}
-        className="self-start mb-8 flex items-center gap-2 text-sm font-semibold transition-opacity hover:opacity-70"
-        style={{ color: "#64748b" }}
+        style={{
+          alignSelf: "flex-start",
+          marginBottom: "1.5rem",
+          fontSize: "0.8rem",
+          fontWeight: 600,
+          color: "#475569",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+        }}
       >
         ← Volver
-      </motion.button>
+      </button>
 
-      <motion.h2
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-black mb-2"
-        style={{ color: "#e2e8f0" }}
-      >
-        Elige tu categoría
-      </motion.h2>
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="text-sm mb-8"
-        style={{ color: "#64748b" }}
-      >
-        Selecciona una o juega con todas
-      </motion.p>
+      <h2 style={{
+        fontFamily: "'Outfit', sans-serif",
+        fontSize: "1.5rem",
+        fontWeight: 900,
+        color: "#e2e8f0",
+        letterSpacing: "-0.02em",
+        marginBottom: "0.25rem",
+      }}>
+        Categoría
+      </h2>
+      <p style={{ fontSize: "0.82rem", color: "#475569", fontWeight: 500, marginBottom: "1.5rem" }}>
+        Elige tu especialidad o juega con todo
+      </p>
 
-      <div className="grid grid-cols-1 gap-4 w-full max-w-sm">
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {categories.map((cat, i) => {
           const isAll = cat === "all";
-          const color = isAll ? ALL_COLOR : CATEGORY_COLORS[cat as Category];
-          const icon = isAll ? ALL_ICON : CATEGORY_ICONS[cat as Category];
-          const label = isAll ? ALL_LABEL : CATEGORY_LABELS[cat as Category];
+          const color = isAll ? "#a78bfa" : CATEGORY_COLORS[cat as Category];
+          const icon = isAll ? "🌟" : CATEGORY_ICONS[cat as Category];
+          const meta = META[cat];
 
           return (
             <motion.button
               key={cat}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.07, type: "spring", stiffness: 200 }}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              transition={{ delay: i * 0.05, duration: 0.18 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => startGame(cat)}
-              className="flex items-center gap-4 px-5 py-4 rounded-2xl text-left transition-all"
               style={{
-                background: `linear-gradient(135deg, ${color}22, ${color}11)`,
-                border: `1.5px solid ${color}55`,
+                display: "flex",
+                alignItems: "center",
+                gap: "0.85rem",
+                padding: "0.9rem 1rem",
+                borderRadius: "14px",
+                background: "rgba(255,255,255,0.035)",
+                border: `1.5px solid rgba(255,255,255,0.07)`,
+                cursor: "pointer",
+                textAlign: "left",
               }}
             >
-              <span className="text-3xl">{icon}</span>
+              <span style={{
+                width: 38, height: 38, borderRadius: "10px",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: `${color}18`,
+                fontSize: "1.1rem",
+                flexShrink: 0,
+              }}>
+                {icon}
+              </span>
               <div>
-                <p className="font-bold text-base" style={{ color: "#e2e8f0" }}>
-                  {label}
+                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.95rem", fontWeight: 700, color: "#e2e8f0", lineHeight: 1.2 }}>
+                  {meta.label}
                 </p>
-                {isAll && (
-                  <p className="text-xs" style={{ color: "#64748b" }}>
-                    Preguntas de todas las categorías
-                  </p>
-                )}
+                <p style={{ fontSize: "0.72rem", color: "#475569", fontWeight: 500, marginTop: "2px" }}>
+                  {meta.sub}
+                </p>
               </div>
+              <span style={{ marginLeft: "auto", color: "#334155", fontSize: "0.9rem" }}>›</span>
             </motion.button>
           );
         })}

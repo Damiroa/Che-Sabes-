@@ -1,109 +1,125 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useGameStore, getStreakMultiplier } from "../engine/gameStore";
 
 export function FeedbackScreen() {
-  const {
-    lastAnswerCorrect,
-    lastCorrectAnswer,
-    streak,
-    currentQuestion,
-    nextQuestion,
-    lives,
-  } = useGameStore();
+  const store = useGameStore();
 
-  if (!currentQuestion) return null;
+  // Freeze values at mount time so exit animation doesn't flash wrong state
+  const [isCorrect] = useState(() => store.lastAnswerCorrect === true);
+  const [frozenAnswer] = useState(() => store.lastCorrectAnswer);
+  const [frozenStreak] = useState(() => store.streak);
+  const [frozenLives] = useState(() => store.lives);
 
-  const multiplier = getStreakMultiplier(streak);
-  const isCorrect = lastAnswerCorrect === true;
-
-  const bgColor = isCorrect ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)";
-  const borderColor = isCorrect ? "rgba(34,197,94,0.4)" : "rgba(239,68,68,0.4)";
+  const multiplier = getStreakMultiplier(frozenStreak);
   const accentColor = isCorrect ? "#22c55e" : "#ef4444";
-  const emoji = isCorrect ? "🎉" : "💔";
-  const title = isCorrect ? "¡Correcto!" : "¡Incorrecto!";
 
   return (
     <motion.div
       className="flex flex-col items-center justify-center min-h-screen px-6 text-center"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.18 }}
     >
+      {/* Status icon */}
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-        className="text-8xl mb-6"
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 320, damping: 18 }}
+        className="mb-5"
+        style={{
+          width: 72, height: 72, borderRadius: "50%",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: isCorrect ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)",
+          border: `1.5px solid ${accentColor}44`,
+        }}
       >
-        {emoji}
+        <span style={{ fontSize: "2rem" }}>{isCorrect ? "✓" : "✕"}</span>
       </motion.div>
 
-      <motion.h2
-        initial={{ opacity: 0, y: 10 }}
+      {/* Title */}
+      <motion.p
+        initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="text-4xl font-black mb-4"
-        style={{ color: accentColor }}
-      >
-        {title}
-      </motion.h2>
-
-      {!isCorrect && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="px-5 py-3 rounded-2xl mb-6"
-          style={{ background: bgColor, border: `1.5px solid ${borderColor}` }}
-        >
-          <p className="text-sm mb-1" style={{ color: "#94a3b8" }}>La respuesta correcta era:</p>
-          <p className="text-xl font-bold" style={{ color: "#e2e8f0" }}>{lastCorrectAnswer}</p>
-        </motion.div>
-      )}
-
-      {isCorrect && streak >= 3 && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 250 }}
-          className="px-5 py-3 rounded-2xl mb-6 flex items-center gap-2"
-          style={{ background: "rgba(250,204,21,0.12)", border: "1px solid rgba(250,204,21,0.35)" }}
-        >
-          <span className="text-2xl">🔥</span>
-          <div>
-            <p className="font-black text-lg" style={{ color: "#facc15" }}>
-              Racha de {streak}! ×{multiplier} multiplicador
-            </p>
-          </div>
-        </motion.div>
-      )}
-
-      {!isCorrect && (
-        <div className="flex gap-1 mb-6">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <span
-              key={i}
-              className="text-2xl"
-              style={{ opacity: i < lives ? 1 : 0.2 }}
-            >
-              ❤️
-            </span>
-          ))}
-        </div>
-      )}
-
-      <motion.button
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, type: "spring" }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.97 }}
-        onClick={nextQuestion}
-        className="w-full max-w-sm py-5 rounded-2xl text-xl font-black transition-all"
+        transition={{ delay: 0.08 }}
         style={{
-          background: `linear-gradient(135deg, #7c3aed, #a78bfa)`,
+          fontFamily: "'Outfit', sans-serif",
+          fontSize: "1.6rem",
+          fontWeight: 800,
+          color: accentColor,
+          marginBottom: "0.5rem",
+          letterSpacing: "-0.02em",
+        }}
+      >
+        {isCorrect ? "¡Correcto!" : "¡Incorrecto!"}
+      </motion.p>
+
+      {/* Wrong answer: show correct */}
+      {!isCorrect && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.14 }}
+          style={{ marginBottom: "1.5rem" }}
+        >
+          <p style={{ fontSize: "0.8rem", color: "#475569", marginBottom: "4px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            Respuesta correcta
+          </p>
+          <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#e2e8f0" }}>{frozenAnswer}</p>
+        </motion.div>
+      )}
+
+      {/* Lives remaining after wrong */}
+      {!isCorrect && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="flex gap-2 mb-6"
+        >
+          {Array.from({ length: 3 }).map((_, i) => (
+            <span key={i} style={{ fontSize: "1.2rem", opacity: i < frozenLives ? 1 : 0.18 }}>❤️</span>
+          ))}
+        </motion.div>
+      )}
+
+      {/* Streak bonus */}
+      {isCorrect && frozenStreak >= 3 && (
+        <motion.p
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.14, type: "spring", stiffness: 260 }}
+          style={{
+            fontSize: "0.9rem",
+            fontWeight: 700,
+            color: "#facc15",
+            marginBottom: "1.5rem",
+          }}
+        >
+          🔥 Racha {frozenStreak} — ×{multiplier} bonus
+        </motion.p>
+      )}
+
+      {/* Next button */}
+      <motion.button
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.22, type: "spring", stiffness: 200 }}
+        whileTap={{ scale: 0.97 }}
+        onClick={store.nextQuestion}
+        style={{
+          width: "100%", maxWidth: "280px",
+          padding: "1rem 0",
+          borderRadius: "14px",
+          background: "rgba(124,58,237,0.9)",
           color: "#fff",
-          boxShadow: "0 8px 32px rgba(124,58,237,0.35)",
+          fontFamily: "'Outfit', sans-serif",
+          fontSize: "1rem",
+          fontWeight: 700,
+          letterSpacing: "0.04em",
+          border: "none",
+          cursor: "pointer",
         }}
       >
         Siguiente →
