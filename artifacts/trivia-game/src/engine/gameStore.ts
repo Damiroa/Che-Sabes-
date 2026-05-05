@@ -17,11 +17,12 @@ export interface GameState {
   selectedCategory: Category | "all";
   lastAnswerCorrect: boolean | null;
   lastCorrectAnswer: string;
+  timedOut: boolean;
   difficulty: "easy" | "medium" | "hard";
   questionsAnswered: number;
 
   startGame: (category: Category | "all") => void;
-  answerQuestion: (answer: string) => void;
+  answerQuestion: (answer: string, timeout?: boolean) => void;
   skipQuestion: () => void;
   nextQuestion: () => void;
   resetGame: () => void;
@@ -74,6 +75,7 @@ export const useGameStore = create<GameState>()(
       selectedCategory: "all",
       lastAnswerCorrect: null,
       lastCorrectAnswer: "",
+      timedOut: false,
       difficulty: "easy",
       questionsAnswered: 0,
 
@@ -92,17 +94,19 @@ export const useGameStore = create<GameState>()(
           selectedCategory: category,
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
+          timedOut: false,
           difficulty,
           questionsAnswered: 0,
         });
       },
 
-      answerQuestion: (answer) => {
+      answerQuestion: (answer, timeout = false) => {
         const state = get();
         const q = state.currentQuestion;
         if (!q) return;
 
         const isCorrect =
+          !timeout &&
           answer.trim().toLowerCase() === q.correct.trim().toLowerCase();
 
         const newStreak = isCorrect ? state.streak + 1 : 0;
@@ -114,7 +118,6 @@ export const useGameStore = create<GameState>()(
         const newHighScore = Math.max(state.highScore, newScore);
         const newQuestionsAnswered = state.questionsAnswered + 1;
         const newDifficulty = getDifficulty(newQuestionsAnswered);
-
         const isGameOver = newLives <= 0;
 
         set({
@@ -126,6 +129,7 @@ export const useGameStore = create<GameState>()(
           bestStreak: newBestStreak,
           lastAnswerCorrect: isCorrect,
           lastCorrectAnswer: q.correct,
+          timedOut: timeout,
           difficulty: newDifficulty,
           questionsAnswered: newQuestionsAnswered,
         });
@@ -163,6 +167,7 @@ export const useGameStore = create<GameState>()(
           usedQuestionIds: [...state.usedQuestionIds, q.id],
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
+          timedOut: false,
           difficulty: newDifficulty,
         });
       },
@@ -179,6 +184,7 @@ export const useGameStore = create<GameState>()(
           usedQuestionIds: [],
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
+          timedOut: false,
           difficulty: "easy",
           questionsAnswered: 0,
         });
@@ -187,7 +193,7 @@ export const useGameStore = create<GameState>()(
       goToMenu: () => set({ phase: "menu" }),
     }),
     {
-      name: "trivia-master-store",
+      name: "che-sabes-store",
       partialize: (state) => ({ highScore: state.highScore }),
     }
   )

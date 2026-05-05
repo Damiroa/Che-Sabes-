@@ -12,34 +12,28 @@ export function GameOverScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
+      style={{ background: "#f7f8fc" }}
     >
       <motion.div
         initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 240, damping: 16 }}
         style={{
-          width: 78, height: 78, borderRadius: "50%",
+          width: 80, height: 80, borderRadius: "50%",
           display: "flex", alignItems: "center", justifyContent: "center",
-          background: isNewRecord ? "rgba(250,204,21,0.08)" : "rgba(255,255,255,0.04)",
-          border: `1.5px solid ${isNewRecord ? "rgba(250,204,21,0.3)" : "rgba(255,255,255,0.08)"}`,
+          background: isNewRecord ? "#fefce8" : "#fff",
+          border: `2px solid ${isNewRecord ? "#fde68a" : "#e2e8f0"}`,
           marginBottom: "1.25rem",
-          fontSize: "2rem",
+          fontSize: "2.2rem",
+          boxShadow: "0 4px 16px rgba(15,23,42,0.08)",
         }}
       >
         {isNewRecord ? "🏆" : "💀"}
       </motion.div>
 
-      {/* I.G.C badge */}
-      <div style={{
-        display: "inline-flex", alignItems: "center",
-        padding: "2px 10px", borderRadius: "999px",
-        background: "rgba(29,78,216,0.1)", border: "1px solid rgba(59,130,246,0.2)",
-        marginBottom: "0.5rem",
-      }}>
-        <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", color: "#60a5fa", textTransform: "uppercase" }}>
-          I.G.C Trivia
-        </span>
-      </div>
+      <p style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", color: "#94a3b8", textTransform: "uppercase", marginBottom: "0.3rem" }}>
+        ¿Che Sabes?
+      </p>
 
       <motion.h2
         initial={{ opacity: 0, y: 6 }}
@@ -47,19 +41,17 @@ export function GameOverScreen() {
         transition={{ delay: 0.1 }}
         style={{
           fontFamily: "'Outfit', sans-serif",
-          fontSize: "1.75rem",
-          fontWeight: 900,
-          color: "#ffffff",
-          letterSpacing: "-0.03em",
-          marginBottom: "0.25rem",
+          fontSize: "1.8rem", fontWeight: 900,
+          color: "#0f172a", letterSpacing: "-0.03em",
+          marginBottom: isNewRecord ? "0.25rem" : "1rem",
         }}
       >
         {isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}
       </motion.h2>
 
       {isNewRecord && (
-        <p style={{ fontSize: "0.82rem", color: "#3b82f6", fontWeight: 600, marginBottom: "1.25rem" }}>
-          Superaste tu mejor puntaje
+        <p style={{ fontSize: "0.82rem", color: "#16a34a", fontWeight: 600, marginBottom: "1rem" }}>
+          ¡Superaste tu mejor puntaje!
         </p>
       )}
 
@@ -71,7 +63,7 @@ export function GameOverScreen() {
         style={{
           display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
           gap: "9px", width: "100%", maxWidth: "310px",
-          marginBottom: "1.25rem", marginTop: "1rem",
+          marginBottom: "1.25rem",
         }}
       >
         {[
@@ -83,16 +75,15 @@ export function GameOverScreen() {
             key={stat.label}
             style={{
               display: "flex", flexDirection: "column", alignItems: "center",
-              padding: "0.85rem 0.5rem",
-              borderRadius: "12px",
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              padding: "0.85rem 0.5rem", borderRadius: "12px",
+              background: "#fff", border: "1.5px solid #e2e8f0",
+              boxShadow: "0 1px 4px rgba(15,23,42,0.05)",
             }}
           >
-            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.35rem", fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>
+            <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.4rem", fontWeight: 900, color: "#0f172a", lineHeight: 1 }}>
               {stat.value}
             </span>
-            <span style={{ fontSize: "0.65rem", color: "#1e3a5f", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginTop: "4px" }}>
+            <span style={{ fontSize: "0.65rem", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginTop: "4px" }}>
               {stat.label}
             </span>
           </div>
@@ -105,15 +96,15 @@ export function GameOverScreen() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.26 }}
         style={{
-          padding: "0.6rem 1.5rem", borderRadius: "10px",
-          background: "rgba(29,78,216,0.08)",
-          border: "1px solid rgba(59,130,246,0.18)",
+          padding: "0.65rem 1.75rem", borderRadius: "12px",
+          background: "#fff", border: "1.5px solid #e2e8f0",
           marginBottom: "1.75rem",
+          boxShadow: "0 1px 4px rgba(15,23,42,0.05)",
         }}
       >
-        <p style={{ fontSize: "0.63rem", color: "#1e3a5f", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>Récord histórico</p>
-        <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.65rem", fontWeight: 900, color: "#60a5fa", lineHeight: 1.15 }}>
-          {highScore.toLocaleString()} <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#1d4ed8" }}>pts</span>
+        <p style={{ fontSize: "0.63rem", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>Récord histórico</p>
+        <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.7rem", fontWeight: 900, color: "#0f172a", lineHeight: 1.15 }}>
+          {highScore.toLocaleString()} <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#94a3b8" }}>pts</span>
         </p>
       </motion.div>
 
@@ -121,16 +112,16 @@ export function GameOverScreen() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.32 }}
-        style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%", maxWidth: "280px" }}
+        style={{ display: "flex", flexDirection: "column", gap: "9px", width: "100%", maxWidth: "280px" }}
       >
         <button
           onClick={resetGame}
           style={{
             width: "100%", padding: "1rem 0", borderRadius: "14px",
-            background: "#1d6fe8", color: "#fff",
+            background: "#0f172a", color: "#fff",
             fontFamily: "'Outfit', sans-serif", fontSize: "1rem", fontWeight: 700,
             letterSpacing: "0.04em", border: "none", cursor: "pointer",
-            boxShadow: "0 6px 20px rgba(29,111,232,0.3)",
+            boxShadow: "0 4px 14px rgba(15,23,42,0.18)",
           }}
         >
           Jugar de nuevo
@@ -139,9 +130,9 @@ export function GameOverScreen() {
           onClick={goToMenu}
           style={{
             width: "100%", padding: "0.85rem 0", borderRadius: "14px",
-            background: "transparent", color: "#1e3a5f",
+            background: "#fff", color: "#64748b",
             fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.9rem", fontWeight: 600,
-            border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer",
+            border: "1.5px solid #e2e8f0", cursor: "pointer",
           }}
         >
           Menú principal

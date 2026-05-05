@@ -10,9 +10,12 @@ export function FeedbackScreen() {
   const [frozenAnswer] = useState(() => store.lastCorrectAnswer);
   const [frozenStreak] = useState(() => store.streak);
   const [frozenLives] = useState(() => store.lives);
+  const [timedOut] = useState(() => store.timedOut);
 
   const multiplier = getStreakMultiplier(frozenStreak);
-  const accentColor = isCorrect ? "#22c55e" : "#ef4444";
+  const accentColor = isCorrect ? "#16a34a" : "#dc2626";
+  const bgColor = isCorrect ? "#f0fdf4" : "#fef2f2";
+  const borderColor = isCorrect ? "#bbf7d0" : "#fecaca";
 
   return (
     <motion.div
@@ -21,103 +24,98 @@ export function FeedbackScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.18 }}
+      style={{ background: "#f7f8fc" }}
     >
-      {/* Status circle */}
+      {/* Status card */}
       <motion.div
-        initial={{ scale: 0.5, opacity: 0 }}
+        initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 320, damping: 18 }}
+        transition={{ type: "spring", stiffness: 300, damping: 18 }}
         style={{
-          width: 72, height: 72, borderRadius: "50%",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          background: isCorrect ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
-          border: `1.5px solid ${accentColor}40`,
+          width: "100%", maxWidth: "300px",
+          padding: "1.5rem",
+          borderRadius: "20px",
+          background: bgColor,
+          border: `2px solid ${borderColor}`,
           marginBottom: "1.25rem",
+          boxShadow: "0 4px 16px rgba(15,23,42,0.08)",
         }}
       >
-        <span style={{ fontSize: "2rem", color: accentColor, fontWeight: 900, fontFamily: "'Outfit', sans-serif" }}>
-          {isCorrect ? "✓" : "✕"}
-        </span>
+        <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
+          {timedOut ? "⏱️" : isCorrect ? "✓" : "✕"}
+        </div>
+        <p style={{
+          fontFamily: "'Outfit', sans-serif",
+          fontSize: "1.5rem", fontWeight: 900,
+          color: accentColor,
+          marginBottom: timedOut || !isCorrect ? "0.75rem" : 0,
+          letterSpacing: "-0.02em",
+        }}>
+          {timedOut ? "¡Tiempo!" : isCorrect ? "¡Correcto!" : "¡Incorrecto!"}
+        </p>
+
+        {(!isCorrect) && (
+          <>
+            <p style={{ fontSize: "0.72rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "4px" }}>
+              Respuesta correcta
+            </p>
+            <p style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a" }}>{frozenAnswer}</p>
+          </>
+        )}
       </motion.div>
 
-      {/* Label */}
-      <motion.p
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.08 }}
-        style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: "1.6rem",
-          fontWeight: 900,
-          color: accentColor,
-          marginBottom: "0.5rem",
-          letterSpacing: "-0.02em",
-        }}
-      >
-        {isCorrect ? "¡Correcto!" : "¡Incorrecto!"}
-      </motion.p>
-
-      {/* Wrong: show correct answer */}
-      {!isCorrect && (
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.14 }}
-          style={{ marginBottom: "1.25rem" }}
-        >
-          <p style={{ fontSize: "0.75rem", color: "#1e3a5f", marginBottom: "4px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            Respuesta correcta
-          </p>
-          <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#e0f2fe" }}>{frozenAnswer}</p>
-        </motion.div>
-      )}
-
-      {/* Lives after wrong */}
+      {/* Lives */}
       {!isCorrect && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex gap-2 mb-5"
+          transition={{ delay: 0.15 }}
+          className="flex gap-2 mb-4"
         >
           {Array.from({ length: 3 }).map((_, i) => (
-            <span key={i} style={{ fontSize: "1.2rem", opacity: i < frozenLives ? 1 : 0.15 }}>❤️</span>
+            <span key={i} style={{ fontSize: "1.3rem", opacity: i < frozenLives ? 1 : 0.2 }}>❤️</span>
           ))}
         </motion.div>
       )}
 
-      {/* Streak bonus */}
+      {/* Streak */}
       {isCorrect && frozenStreak >= 3 && (
-        <motion.p
+        <motion.div
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.14, type: "spring", stiffness: 260 }}
-          style={{ fontSize: "0.88rem", fontWeight: 700, color: "#facc15", marginBottom: "1.25rem" }}
+          transition={{ delay: 0.12, type: "spring" }}
+          style={{
+            padding: "0.4rem 1rem",
+            borderRadius: "999px",
+            background: "#fefce8",
+            border: "1.5px solid #fde68a",
+            marginBottom: "1rem",
+          }}
         >
-          🔥 Racha {frozenStreak} — ×{multiplier} bonus
-        </motion.p>
+          <p style={{ fontSize: "0.85rem", fontWeight: 700, color: "#92400e" }}>
+            🔥 Racha {frozenStreak} — ×{multiplier} bonus
+          </p>
+        </motion.div>
       )}
 
       {/* Next button */}
       <motion.button
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.22, type: "spring", stiffness: 200 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         whileTap={{ scale: 0.97 }}
         onClick={store.nextQuestion}
         style={{
           width: "100%", maxWidth: "280px",
           padding: "1rem 0",
           borderRadius: "14px",
-          background: "#1d6fe8",
+          background: "#0f172a",
           color: "#fff",
           fontFamily: "'Outfit', sans-serif",
-          fontSize: "1rem",
-          fontWeight: 700,
+          fontSize: "1rem", fontWeight: 700,
           letterSpacing: "0.04em",
-          border: "none",
-          cursor: "pointer",
-          boxShadow: "0 6px 20px rgba(29,111,232,0.3)",
+          border: "none", cursor: "pointer",
+          boxShadow: "0 4px 14px rgba(15,23,42,0.18)",
         }}
       >
         Siguiente →

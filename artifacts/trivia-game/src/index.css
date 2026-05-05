@@ -31,20 +31,20 @@
 }
 
 :root {
-  --background: 220 20% 5%;
-  --foreground: 210 40% 95%;
-  --border: 220 15% 14%;
-  --input: 220 15% 14%;
-  --ring: 217 91% 60%;
-  --card: 220 18% 8%;
-  --card-foreground: 210 40% 95%;
-  --primary: 217 91% 55%;
+  --background: 0 0% 98%;
+  --foreground: 220 25% 8%;
+  --border: 220 13% 88%;
+  --input: 220 13% 88%;
+  --ring: 221 83% 53%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 25% 8%;
+  --primary: 221 83% 53%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 220 15% 13%;
-  --secondary-foreground: 210 40% 80%;
-  --muted: 220 15% 11%;
-  --muted-foreground: 215 20% 45%;
-  --accent: 217 91% 65%;
+  --secondary: 220 13% 94%;
+  --secondary-foreground: 220 25% 8%;
+  --muted: 220 13% 94%;
+  --muted-foreground: 220 10% 52%;
+  --accent: 221 83% 53%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
@@ -60,8 +60,8 @@
   }
   body {
     font-family: 'Space Grotesk', system-ui, sans-serif;
-    background: #05080f;
-    color: #eef2ff;
+    background: #f7f8fc;
+    color: #0f172a;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

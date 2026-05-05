@@ -23,12 +23,13 @@ export function CategorySelect() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
+      style={{ background: "#f7f8fc" }}
     >
       <button
         onClick={goToMenu}
         style={{
           alignSelf: "flex-start", marginBottom: "1.5rem",
-          fontSize: "0.72rem", fontWeight: 700, color: "#1e3a5f",
+          fontSize: "0.72rem", fontWeight: 700, color: "#94a3b8",
           background: "transparent", border: "none", cursor: "pointer",
           textTransform: "uppercase", letterSpacing: "0.08em",
         }}
@@ -36,27 +37,20 @@ export function CategorySelect() {
         ← Volver
       </button>
 
-      {/* I.G.C label */}
-      <div style={{ marginBottom: "0.3rem" }}>
-        <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", color: "#3b82f6", textTransform: "uppercase" }}>
-          I.G.C Trivia
-        </span>
-      </div>
-
       <h2 style={{
-        fontFamily: "'Outfit', sans-serif", fontSize: "1.5rem", fontWeight: 900,
-        color: "#ffffff", letterSpacing: "-0.02em", marginBottom: "0.2rem",
+        fontFamily: "'Outfit', sans-serif", fontSize: "1.6rem", fontWeight: 900,
+        color: "#0f172a", letterSpacing: "-0.03em", marginBottom: "0.2rem",
       }}>
-        Categoría
+        ¿Che Sabes?
       </h2>
-      <p style={{ fontSize: "0.8rem", color: "#1e3a5f", fontWeight: 500, marginBottom: "1.4rem" }}>
-        Elige tu especialidad o juega con todo
+      <p style={{ fontSize: "0.8rem", color: "#94a3b8", fontWeight: 500, marginBottom: "1.4rem" }}>
+        Elegí tu categoría para comenzar
       </p>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
         {categories.map((cat, i) => {
           const isAll = cat === "all";
-          const color = isAll ? "#60a5fa" : CATEGORY_COLORS[cat as Category];
+          const color = isAll ? "#0f172a" : CATEGORY_COLORS[cat as Category];
           const icon = isAll ? "🌟" : CATEGORY_ICONS[cat as Category];
           const meta = META[cat];
 
@@ -70,29 +64,30 @@ export function CategorySelect() {
               onClick={() => startGame(cat)}
               style={{
                 display: "flex", alignItems: "center", gap: "0.85rem",
-                padding: "0.85rem 1rem", borderRadius: "13px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1.5px solid rgba(255,255,255,0.06)",
+                padding: "0.85rem 1rem", borderRadius: "14px",
+                background: "#fff",
+                border: "1.5px solid #e2e8f0",
                 cursor: "pointer", textAlign: "left",
+                boxShadow: "0 1px 4px rgba(15,23,42,0.05)",
               }}
             >
               <span style={{
-                width: 38, height: 38, borderRadius: "10px",
+                width: 40, height: 40, borderRadius: "11px",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                background: `${color}15`,
-                fontSize: "1.05rem", flexShrink: 0,
+                background: `${color}14`,
+                fontSize: "1.1rem", flexShrink: 0,
               }}>
                 {icon}
               </span>
               <div>
-                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.93rem", fontWeight: 700, color: "#eef2ff", lineHeight: 1.2 }}>
+                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.94rem", fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}>
                   {meta.label}
                 </p>
-                <p style={{ fontSize: "0.7rem", color: "#1e3a5f", fontWeight: 500, marginTop: "2px" }}>
+                <p style={{ fontSize: "0.71rem", color: "#94a3b8", fontWeight: 500, marginTop: "2px" }}>
                   {meta.sub}
                 </p>
               </div>
-              <span style={{ marginLeft: "auto", color: "#1e2d45", fontSize: "0.9rem" }}>›</span>
+              <span style={{ marginLeft: "auto", color: "#cbd5e1", fontSize: "1rem" }}>›</span>
             </motion.button>
           );
         })}

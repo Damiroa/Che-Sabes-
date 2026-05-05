@@ -11,64 +11,49 @@ export function MenuScreen() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
+      style={{ background: "#f7f8fc" }}
     >
       {/* Logo */}
       <motion.div
-        initial={{ scale: 0.7, opacity: 0, y: -16 }}
+        initial={{ scale: 0.75, opacity: 0, y: -14 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 240, damping: 18 }}
-        style={{ marginBottom: "1.5rem" }}
+        style={{ marginBottom: "1.75rem" }}
       >
         <motion.div
           animate={{ y: [0, -5, 0] }}
           transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
           style={{
-            width: 72, height: 72, borderRadius: "20px",
-            background: "linear-gradient(135deg, #1d4ed8, #3b82f6)",
+            width: 78, height: 78, borderRadius: "24px",
+            background: "#0f172a",
             display: "flex", alignItems: "center", justifyContent: "center",
             margin: "0 auto 1.25rem",
-            boxShadow: "0 12px 36px rgba(59,130,246,0.35)",
+            boxShadow: "0 8px 32px rgba(15,23,42,0.18)",
           }}
         >
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-            <text x="18" y="27" textAnchor="middle" fontSize="26" fontFamily="Outfit, sans-serif" fontWeight="900" fill="white">?</text>
+          <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+            <text x="19" y="29" textAnchor="middle" fontSize="28" fontFamily="Outfit, sans-serif" fontWeight="900" fill="white">?</text>
           </svg>
         </motion.div>
-
-        {/* I.G.C badge */}
-        <div style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "4px",
-          padding: "2px 10px",
-          borderRadius: "999px",
-          background: "rgba(59,130,246,0.12)",
-          border: "1px solid rgba(59,130,246,0.25)",
-          marginBottom: "0.5rem",
-        }}>
-          <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.12em", color: "#60a5fa", textTransform: "uppercase" }}>
-            I.G.C
-          </span>
-        </div>
 
         <h1 style={{
           fontFamily: "'Outfit', sans-serif",
           fontWeight: 900,
-          fontSize: "2.8rem",
+          fontSize: "2.6rem",
           letterSpacing: "-0.04em",
-          lineHeight: 1,
-          color: "#ffffff",
+          lineHeight: 1.05,
+          color: "#0f172a",
           marginBottom: "0.35rem",
         }}>
-          Trivia
+          ¿Che Sabes?
         </h1>
 
         <p style={{
           fontFamily: "'Space Grotesk', sans-serif",
           fontSize: "0.78rem",
-          fontWeight: 500,
-          color: "#334155",
-          letterSpacing: "0.12em",
+          fontWeight: 600,
+          color: "#94a3b8",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
         }}>
           Pon a prueba tu conocimiento
@@ -80,20 +65,21 @@ export function MenuScreen() {
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
+          transition={{ delay: 0.22 }}
           style={{
             marginBottom: "1.5rem",
-            padding: "0.55rem 1.5rem",
-            borderRadius: "10px",
-            background: "rgba(29,78,216,0.1)",
-            border: "1px solid rgba(59,130,246,0.2)",
+            padding: "0.6rem 1.75rem",
+            borderRadius: "12px",
+            background: "#fff",
+            border: "1.5px solid #e2e8f0",
+            boxShadow: "0 2px 8px rgba(15,23,42,0.06)",
           }}
         >
-          <p style={{ fontSize: "0.63rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#334155" }}>
+          <p style={{ fontSize: "0.63rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#94a3b8" }}>
             Récord
           </p>
-          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.5rem", fontWeight: 900, color: "#60a5fa", lineHeight: 1.15 }}>
-            {highScore.toLocaleString()} <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#1d4ed8" }}>pts</span>
+          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.6rem", fontWeight: 900, color: "#0f172a", lineHeight: 1.15 }}>
+            {highScore.toLocaleString()} <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#94a3b8" }}>pts</span>
           </p>
         </motion.div>
       )}
@@ -109,40 +95,39 @@ export function MenuScreen() {
           width: "100%", maxWidth: "260px",
           padding: "1.05rem 0",
           borderRadius: "14px",
-          background: "#1d6fe8",
+          background: "#0f172a",
           color: "#fff",
           fontFamily: "'Outfit', sans-serif",
           fontSize: "1.05rem",
           fontWeight: 800,
-          letterSpacing: "0.05em",
+          letterSpacing: "0.04em",
           border: "none",
           cursor: "pointer",
-          boxShadow: "0 8px 28px rgba(29,111,232,0.35)",
+          boxShadow: "0 6px 20px rgba(15,23,42,0.2)",
           marginBottom: "2rem",
         }}
       >
-        Jugar ahora
+        ¡Jugar ahora!
       </motion.button>
 
       {/* Tags */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.45 }}
+        transition={{ delay: 0.42 }}
         style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}
       >
-        {["❤️ 3 vidas", "🔥 Racha ×4", "⏭️ 2 skips", "📚 170+ preguntas"].map((tag) => (
+        {["❤️ 3 vidas", "⏱️ 15 segundos", "🔥 Racha ×4", "📚 170+ preguntas"].map((tag) => (
           <span
             key={tag}
             style={{
               padding: "0.3rem 0.75rem",
               borderRadius: "999px",
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "#fff",
+              border: "1.5px solid #e2e8f0",
               fontSize: "0.72rem",
               fontWeight: 600,
-              color: "#334155",
-              letterSpacing: "0.03em",
+              color: "#64748b",
             }}
           >
             {tag}
