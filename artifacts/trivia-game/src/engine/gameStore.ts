@@ -2,10 +2,17 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { questions, Question, Category } from "../data/questions";
 
-export type GamePhase = "menu" | "category-select" | "playing" | "feedback" | "game-over";
+export type GamePhase =
+  | "menu"
+  | "category-select"
+  | "playing"
+  | "feedback"
+  | "stage-up"
+  | "game-over";
 
 export interface GameState {
   phase: GamePhase;
+  stage: number;           // 1, 2, 3, … (increases every 10 questions)
   lives: number;
   score: number;
   highScore: number;
@@ -18,6 +25,7 @@ export interface GameState {
   lastAnswerCorrect: boolean | null;
   lastCorrectAnswer: string;
   timedOut: boolean;
+  timerSeconds: number;    // starts 15, -1 per correct answer, min 10
   difficulty: "easy" | "medium" | "hard";
   questionsAnswered: number;
 
@@ -25,12 +33,16 @@ export interface GameState {
   answerQuestion: (answer: string, timeout?: boolean) => void;
   skipQuestion: () => void;
   nextQuestion: () => void;
+  continueAfterStageUp: () => void;
   resetGame: () => void;
   goToMenu: () => void;
 }
 
 const MAX_LIVES = 3;
 const INITIAL_SKIPS = 2;
+const INITIAL_TIMER = 15;
+const MIN_TIMER = 10;
+const QUESTIONS_PER_STAGE = 10;
 
 function pickQuestion(
   usedIds: number[],
@@ -47,13 +59,14 @@ function pickQuestion(
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-function getDifficulty(questionsAnswered: number): "easy" | "medium" | "hard" {
-  if (questionsAnswered < 5) return "easy";
-  if (questionsAnswered < 12) return "medium";
+// Stage → difficulty mapping
+function stageDifficulty(stage: number): "easy" | "medium" | "hard" {
+  if (stage === 1) return "easy";
+  if (stage === 2) return "medium";
   return "hard";
 }
 
-function getStreakMultiplier(streak: number): number {
+export function getStreakMultiplier(streak: number): number {
   if (streak >= 9) return 4;
   if (streak >= 6) return 3;
   if (streak >= 3) return 2;
@@ -64,6 +77,7 @@ export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
       phase: "menu",
+      stage: 1,
       lives: MAX_LIVES,
       score: 0,
       highScore: 0,
@@ -76,14 +90,15 @@ export const useGameStore = create<GameState>()(
       lastAnswerCorrect: null,
       lastCorrectAnswer: "",
       timedOut: false,
+      timerSeconds: INITIAL_TIMER,
       difficulty: "easy",
       questionsAnswered: 0,
 
       startGame: (category) => {
-        const difficulty = "easy";
-        const q = pickQuestion([], category, difficulty);
+        const q = pickQuestion([], category, "easy");
         set({
           phase: "playing",
+          stage: 1,
           lives: MAX_LIVES,
           score: 0,
           streak: 0,
@@ -95,7 +110,8 @@ export const useGameStore = create<GameState>()(
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
           timedOut: false,
-          difficulty,
+          timerSeconds: INITIAL_TIMER,
+          difficulty: "easy",
           questionsAnswered: 0,
         });
       },
@@ -111,17 +127,35 @@ export const useGameStore = create<GameState>()(
 
         const newStreak = isCorrect ? state.streak + 1 : 0;
         const multiplier = getStreakMultiplier(isCorrect ? newStreak : state.streak);
-        const basePoints = isCorrect ? q.points * multiplier : 0;
-        const newScore = state.score + basePoints;
+        const newScore = state.score + (isCorrect ? q.points * multiplier : 0);
         const newLives = isCorrect ? state.lives : state.lives - 1;
         const newBestStreak = Math.max(state.bestStreak, newStreak);
         const newHighScore = Math.max(state.highScore, newScore);
         const newQuestionsAnswered = state.questionsAnswered + 1;
-        const newDifficulty = getDifficulty(newQuestionsAnswered);
+
+        // Timer shrinks by 1 per correct answer, floor at MIN_TIMER
+        const newTimerSeconds = isCorrect
+          ? Math.max(MIN_TIMER, state.timerSeconds - 1)
+          : state.timerSeconds;
+
         const isGameOver = newLives <= 0;
 
+        // Every QUESTIONS_PER_STAGE questions → advance stage (if not game over)
+        const shouldAdvanceStage =
+          !isGameOver && newQuestionsAnswered % QUESTIONS_PER_STAGE === 0;
+
+        const newStage = shouldAdvanceStage ? state.stage + 1 : state.stage;
+        const newDifficulty = stageDifficulty(newStage);
+
+        const nextPhase: GamePhase = isGameOver
+          ? "game-over"
+          : shouldAdvanceStage
+          ? "stage-up"
+          : "feedback";
+
         set({
-          phase: isGameOver ? "game-over" : "feedback",
+          phase: nextPhase,
+          stage: newStage,
           score: newScore,
           highScore: newHighScore,
           lives: newLives,
@@ -130,6 +164,7 @@ export const useGameStore = create<GameState>()(
           lastAnswerCorrect: isCorrect,
           lastCorrectAnswer: q.correct,
           timedOut: timeout,
+          timerSeconds: newTimerSeconds,
           difficulty: newDifficulty,
           questionsAnswered: newQuestionsAnswered,
         });
@@ -138,8 +173,8 @@ export const useGameStore = create<GameState>()(
       skipQuestion: () => {
         const state = get();
         if (state.skipsLeft <= 0) return;
-        const newDifficulty = getDifficulty(state.questionsAnswered);
-        const q = pickQuestion(state.usedQuestionIds, state.selectedCategory, newDifficulty);
+        const diff = stageDifficulty(state.stage);
+        const q = pickQuestion(state.usedQuestionIds, state.selectedCategory, diff);
         if (!q) {
           set({ phase: "game-over" });
           return;
@@ -149,14 +184,14 @@ export const useGameStore = create<GameState>()(
           usedQuestionIds: [...state.usedQuestionIds, q.id],
           skipsLeft: state.skipsLeft - 1,
           streak: 0,
-          difficulty: newDifficulty,
+          difficulty: diff,
         });
       },
 
       nextQuestion: () => {
         const state = get();
-        const newDifficulty = getDifficulty(state.questionsAnswered);
-        const q = pickQuestion(state.usedQuestionIds, state.selectedCategory, newDifficulty);
+        const diff = stageDifficulty(state.stage);
+        const q = pickQuestion(state.usedQuestionIds, state.selectedCategory, diff);
         if (!q) {
           set({ phase: "game-over" });
           return;
@@ -168,13 +203,33 @@ export const useGameStore = create<GameState>()(
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
           timedOut: false,
-          difficulty: newDifficulty,
+          difficulty: diff,
+        });
+      },
+
+      continueAfterStageUp: () => {
+        const state = get();
+        const diff = stageDifficulty(state.stage);
+        const q = pickQuestion(state.usedQuestionIds, state.selectedCategory, diff);
+        if (!q) {
+          set({ phase: "game-over" });
+          return;
+        }
+        set({
+          phase: "playing",
+          currentQuestion: q,
+          usedQuestionIds: [...state.usedQuestionIds, q.id],
+          lastAnswerCorrect: null,
+          lastCorrectAnswer: "",
+          timedOut: false,
+          difficulty: diff,
         });
       },
 
       resetGame: () => {
         set({
           phase: "category-select",
+          stage: 1,
           lives: MAX_LIVES,
           score: 0,
           streak: 0,
@@ -185,6 +240,7 @@ export const useGameStore = create<GameState>()(
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
           timedOut: false,
+          timerSeconds: INITIAL_TIMER,
           difficulty: "easy",
           questionsAnswered: 0,
         });
@@ -198,5 +254,3 @@ export const useGameStore = create<GameState>()(
     }
   )
 );
-
-export { getStreakMultiplier };
