@@ -75,7 +75,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
     if (timerRef.current) clearInterval(timerRef.current);
 
     const isCorrect =
-      ans.toLowerCase().trim() === currentQuestion.answer.toLowerCase().trim();
+      ans.toLowerCase().trim() === currentQuestion.correct.toLowerCase().trim();
 
     setSelectedAnswer(ans);
     setAnswerState(isCorrect ? "correct" : "wrong");
