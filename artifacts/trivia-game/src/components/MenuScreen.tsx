@@ -13,15 +13,15 @@ export function MenuScreen() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
     >
-      {/* Logo image */}
+      {/* Logo */}
       <motion.div
         initial={{ scale: 0.7, opacity: 0, y: -18 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 220, damping: 16, delay: 0.05 }}
-        style={{ marginBottom: "0.5rem" }}
+        style={{ marginBottom: "0.6rem" }}
       >
         <motion.div
-          animate={{ y: [0, -8, 0] }}
+          animate={{ y: [0, -10, 0] }}
           transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
           style={{ display: "inline-block" }}
         >
@@ -29,11 +29,11 @@ export function MenuScreen() {
             src={logoImg}
             alt="¿Che Sabes?"
             style={{
-              width: 170,
-              height: 170,
-              borderRadius: "36px",
+              width: 190,
+              height: 190,
+              borderRadius: "40px",
               objectFit: "cover",
-              boxShadow: "0 12px 48px rgba(99,102,241,0.28), 0 4px 16px rgba(15,23,42,0.14)",
+              boxShadow: "0 16px 56px rgba(0,0,0,0.28), 0 4px 16px rgba(0,0,0,0.16)",
               border: "3px solid rgba(255,255,255,0.9)",
               display: "block",
             }}
@@ -48,16 +48,16 @@ export function MenuScreen() {
         transition={{ delay: 0.18 }}
         style={{
           fontFamily: "'Space Grotesk', sans-serif",
-          fontSize: "0.75rem",
+          fontSize: "0.78rem",
           fontWeight: 700,
-          color: "#6366f1",
+          color: "rgba(255,255,255,0.9)",
           letterSpacing: "0.14em",
           textTransform: "uppercase",
           marginBottom: "1.75rem",
-          background: "rgba(99,102,241,0.1)",
-          padding: "0.35rem 1rem",
+          background: "rgba(255,255,255,0.2)",
+          padding: "0.4rem 1.1rem",
           borderRadius: "999px",
-          border: "1px solid rgba(99,102,241,0.2)",
+          border: "1px solid rgba(255,255,255,0.35)",
         }}
       >
         ✨ Pon a prueba tu conocimiento
@@ -71,19 +71,18 @@ export function MenuScreen() {
           transition={{ delay: 0.22 }}
           style={{
             marginBottom: "1.5rem",
-            padding: "0.6rem 1.75rem",
-            borderRadius: "14px",
-            background: "rgba(255,255,255,0.85)",
-            backdropFilter: "blur(10px)",
-            border: "1.5px solid rgba(99,102,241,0.18)",
-            boxShadow: "0 2px 12px rgba(99,102,241,0.08)",
+            padding: "0.65rem 1.75rem",
+            borderRadius: "16px",
+            background: "rgba(255,255,255,0.22)",
+            backdropFilter: "blur(12px)",
+            border: "1.5px solid rgba(255,255,255,0.4)",
           }}
         >
-          <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "#6366f1", marginBottom: "2px" }}>
+          <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: "2px" }}>
             🏆 Tu récord
           </p>
-          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.7rem", fontWeight: 900, color: "#0f172a", lineHeight: 1.1 }}>
-            {highScore.toLocaleString()} <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#94a3b8" }}>pts</span>
+          <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.8rem", fontWeight: 900, color: "#fff", lineHeight: 1.1 }}>
+            {highScore.toLocaleString()} <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "rgba(255,255,255,0.65)" }}>pts</span>
           </p>
         </motion.div>
       )}
@@ -94,21 +93,21 @@ export function MenuScreen() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.28, type: "spring", stiffness: 200 }}
         whileTap={{ scale: 0.96 }}
-        whileHover={{ scale: 1.02 }}
+        whileHover={{ scale: 1.03 }}
         onClick={() => useGameStore.getState().resetGame()}
         style={{
-          width: "100%", maxWidth: "260px",
-          padding: "1.1rem 0",
-          borderRadius: "16px",
-          background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
-          color: "#fff",
+          width: "100%", maxWidth: "270px",
+          padding: "1.15rem 0",
+          borderRadius: "18px",
+          background: "#fff",
+          color: "#0369a1",
           fontFamily: "'Outfit', sans-serif",
-          fontSize: "1.1rem",
+          fontSize: "1.15rem",
           fontWeight: 900,
-          letterSpacing: "0.04em",
+          letterSpacing: "0.03em",
           border: "none",
           cursor: "pointer",
-          boxShadow: "0 8px 28px rgba(99,102,241,0.38)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
           marginBottom: "1.75rem",
         }}
       >
@@ -126,14 +125,13 @@ export function MenuScreen() {
           <span
             key={tag}
             style={{
-              padding: "0.3rem 0.75rem",
+              padding: "0.35rem 0.85rem",
               borderRadius: "999px",
-              background: "rgba(255,255,255,0.82)",
-              backdropFilter: "blur(8px)",
-              border: "1.5px solid rgba(99,102,241,0.15)",
-              fontSize: "0.71rem",
+              background: "rgba(255,255,255,0.22)",
+              border: "1.5px solid rgba(255,255,255,0.38)",
+              fontSize: "0.74rem",
               fontWeight: 700,
-              color: "#475569",
+              color: "#fff",
             }}
           >
             {tag}

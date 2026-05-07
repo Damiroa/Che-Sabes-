@@ -8,21 +8,16 @@ import { FeedbackScreen } from "./components/FeedbackScreen";
 import { StageUpScreen } from "./components/StageUpScreen";
 import { GameOverScreen } from "./components/GameOverScreen";
 
-const GAME_PHASES = ["playing", "feedback", "stage-up"];
-
 function App() {
   const phase = useGameStore((s) => s.phase);
-  const showBg = GAME_PHASES.includes(phase);
 
   return (
     <div
       className="min-h-screen w-full max-w-md mx-auto"
       style={{ position: "relative", overflow: "hidden" }}
     >
-      {/* Animated background — only shown during active gameplay */}
-      <AnimatePresence>
-        {showBg && <AnimatedBackground key="bg" />}
-      </AnimatePresence>
+      {/* Animated background — always visible */}
+      <AnimatedBackground />
 
       {/* Screens — z-index 1 so they sit above the background */}
       <div style={{ position: "relative", zIndex: 1 }}>
