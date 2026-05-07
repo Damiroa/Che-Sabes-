@@ -12,24 +12,23 @@ function App() {
   const phase = useGameStore((s) => s.phase);
 
   return (
-    <div
-      className="min-h-screen w-full max-w-md mx-auto"
-      style={{ position: "relative", overflow: "hidden" }}
-    >
-      {/* Animated background — always visible */}
+    <div style={{
+      width: "100vw",
+      height: "100vh",
+      position: "relative",
+      overflow: "hidden",
+    }}>
       <AnimatedBackground />
 
-      {/* Screens — z-index 1 so they sit above the background */}
-      <div style={{ position: "relative", zIndex: 1 }}>
+      <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100%" }}>
         <AnimatePresence mode="wait">
-          {phase === "menu"            && <MenuScreen     key="menu"      />}
-          {phase === "category-select" && <CategorySelect key="category"  />}
-          {phase === "playing"         && <GameScreen     key="playing"   />}
-          {phase === "feedback"        && <FeedbackScreen key="feedback"  />}
-          {phase === "game-over"       && <GameOverScreen key="gameover"  />}
+          {phase === "menu"            && <MenuScreen     key="menu"     />}
+          {phase === "category-select" && <CategorySelect key="category" />}
+          {phase === "playing"         && <GameScreen     key="playing"  />}
+          {phase === "feedback"        && <FeedbackScreen key="feedback" />}
+          {phase === "game-over"       && <GameOverScreen key="gameover" />}
         </AnimatePresence>
 
-        {/* Stage-up overlaid on top without replacing current screen */}
         <AnimatePresence>
           {phase === "stage-up" && <StageUpScreen key="stage-up" />}
         </AnimatePresence>
