@@ -3,43 +3,39 @@ import { useGameStore } from "../engine/gameStore";
 
 interface StageCfg {
   bg: string;
-  blobs: string[];
-  speedMult: number; // higher = faster
+  blobs: { color: string; size: number; left: number; top: number; anim: string; baseDur: number }[];
 }
 
 const STAGE_CFG: Record<number, StageCfg> = {
   1: {
-    bg: "#eef3ff",
+    bg: "#dce8ff",
     blobs: [
-      "rgba(99,102,241,0.13)",
-      "rgba(147,197,253,0.15)",
-      "rgba(165,180,252,0.12)",
-      "rgba(196,213,255,0.18)",
-      "rgba(129,140,248,0.10)",
+      { color: "rgba(99,102,241,0.28)",  size: 340, left: -90,  top: -70,  anim: "blob-float-a", baseDur: 16 },
+      { color: "rgba(147,197,253,0.32)", size: 260, left: 170,  top: -40,  anim: "blob-float-b", baseDur: 20 },
+      { color: "rgba(129,140,248,0.22)", size: 200, left: -30,  top: 290,  anim: "blob-float-c", baseDur: 14 },
+      { color: "rgba(79,70,229,0.18)",   size: 290, left: 120,  top: 360,  anim: "blob-float-d", baseDur: 18 },
+      { color: "rgba(196,213,255,0.35)", size: 180, left: 200,  top: 150,  anim: "blob-float-e", baseDur: 12 },
     ],
-    speedMult: 1,
   },
   2: {
-    bg: "#fef9ec",
+    bg: "#fde9c0",
     blobs: [
-      "rgba(251,146,60,0.15)",
-      "rgba(253,186,116,0.18)",
-      "rgba(245,158,11,0.12)",
-      "rgba(252,211,77,0.16)",
-      "rgba(249,115,22,0.11)",
+      { color: "rgba(251,146,60,0.32)",  size: 310, left: -80,  top: -60,  anim: "blob-float-a", baseDur: 7  },
+      { color: "rgba(253,186,116,0.36)", size: 240, left: 180,  top: -30,  anim: "blob-float-b", baseDur: 9  },
+      { color: "rgba(245,158,11,0.25)",  size: 220, left: -40,  top: 280,  anim: "blob-float-c", baseDur: 6  },
+      { color: "rgba(249,115,22,0.20)",  size: 270, left: 130,  top: 350,  anim: "blob-float-d", baseDur: 8  },
+      { color: "rgba(252,211,77,0.30)",  size: 170, left: 210,  top: 140,  anim: "blob-float-e", baseDur: 5  },
     ],
-    speedMult: 2.2,
   },
   3: {
-    bg: "#fff1f1",
+    bg: "#fdd5d5",
     blobs: [
-      "rgba(239,68,68,0.16)",
-      "rgba(252,165,165,0.18)",
-      "rgba(220,38,38,0.13)",
-      "rgba(254,202,202,0.20)",
-      "rgba(248,113,113,0.14)",
+      { color: "rgba(239,68,68,0.34)",   size: 300, left: -70,  top: -50,  anim: "blob-float-a", baseDur: 3.5 },
+      { color: "rgba(252,165,165,0.38)", size: 230, left: 160,  top: -20,  anim: "blob-float-b", baseDur: 4.5 },
+      { color: "rgba(220,38,38,0.26)",   size: 200, left: -50,  top: 270,  anim: "blob-float-c", baseDur: 3   },
+      { color: "rgba(248,113,113,0.28)", size: 260, left: 120,  top: 340,  anim: "blob-float-d", baseDur: 4   },
+      { color: "rgba(254,202,202,0.40)", size: 160, left: 205,  top: 130,  anim: "blob-float-e", baseDur: 2.8 },
     ],
-    speedMult: 4.5,
   },
 };
 
@@ -47,15 +43,7 @@ function getCfg(stage: number): StageCfg {
   return STAGE_CFG[Math.min(stage, 3)];
 }
 
-const BLOB_DEFS = [
-  { size: 380, left: -110, top: -80,  anim: "blob-float-a", baseDur: 17 },
-  { size: 260, left: 170,  top: -30,  anim: "blob-float-b", baseDur: 21 },
-  { size: 220, left: -40,  top: 280,  anim: "blob-float-c", baseDur: 15 },
-  { size: 310, left: 130,  top: 340,  anim: "blob-float-d", baseDur: 19 },
-  { size: 190, left: 210,  top: 140,  anim: "blob-float-e", baseDur: 13 },
-];
-
-const TRANSITION = { duration: 1.6, ease: "easeInOut" };
+const TRANSITION = { duration: 1.8, ease: "easeInOut" };
 
 export function AnimatedBackground() {
   const stage = useGameStore((s) => s.stage);
@@ -73,27 +61,24 @@ export function AnimatedBackground() {
         pointerEvents: "none",
       }}
     >
-      {BLOB_DEFS.map((b, i) => {
-        const dur = b.baseDur / cfg.speedMult;
-        return (
-          <motion.div
-            key={i}
-            animate={{ backgroundColor: cfg.blobs[i] }}
-            transition={TRANSITION}
-            style={{
-              position: "absolute",
-              left: b.left,
-              top: b.top,
-              width: b.size,
-              height: b.size,
-              borderRadius: "50%",
-              filter: "blur(48px)",
-              animation: `${b.anim} ${dur}s ease-in-out infinite`,
-              animationDelay: `${-(i * 1.4)}s`,
-            }}
-          />
-        );
-      })}
+      {cfg.blobs.map((b, i) => (
+        <motion.div
+          key={i}
+          animate={{ backgroundColor: b.color }}
+          transition={TRANSITION}
+          style={{
+            position: "absolute",
+            left: b.left,
+            top: b.top,
+            width: b.size,
+            height: b.size,
+            borderRadius: "50%",
+            filter: "blur(56px)",
+            animation: `${b.anim} ${b.baseDur}s ease-in-out infinite`,
+            animationDelay: `${-(i * 1.7)}s`,
+          }}
+        />
+      ))}
     </motion.div>
   );
 }
