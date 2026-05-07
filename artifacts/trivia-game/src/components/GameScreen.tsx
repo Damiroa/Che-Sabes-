@@ -1,26 +1,34 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore, getStreakMultiplier } from "../engine/gameStore";
 import { CATEGORY_COLORS, CATEGORY_ICONS } from "../data/questions";
+import { CircularTimer } from "./CircularTimer";
+import { ScoreCounter } from "./ScoreCounter";
+import { audio } from "../utils/audio";
 
-export function GameScreen() {
+interface Props { isMuted: boolean; onToggleMute: () => void }
+
+export function GameScreen({ isMuted, onToggleMute }: Props) {
   const {
-    lives, score, streak, skipsLeft, stage,
-    currentQuestion, timerSeconds,
-    answerQuestion, skipQuestion,
+    lives, score, streak, skipsLeft, stage, questionsAnswered,
+    currentQuestion, timerSeconds, answerQuestion, skipQuestion,
   } = useGameStore();
 
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [answerState, setAnswerState] = useState<"idle" | "correct" | "wrong">("idle");
   const [shortInput, setShortInput] = useState("");
   const [timeLeft, setTimeLeft] = useState(timerSeconds);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const answeredRef = useRef(false);
+  const lastTickRef = useRef(timerSeconds);
 
   useEffect(() => {
     setTimeLeft(timerSeconds);
     setSelectedAnswer(null);
+    setAnswerState("idle");
     setShortInput("");
     answeredRef.current = false;
+    lastTickRef.current = timerSeconds;
 
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
@@ -32,7 +40,12 @@ export function GameScreen() {
           }
           return 0;
         }
-        return prev - 1;
+        const next = prev - 1;
+        if (!isMuted) {
+          if (next <= 4) audio.urgentTick();
+          else if (next <= 8) audio.tick();
+        }
+        return next;
       });
     }, 1000);
 
@@ -43,214 +56,222 @@ export function GameScreen() {
 
   const catColor = CATEGORY_COLORS[currentQuestion.category];
   const multiplier = getStreakMultiplier(streak);
-  const diffColor = { easy: "#22c55e", medium: "#f59e0b", hard: "#ef4444" }[currentQuestion.difficulty];
-  const diffLabel = { easy: "Fácil", medium: "Medio", hard: "Difícil" }[currentQuestion.difficulty];
-  const catLabel = {
+  const diffColor  = { easy: "#4ade80", medium: "#fbbf24", hard: "#f87171" }[currentQuestion.difficulty];
+  const diffLabel  = { easy: "Fácil",  medium: "Medio",   hard: "Difícil" }[currentQuestion.difficulty];
+  const catLabel   = {
     genius: "Modo Genio", entertainment: "Entretenimiento",
-    sports: "Deportes", culture: "Cultura Pop", random: "Random",
+    sports: "Deportes",   culture: "Cultura Pop", random: "Random",
   }[currentQuestion.category];
 
-  const timerPct = (timeLeft / timerSeconds) * 100;
-  const timerColor = timeLeft > 8 ? "#22c55e" : timeLeft > 4 ? "#f59e0b" : "#ef4444";
+  const isMC = currentQuestion.type !== "short" && !!currentQuestion.options;
+  const options = currentQuestion.options ?? [];
+
+  // Progress within current stage (0–9 questions answered = 0–90%)
+  const stageProgress = (questionsAnswered % 10) / 10;
 
   const handleAnswer = (ans: string) => {
     if (selectedAnswer || answeredRef.current) return;
     answeredRef.current = true;
     if (timerRef.current) clearInterval(timerRef.current);
-    setSelectedAnswer(ans);
-    setTimeout(() => { answerQuestion(ans); }, 300);
-  };
 
-  const isMC = currentQuestion.type !== "short" && currentQuestion.options;
-  const options = currentQuestion.options ?? [];
+    const isCorrect =
+      ans.toLowerCase().trim() === currentQuestion.answer.toLowerCase().trim();
+
+    setSelectedAnswer(ans);
+    setAnswerState(isCorrect ? "correct" : "wrong");
+    if (!isMuted) isCorrect ? audio.correct() : audio.wrong();
+
+    setTimeout(() => answerQuestion(ans), 420);
+  };
 
   return (
     <motion.div
-      style={{
-        width: "100%", height: "100%",
-        display: "flex", flexDirection: "column",
-        padding: "0",
-      }}
+      style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
+      transition={{ duration: 0.18 }}
     >
-      {/* ── Top HUD bar ─────────────────────────────────────── */}
+      {/* ── HUD bar ─────────────────────────────────────────────── */}
       <div style={{
         display: "flex", alignItems: "center",
-        padding: "16px 48px",
-        gap: "20px",
-        background: "rgba(0,0,0,0.12)",
-        backdropFilter: "blur(8px)",
-        borderBottom: "1px solid rgba(255,255,255,0.18)",
-        flexShrink: 0,
+        padding: "12px 40px", gap: "18px", flexShrink: 0,
+        background: "rgba(0,0,0,0.18)",
+        backdropFilter: "blur(10px)",
+        borderBottom: "1px solid rgba(255,255,255,0.15)",
       }}>
         {/* Lives */}
-        <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "3px" }}>
           {Array.from({ length: 3 }).map((_, i) => (
             <motion.span
               key={i}
               animate={{ opacity: i < lives ? 1 : 0.2, scale: i < lives ? 1 : 0.75 }}
               transition={{ type: "spring", stiffness: 300 }}
               style={{ fontSize: "1.4rem" }}
-            >
-              ❤️
-            </motion.span>
+            >❤️</motion.span>
           ))}
         </div>
 
-        {/* Phase */}
-        <div style={{
-          padding: "5px 16px", borderRadius: "999px",
-          background: "rgba(255,255,255,0.22)",
-          border: "1.5px solid rgba(255,255,255,0.4)",
-        }}>
-          <span style={{ fontSize: "0.75rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff" }}>
-            FASE {stage}
-          </span>
+        {/* Phase + diff */}
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <span style={{
+            padding: "4px 14px", borderRadius: "999px",
+            background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.35)",
+            fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em",
+            textTransform: "uppercase", color: "#fff",
+          }}>FASE {stage}</span>
+          <span style={{
+            padding: "3px 10px", borderRadius: "999px",
+            background: `${diffColor}25`, border: `1.5px solid ${diffColor}60`,
+            fontSize: "0.7rem", fontWeight: 700, color: diffColor,
+            textShadow: `0 0 8px ${diffColor}80`,
+          }}>{diffLabel}</span>
         </div>
-
-        {/* Diff badge */}
-        <span style={{
-          fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.9)",
-          background: `${diffColor}35`, padding: "4px 12px", borderRadius: "999px",
-          border: `1.5px solid ${diffColor}70`,
-        }}>
-          {diffLabel}
-        </span>
 
         {/* Streak */}
         <AnimatePresence>
           {streak >= 3 && (
             <motion.span
-              key="streak"
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.7 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
+              exit={{ opacity: 0, scale: 0.7 }}
               style={{
-                fontSize: "0.8rem", fontWeight: 700, color: "#fff",
-                background: "rgba(255,255,255,0.2)",
-                border: "1.5px solid rgba(255,255,255,0.35)",
-                borderRadius: "999px", padding: "4px 12px",
+                padding: "3px 12px", borderRadius: "999px",
+                background: "rgba(251,191,36,0.2)", border: "1.5px solid rgba(251,191,36,0.5)",
+                fontSize: "0.75rem", fontWeight: 700, color: "#fde68a",
               }}
-            >
-              🔥 {streak} racha ×{multiplier}
-            </motion.span>
+            >🔥 {streak} racha ×{multiplier}</motion.span>
           )}
         </AnimatePresence>
 
-        {/* Timer bar */}
-        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{
-            flex: 1, height: "8px", borderRadius: "999px",
-            background: "rgba(255,255,255,0.25)", overflow: "hidden",
-          }}>
-            <motion.div
-              animate={{ width: `${timerPct}%`, backgroundColor: timerColor }}
-              transition={{ duration: 0.6, ease: "linear" }}
-              style={{ height: "100%", borderRadius: "999px" }}
-            />
-          </div>
-          <motion.span
-            key={timeLeft}
-            initial={{ scale: timeLeft <= 5 ? 1.35 : 1 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.12 }}
-            style={{
-              fontFamily: "'Outfit', sans-serif", fontSize: "1.1rem", fontWeight: 900,
-              color: timeLeft <= 5 ? "#fef08a" : "#fff", minWidth: "3rem", textAlign: "right",
-              textShadow: timeLeft <= 5 ? "0 0 16px rgba(254,240,138,0.7)" : "none",
-            }}
-          >
-            {timeLeft}s
-          </motion.span>
+        {/* Stage progress bar (mini) */}
+        <div style={{
+          flex: 1, height: "6px", borderRadius: "999px",
+          background: "rgba(255,255,255,0.18)", overflow: "hidden",
+        }}>
+          <motion.div
+            animate={{ width: `${stageProgress * 100}%` }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="progress-shimmer"
+            style={{ height: "100%", borderRadius: "999px" }}
+          />
         </div>
+        <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.7)", fontWeight: 700, whiteSpace: "nowrap" }}>
+          {questionsAnswered % 10}/10
+        </span>
 
-        {/* Score + skip */}
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={score}
-              initial={{ y: -10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 10, opacity: 0 }}
-              transition={{ duration: 0.14 }}
-              style={{
-                fontFamily: "'Outfit', sans-serif", fontSize: "1.4rem", fontWeight: 900,
-                color: "#fff", letterSpacing: "-0.02em",
-                textShadow: "0 2px 8px rgba(0,0,0,0.2)",
-              }}
-            >
-              {score.toLocaleString()}
-            </motion.span>
-          </AnimatePresence>
+        {/* Score */}
+        <ScoreCounter
+          value={score}
+          style={{
+            fontFamily: "'Outfit', sans-serif", fontSize: "1.35rem",
+            fontWeight: 900, color: "#fff",
+            textShadow: "0 0 12px rgba(255,255,255,0.4)",
+          }}
+        />
 
-          <button
-            onClick={skipQuestion}
-            disabled={skipsLeft <= 0}
-            style={{
-              fontSize: "0.74rem", fontWeight: 700,
-              color: skipsLeft > 0 ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.3)",
-              background: "transparent", border: "none",
-              cursor: skipsLeft > 0 ? "pointer" : "default",
-              letterSpacing: "0.05em", textTransform: "uppercase",
-            }}
-          >
-            Skip {skipsLeft > 0 ? `(${skipsLeft})` : "—"}
-          </button>
-        </div>
+        {/* Skip */}
+        <button
+          onClick={() => { if (!isMuted) audio.click(); skipQuestion(); }}
+          disabled={skipsLeft <= 0}
+          style={{
+            fontSize: "0.72rem", fontWeight: 700,
+            color: skipsLeft > 0 ? "rgba(255,255,255,0.82)" : "rgba(255,255,255,0.28)",
+            background: skipsLeft > 0 ? "rgba(255,255,255,0.12)" : "transparent",
+            border: skipsLeft > 0 ? "1.5px solid rgba(255,255,255,0.25)" : "none",
+            padding: "4px 10px", borderRadius: "999px",
+            cursor: skipsLeft > 0 ? "pointer" : "default",
+            letterSpacing: "0.05em", textTransform: "uppercase",
+          }}
+        >⏭ Skip {skipsLeft > 0 ? `(${skipsLeft})` : "—"}</button>
+
+        {/* Mute */}
+        <button
+          onClick={() => { onToggleMute(); }}
+          style={{
+            background: "rgba(255,255,255,0.15)", border: "1.5px solid rgba(255,255,255,0.25)",
+            borderRadius: "50%", width: 34, height: 34,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", fontSize: "1rem",
+          }}
+          title={isMuted ? "Activar sonido" : "Silenciar"}
+        >
+          {isMuted ? "🔇" : "🔊"}
+        </button>
       </div>
 
-      {/* ── Main content ────────────────────────────────────── */}
+      {/* ── Main content ─────────────────────────────────────────── */}
       <div style={{
-        flex: 1, display: "flex", gap: "0",
-        padding: "32px 48px", gap: "40px",
-        overflow: "hidden",
+        flex: 1, display: "flex", gap: "40px",
+        padding: "28px 48px", overflow: "hidden",
       }}>
         {/* Left — Question */}
         <AnimatePresence mode="wait">
           <motion.div
             key={currentQuestion.id + "-q"}
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
             style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}
           >
-            <p style={{
-              fontSize: "0.78rem", fontWeight: 700, color: "rgba(255,255,255,0.9)",
-              marginBottom: "1rem", letterSpacing: "0.06em", textTransform: "uppercase",
-              display: "flex", alignItems: "center", gap: "8px",
-            }}>
+            {/* Category + points */}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "1.1rem" }}>
               <span style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: 32, height: 32, borderRadius: "8px",
-                background: `${catColor}30`, fontSize: "1rem",
-              }}>
-                {CATEGORY_ICONS[currentQuestion.category]}
+                width: 36, height: 36, borderRadius: "10px",
+                background: `${catColor}28`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "1.2rem",
+              }}>{CATEGORY_ICONS[currentQuestion.category]}</span>
+              <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                {catLabel}
               </span>
-              {catLabel}
-              <span style={{ color: "rgba(255,255,255,0.5)", marginLeft: 4 }}>
-                · +{currentQuestion.points * multiplier} pts
-              </span>
-            </p>
+              <span style={{
+                marginLeft: "auto", fontSize: "0.74rem", fontWeight: 700,
+                color: "rgba(255,255,255,0.6)",
+                background: "rgba(255,255,255,0.12)", padding: "2px 10px", borderRadius: "999px",
+              }}>+{currentQuestion.points * multiplier} pts</span>
+            </div>
 
+            {/* Question card */}
             <div style={{
-              background: "rgba(255,255,255,0.92)",
-              backdropFilter: "blur(16px)",
+              background: "rgba(255,255,255,0.93)",
+              backdropFilter: "blur(20px)",
               border: "2px solid rgba(255,255,255,0.98)",
               borderRadius: "24px",
               padding: "2rem 2.2rem",
-              boxShadow: "0 8px 40px rgba(0,0,0,0.14)",
+              boxShadow: "0 8px 40px rgba(0,0,0,0.16), 0 0 0 1px rgba(255,255,255,0.5)",
+              flex: 1,
+              display: "flex", alignItems: "center",
             }}>
               <p style={{
                 fontFamily: "'Space Grotesk', sans-serif",
-                fontSize: "1.35rem", fontWeight: 600,
+                fontSize: "1.3rem", fontWeight: 600,
                 color: "#0f172a", lineHeight: 1.55,
               }}>
                 {currentQuestion.question}
               </p>
+            </div>
+
+            {/* Circular timer below question card */}
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "16px" }}>
+              <CircularTimer timeLeft={timeLeft} total={timerSeconds} />
+              <div style={{ flex: 1 }}>
+                <div style={{
+                  width: "100%", height: "5px", borderRadius: "999px",
+                  background: "rgba(255,255,255,0.2)", overflow: "hidden",
+                }}>
+                  <motion.div
+                    animate={{ width: `${(timeLeft / timerSeconds) * 100}%` }}
+                    transition={{ duration: 0.8, ease: "linear" }}
+                    style={{
+                      height: "100%", borderRadius: "999px",
+                      background: timeLeft > 8 ? "#4ade80" : timeLeft > 4 ? "#fbbf24" : "#f87171",
+                      boxShadow: timeLeft <= 4 ? "0 0 8px #f87171" : "none",
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>
@@ -259,57 +280,69 @@ export function GameScreen() {
         <AnimatePresence mode="wait">
           <motion.div
             key={currentQuestion.id + "-a"}
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2, delay: 0.05 }}
-            style={{
-              flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "12px",
-            }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.22, delay: 0.06, ease: "easeOut" }}
+            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "11px" }}
           >
             {isMC && options.map((opt, idx) => {
               const isSelected = selectedAnswer === opt;
+              const isCorrectOpt = answerState !== "idle" && isSelected && answerState === "correct";
+              const isWrongOpt   = answerState !== "idle" && isSelected && answerState === "wrong";
+
               return (
                 <motion.button
                   key={opt}
-                  initial={{ opacity: 0, x: 16 }}
+                  initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.06 }}
-                  whileHover={!selectedAnswer ? { scale: 1.02, x: 4 } : {}}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleAnswer(opt)}
+                  transition={{ delay: idx * 0.07 }}
+                  whileHover={!selectedAnswer ? { x: 5, scale: 1.015 } : {}}
+                  whileTap={!selectedAnswer ? { scale: 0.97 } : {}}
+                  onClick={() => { if (!isMuted) audio.click(); handleAnswer(opt); }}
                   disabled={!!selectedAnswer}
+                  className={`${isWrongOpt ? "shake" : ""} ${isCorrectOpt ? "correct-glow" : ""} neon-btn`}
                   style={{
                     padding: "1rem 1.4rem",
                     borderRadius: "16px",
                     textAlign: "left",
                     fontFamily: "'Space Grotesk', sans-serif",
                     fontSize: "1rem", fontWeight: 600,
-                    color: isSelected ? "#fff" : "#1e293b",
-                    background: isSelected ? "#0369a1" : "rgba(255,255,255,0.9)",
+                    color: isCorrectOpt ? "#fff" : isWrongOpt ? "#fff" : "#1e293b",
+                    background: isCorrectOpt
+                      ? "linear-gradient(135deg, #16a34a, #4ade80)"
+                      : isWrongOpt
+                      ? "linear-gradient(135deg, #dc2626, #f87171)"
+                      : "rgba(255,255,255,0.91)",
                     backdropFilter: "blur(8px)",
-                    border: `2px solid ${isSelected ? "#0369a1" : "rgba(255,255,255,0.95)"}`,
+                    border: `2px solid ${
+                      isCorrectOpt ? "#4ade80" : isWrongOpt ? "#f87171" : "rgba(255,255,255,0.95)"
+                    }`,
                     cursor: selectedAnswer ? "default" : "pointer",
-                    boxShadow: isSelected ? "0 6px 24px rgba(3,105,161,0.4)" : "0 2px 12px rgba(0,0,0,0.08)",
-                    transition: "background 0.12s, border 0.12s, color 0.12s",
+                    boxShadow: isCorrectOpt
+                      ? "0 6px 24px rgba(74,222,128,0.5)"
+                      : isWrongOpt
+                      ? "0 6px 24px rgba(248,113,113,0.5)"
+                      : "0 2px 12px rgba(0,0,0,0.08)",
                     display: "flex", alignItems: "center", gap: "12px",
+                    transition: "background 0.15s, border 0.15s, color 0.15s",
                   }}
                 >
                   <span style={{
-                    width: 28, height: 28, borderRadius: "8px",
-                    background: isSelected ? "rgba(255,255,255,0.2)" : "rgba(15,23,42,0.06)",
+                    width: 30, height: 30, borderRadius: "9px", flexShrink: 0,
+                    background: isSelected ? "rgba(255,255,255,0.25)" : "rgba(15,23,42,0.06)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "0.78rem", fontWeight: 900, flexShrink: 0,
+                    fontSize: "0.8rem", fontWeight: 900,
                     color: isSelected ? "#fff" : "#64748b",
                   }}>
-                    {["A", "B", "C", "D"][idx]}
+                    {["A","B","C","D"][idx]}
                   </span>
                   {opt}
                 </motion.button>
               );
             })}
 
-            {currentQuestion.type === "short" && (
+            {!isMC && (
               <>
                 <input
                   type="text"
@@ -327,8 +360,9 @@ export function GameScreen() {
                   }}
                 />
                 <button
-                  onClick={() => shortInput.trim() && handleAnswer(shortInput.trim())}
+                  onClick={() => { if (!isMuted) audio.click(); shortInput.trim() && handleAnswer(shortInput.trim()); }}
                   disabled={!shortInput.trim() || !!selectedAnswer}
+                  className="neon-btn"
                   style={{
                     padding: "1rem 1.4rem", borderRadius: "16px",
                     background: "#0369a1", color: "#fff",
@@ -337,9 +371,7 @@ export function GameScreen() {
                     cursor: shortInput.trim() ? "pointer" : "default", border: "none",
                     boxShadow: "0 4px 20px rgba(3,105,161,0.4)",
                   }}
-                >
-                  Confirmar →
-                </button>
+                >Confirmar →</button>
               </>
             )}
           </motion.div>
