@@ -4,96 +4,136 @@ import { audio } from "../utils/audio";
 import { useBreakpoint } from "../hooks/useBreakpoint";
 import logoImg from "/logo.jpeg";
 
-interface Props { isMuted: boolean; onToggleMute: () => void }
+interface Props {
+  isMuted: boolean;
+  onToggleMute: () => void;
+  onOpenShop: () => void;
+}
 
-export function MenuScreen({ isMuted, onToggleMute }: Props) {
-  const { highScore } = useGameStore();
+export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
+  const { highScore, coins } = useGameStore();
   const { isMobile, isTablet } = useBreakpoint();
 
-  /* ── Mobile layout ───────────────────────────────────────── */
+  const handlePlay = () => {
+    if (!isMuted) audio.click();
+    useGameStore.getState().resetGame();
+  };
+
+  /* ── Shared elements ─────────────────────────────────────── */
+  const CoinBadge = ({ size = "sm" }: { size?: "sm" | "lg" }) => (
+    <div style={{
+      display: "flex", alignItems: "center", gap: size === "lg" ? 8 : 5,
+      padding: size === "lg" ? "6px 16px" : "4px 12px",
+      borderRadius: "999px",
+      background: "rgba(250,204,21,0.15)",
+      border: "1.5px solid rgba(250,204,21,0.38)",
+    }}>
+      <span style={{ fontSize: size === "lg" ? "1.2rem" : "0.95rem" }}>🪙</span>
+      <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: size === "lg" ? "1.15rem" : "0.95rem", fontWeight: 900, color: "#fde68a" }}>
+        {coins.toLocaleString()}
+      </span>
+    </div>
+  );
+
+  const ShopBtn = ({ full = false }) => (
+    <motion.button
+      whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+      onClick={onOpenShop}
+      style={{
+        padding: full ? "0.9rem" : "0.75rem 1.4rem",
+        width: full ? "100%" : "auto",
+        borderRadius: "14px",
+        background: "rgba(255,255,255,0.18)",
+        border: "1.5px solid rgba(255,255,255,0.32)",
+        color: "#fff", fontFamily: "'Outfit', sans-serif",
+        fontSize: full ? "1rem" : "0.9rem", fontWeight: 800,
+        cursor: "pointer", letterSpacing: "0.02em",
+      }}
+    >🛒 Tienda</motion.button>
+  );
+
+  const PlayBtn = ({ full = false }) => (
+    <motion.button
+      whileTap={{ scale: 0.96 }} whileHover={{ scale: 1.04, boxShadow: "0 16px 48px rgba(0,0,0,0.28)" }}
+      onClick={handlePlay}
+      className="neon-btn"
+      style={{
+        padding: full ? "1.1rem" : "1.15rem 3.5rem",
+        width: full ? "100%" : "auto",
+        borderRadius: "18px", background: "#fff", color: "#0369a1",
+        fontFamily: "'Outfit', sans-serif", fontSize: "1.2rem", fontWeight: 900,
+        letterSpacing: "0.02em", border: "none", cursor: "pointer",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.22)",
+      }}
+    >¡Jugar ahora! 🎯</motion.button>
+  );
+
+  const Tags = () => (
+    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: isMobile ? "center" : "flex-start" }}>
+      {["❤️ 3 vidas", "⏱️ Timer", "🔥 Racha ×4", "📚 170+", "🛒 Tienda"].map(tag => (
+        <span key={tag} style={{ padding: "0.35rem 0.9rem", borderRadius: "999px", background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.28)", fontSize: "0.76rem", fontWeight: 700, color: "#fff" }}>{tag}</span>
+      ))}
+    </div>
+  );
+
+  /* ── Mobile ─────────────────────────────────────────────── */
   if (isMobile) {
     return (
       <motion.div
-        style={{
-          width: "100%", minHeight: "100%",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          padding: "32px 24px 40px",
-          overflowY: "auto",
-        }}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        transition={{ duration: 0.25 }}
+        style={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "28px 20px 36px", overflowY: "auto" }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
       >
-        {/* Mute */}
-        <button onClick={onToggleMute} style={muteStyle("absolute", 16, 20)}>
-          {isMuted ? "🔇" : "🔊"}
-        </button>
+        {/* Top bar */}
+        <div style={{ position: "absolute", top: 14, left: 16, right: 16, display: "flex", alignItems: "center", gap: "8px", justifyContent: "space-between" }}>
+          <CoinBadge />
+          <div style={{ display: "flex", gap: "6px" }}>
+            <motion.button whileTap={{ scale: 0.94 }} onClick={onOpenShop} style={iconBtnStyle}>🛒</motion.button>
+            <motion.button whileTap={{ scale: 0.94 }} onClick={onToggleMute} style={iconBtnStyle}>{isMuted ? "🔇" : "🔊"}</motion.button>
+          </div>
+        </div>
 
-        {/* Logo */}
-        <motion.img
-          src={logoImg} alt="¿Che Sabes?"
-          animate={{ y: [0, -8, 0] }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-          style={{
-            width: 160, height: 160, borderRadius: "36px", objectFit: "cover",
-            boxShadow: "0 16px 56px rgba(0,0,0,0.28)",
-            border: "3px solid rgba(255,255,255,0.9)",
-            marginBottom: "1.2rem",
-          }}
+        <motion.img src={logoImg} alt="¿Che Sabes?"
+          animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          style={{ width: 150, height: 150, borderRadius: "34px", objectFit: "cover", boxShadow: "0 16px 52px rgba(0,0,0,0.28)", border: "3px solid rgba(255,255,255,0.9)", marginBottom: "1rem" }}
         />
 
-        {/* Title */}
-        <p style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.68)", marginBottom: "0.25rem" }}>
-          🎯 Trivia Game
-        </p>
-        <h1 style={{
-          fontFamily: "'Outfit', sans-serif", fontSize: "3rem", fontWeight: 900,
-          color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.5rem",
-          textShadow: "0 4px 24px rgba(0,0,0,0.18)",
-        }}>¿Che Sabes?</h1>
-        <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.78)", textAlign: "center", lineHeight: 1.55, marginBottom: "1.4rem" }}>
+        <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", marginBottom: "0.2rem" }}>🎯 Trivia Game</p>
+        <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "2.8rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.5rem", textShadow: "0 4px 20px rgba(0,0,0,0.18)" }}>¿Che Sabes?</h1>
+        <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.75)", textAlign: "center", lineHeight: 1.55, marginBottom: "1.2rem" }}>
           Pon a prueba tu conocimiento con más de 170 preguntas en 5 categorías.
         </p>
 
-        {/* High score */}
         {highScore > 0 && (
-          <div style={{ ...glassCard, marginBottom: "1.2rem", padding: "0.7rem 1.4rem", display: "flex", alignItems: "center", gap: "12px" }}>
-            <span style={{ fontSize: "1.5rem" }}>🏆</span>
+          <div style={{ ...glassCard, marginBottom: "1rem", padding: "0.65rem 1.3rem", display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "1.4rem" }}>🏆</span>
             <div>
-              <p style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.58)", marginBottom: "1px" }}>Tu récord</p>
-              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.5rem", fontWeight: 900, color: "#fff", lineHeight: 1 }}>
-                {highScore.toLocaleString()} <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", fontWeight: 600 }}>pts</span>
-              </p>
+              <p style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>Tu récord</p>
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.4rem", fontWeight: 900, color: "#fff", lineHeight: 1 }}>{highScore.toLocaleString()}</p>
             </div>
           </div>
         )}
 
-        {/* Play */}
-        <motion.button
-          whileTap={{ scale: 0.96 }} whileHover={{ scale: 1.02 }}
-          onClick={() => { if (!isMuted) audio.click(); useGameStore.getState().resetGame(); }}
-          style={{ width: "100%", maxWidth: 300, padding: "1.1rem", borderRadius: "18px", background: "#fff", color: "#0369a1", fontFamily: "'Outfit', sans-serif", fontSize: "1.15rem", fontWeight: 900, border: "none", cursor: "pointer", boxShadow: "0 8px 32px rgba(0,0,0,0.2)", marginBottom: "1.2rem" }}
-        >¡Jugar ahora! 🎯</motion.button>
-
-        {/* Tags */}
-        <div style={{ display: "flex", gap: "7px", flexWrap: "wrap", justifyContent: "center" }}>
-          {["❤️ 3 vidas", "⏱️ Timer", "🔥 Racha ×4", "📚 170+", "🎓 3 fases"].map(tag => (
-            <span key={tag} style={{ padding: "0.32rem 0.8rem", borderRadius: "999px", background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.28)", fontSize: "0.74rem", fontWeight: 700, color: "#fff" }}>{tag}</span>
-          ))}
+        <div style={{ width: "100%", maxWidth: 300, display: "flex", flexDirection: "column", gap: "10px", marginBottom: "1.1rem" }}>
+          <PlayBtn full />
+          <ShopBtn full />
         </div>
+
+        <Tags />
       </motion.div>
     );
   }
 
-  /* ── Tablet layout ───────────────────────────────────────── */
+  /* ── Tablet ─────────────────────────────────────────────── */
   if (isTablet) {
     return (
       <motion.div
-        style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 40px", gap: "44px" }}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        transition={{ duration: 0.25 }}
+        style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "28px 40px", gap: "40px" }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
       >
-        <button onClick={onToggleMute} style={muteStyle("absolute", 16, 20)}>{isMuted ? "🔇" : "🔊"}</button>
+        <div style={{ position: "absolute", top: 14, right: 18, display: "flex", gap: "7px" }}>
+          <CoinBadge />
+          <motion.button whileTap={{ scale: 0.94 }} onClick={onToggleMute} style={iconBtnStyle}>{isMuted ? "🔇" : "🔊"}</motion.button>
+        </div>
 
         <motion.img src={logoImg} alt="¿Che Sabes?"
           animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -101,99 +141,87 @@ export function MenuScreen({ isMuted, onToggleMute }: Props) {
         />
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: 380 }}>
-          <p style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.68)", marginBottom: "0.35rem" }}>🎯 Trivia Game</p>
-          <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "3.2rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.5rem", textShadow: "0 4px 20px rgba(0,0,0,0.18)" }}>¿Che Sabes?</h1>
-          <p style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: "1.4rem" }}>
-            Pon a prueba tu conocimiento con más de 170 preguntas en 5 categorías.
-          </p>
+          <p style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.68)", marginBottom: "0.3rem" }}>🎯 Trivia Game</p>
+          <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "3rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.5rem" }}>¿Che Sabes?</h1>
+          <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: "1.2rem" }}>Pon a prueba tu conocimiento con más de 170 preguntas.</p>
           {highScore > 0 && (
-            <div style={{ ...glassCard, marginBottom: "1.4rem", padding: "0.65rem 1.4rem", display: "flex", alignItems: "center", gap: "12px" }}>
-              <span style={{ fontSize: "1.5rem" }}>🏆</span>
+            <div style={{ ...glassCard, marginBottom: "1.2rem", padding: "0.6rem 1.3rem", display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "1.4rem" }}>🏆</span>
               <div>
-                <p style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.58)" }}>Tu récord</p>
-                <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.5rem", fontWeight: 900, color: "#fff", lineHeight: 1 }}>
-                  {highScore.toLocaleString()} <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", fontWeight: 600 }}>pts</span>
-                </p>
+                <p style={{ fontSize: "0.58rem", fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>Tu récord</p>
+                <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.4rem", fontWeight: 900, color: "#fff", lineHeight: 1 }}>{highScore.toLocaleString()}</p>
               </div>
             </div>
           )}
-          <motion.button whileTap={{ scale: 0.96 }} whileHover={{ scale: 1.03 }}
-            onClick={() => { if (!isMuted) audio.click(); useGameStore.getState().resetGame(); }}
-            style={{ padding: "1.05rem 2.8rem", borderRadius: "16px", background: "#fff", color: "#0369a1", fontFamily: "'Outfit', sans-serif", fontSize: "1.1rem", fontWeight: 900, border: "none", cursor: "pointer", boxShadow: "0 8px 28px rgba(0,0,0,0.2)", marginBottom: "1.2rem" }}
-          >¡Jugar ahora! 🎯</motion.button>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            {["❤️ 3 vidas", "⏱️ Timer", "🔥 ×4", "📚 170+"].map(tag => (
-              <span key={tag} style={{ padding: "0.35rem 0.9rem", borderRadius: "999px", background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.28)", fontSize: "0.76rem", fontWeight: 700, color: "#fff" }}>{tag}</span>
-            ))}
+          <div style={{ display: "flex", gap: "10px", marginBottom: "1.1rem" }}>
+            <PlayBtn />
+            <ShopBtn />
           </div>
+          <Tags />
         </div>
       </motion.div>
     );
   }
 
-  /* ── Desktop layout ──────────────────────────────────────── */
+  /* ── Desktop ─────────────────────────────────────────────── */
   return (
     <motion.div
       style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 60px", gap: "64px" }}
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}
     >
-      <button onClick={onToggleMute} style={muteStyle("absolute", 20, 28)}>{isMuted ? "🔇" : "🔊"}</button>
+      {/* Top-right controls */}
+      <div style={{ position: "absolute", top: 18, right: 24, display: "flex", gap: "8px", alignItems: "center" }}>
+        <CoinBadge size="sm" />
+        <motion.button whileTap={{ scale: 0.94 }} onClick={onToggleMute} style={iconBtnStyle}>{isMuted ? "🔇" : "🔊"}</motion.button>
+      </div>
 
-      <motion.div initial={{ scale: 0.7, opacity: 0, x: -30 }} animate={{ scale: 1, opacity: 1, x: 0 }} transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.05 }} style={{ flexShrink: 0 }}>
+      <motion.div initial={{ scale: 0.7, opacity: 0, x: -30 }} animate={{ scale: 1, opacity: 1, x: 0 }} transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.04 }} style={{ flexShrink: 0 }}>
         <motion.img src={logoImg} alt="¿Che Sabes?"
           animate={{ y: [0, -12, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          style={{ width: 280, height: 280, borderRadius: "48px", objectFit: "cover", boxShadow: "0 24px 80px rgba(0,0,0,0.32), 0 0 60px rgba(255,255,255,0.1)", border: "4px solid rgba(255,255,255,0.9)", display: "block" }}
+          style={{ width: 280, height: 280, borderRadius: "48px", objectFit: "cover", boxShadow: "0 24px 80px rgba(0,0,0,0.32)", border: "4px solid rgba(255,255,255,0.9)", display: "block" }}
         />
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1, duration: 0.4 }} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: 520 }}>
+      <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1, duration: 0.35 }} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: 520 }}>
         <motion.p initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} style={{ fontSize: "0.78rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: "0.5rem" }}>🎯 Trivia Game</motion.p>
         <motion.h1 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "4.2rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.6rem", textShadow: "0 4px 24px rgba(0,0,0,0.2)" }}>¿Che Sabes?</motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.24 }} style={{ fontSize: "1.05rem", fontWeight: 500, color: "rgba(255,255,255,0.8)", marginBottom: "1.8rem", lineHeight: 1.6 }}>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.24 }} style={{ fontSize: "1.05rem", fontWeight: 500, color: "rgba(255,255,255,0.8)", marginBottom: "1.6rem", lineHeight: 1.6 }}>
           Pon a prueba tu conocimiento con más de 170 preguntas en 5 categorías. ¡La dificultad sube cada 10 preguntas!
         </motion.p>
+
         {highScore > 0 && (
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} style={{ ...glassCard, marginBottom: "1.6rem", padding: "0.8rem 1.75rem", display: "flex", alignItems: "center", gap: "16px" }}>
-            <span style={{ fontSize: "1.8rem" }}>🏆</span>
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} style={{ ...glassCard, marginBottom: "1.5rem", padding: "0.75rem 1.7rem", display: "flex", alignItems: "center", gap: "14px" }}>
+            <span style={{ fontSize: "1.7rem" }}>🏆</span>
             <div>
-              <p style={{ fontSize: "0.62rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)", marginBottom: "1px" }}>Tu récord</p>
-              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.7rem", fontWeight: 900, color: "#fff", lineHeight: 1 }}>
-                {highScore.toLocaleString()} <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "rgba(255,255,255,0.55)" }}>pts</span>
-              </p>
+              <p style={{ fontSize: "0.6rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.58)" }}>Tu récord</p>
+              <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.6rem", fontWeight: 900, color: "#fff", lineHeight: 1 }}>{highScore.toLocaleString()} <span style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.52)", fontWeight: 600 }}>pts</span></p>
             </div>
           </motion.div>
         )}
-        <motion.button initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32, type: "spring", stiffness: 200 }}
-          whileTap={{ scale: 0.96 }} whileHover={{ scale: 1.04, boxShadow: "0 16px 56px rgba(0,0,0,0.3)" }}
-          onClick={() => { if (!isMuted) audio.click(); useGameStore.getState().resetGame(); }}
-          className="neon-btn"
-          style={{ padding: "1.15rem 3.5rem", borderRadius: "18px", background: "#fff", color: "#0369a1", fontFamily: "'Outfit', sans-serif", fontSize: "1.25rem", fontWeight: 900, letterSpacing: "0.02em", border: "none", cursor: "pointer", boxShadow: "0 8px 32px rgba(0,0,0,0.22)", marginBottom: "1.5rem" }}
-        >¡Jugar ahora! 🎯</motion.button>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.44 }} style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          {["❤️ 3 vidas", "⏱️ Timer adaptativo", "🔥 Racha ×4", "📚 170+ preguntas", "🎓 3 fases"].map(tag => (
-            <span key={tag} style={{ padding: "0.4rem 1rem", borderRadius: "999px", background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.3)", fontSize: "0.8rem", fontWeight: 700, color: "#fff" }}>{tag}</span>
-          ))}
+
+        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32, type: "spring", stiffness: 200 }} style={{ display: "flex", gap: "12px", marginBottom: "1.4rem" }}>
+          <PlayBtn />
+          <ShopBtn />
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.42 }}>
+          <Tags />
         </motion.div>
       </motion.div>
     </motion.div>
   );
 }
 
-// ── Shared helpers ──────────────────────────────────────────
 const glassCard: React.CSSProperties = {
   borderRadius: "16px",
   background: "rgba(255,255,255,0.18)",
   backdropFilter: "blur(12px)",
-  border: "1.5px solid rgba(255,255,255,0.35)",
+  border: "1.5px solid rgba(255,255,255,0.32)",
 };
 
-function muteStyle(position: "absolute" | "fixed", top: number, right: number): React.CSSProperties {
-  return {
-    position, top, right, zIndex: 10,
-    background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.3)",
-    borderRadius: "50%", width: 38, height: 38,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    cursor: "pointer", fontSize: "1.1rem",
-  };
-}
+const iconBtnStyle: React.CSSProperties = {
+  background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.28)",
+  borderRadius: "50%", width: 36, height: 36,
+  display: "flex", alignItems: "center", justifyContent: "center",
+  cursor: "pointer", fontSize: "1rem",
+};

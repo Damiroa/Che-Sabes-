@@ -8,25 +8,18 @@ import { GameScreen } from "./components/GameScreen";
 import { FeedbackScreen } from "./components/FeedbackScreen";
 import { StageUpScreen } from "./components/StageUpScreen";
 import { GameOverScreen } from "./components/GameOverScreen";
+import { ShopPanel } from "./components/ShopPanel";
 import { audio } from "./utils/audio";
 
-// Shared page-transition variants — blur + fade + slight scale
-// Applied once here so individual screens don't need their own initial/exit
-const PAGE: Record<string, object> = {
-  initial: { opacity: 0, filter: "blur(10px)", scale: 0.97 },
-  animate: { opacity: 1, filter: "blur(0px)",  scale: 1    },
-  exit:    { opacity: 0, filter: "blur(10px)", scale: 0.97 },
-};
-const PAGE_TRANSITION = { duration: 0.28, ease: [0.4, 0, 0.2, 1] };
+const PAGE_TRANSITION = { duration: 0.26, ease: [0.4, 0, 0.2, 1] };
 
 function Page({ children, id }: { children: React.ReactNode; id: string }) {
   return (
     <motion.div
       key={id}
-      variants={PAGE}
-      initial="initial"
-      animate="animate"
-      exit="exit"
+      initial={{ opacity: 0, filter: "blur(10px)", scale: 0.97 }}
+      animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+      exit={{ opacity: 0, filter: "blur(10px)", scale: 0.97 }}
       transition={PAGE_TRANSITION}
       style={{
         position: "absolute", inset: 0,
@@ -42,23 +35,27 @@ function Page({ children, id }: { children: React.ReactNode; id: string }) {
 
 function App() {
   const phase = useGameStore((s) => s.phase);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted,    setIsMuted]    = useState(false);
+  const [isShopOpen, setIsShopOpen] = useState(false);
 
   const handleToggleMute = () => {
     const nowMuted = audio.toggle();
     setIsMuted(nowMuted);
   };
 
-  // Music: start when entering gameplay, stop on menu/game-over
+  const openShop  = () => { audio.click(); setIsShopOpen(true);  };
+  const closeShop = () => setIsShopOpen(false);
+
   useEffect(() => {
-    const playing = phase === "category-select" || phase === "playing"
-      || phase === "feedback" || phase === "stage-up";
-    if (playing && !isMuted) {
-      audio.startBg();
-    } else if (phase === "menu" || phase === "game-over") {
-      audio.stopBg();
-    }
+    const playing = ["category-select", "playing", "feedback", "stage-up"].includes(phase);
+    if (playing && !isMuted) audio.startBg();
+    else if (phase === "menu" || phase === "game-over") audio.stopBg();
   }, [phase, isMuted]);
+
+  // Close shop when a game starts
+  useEffect(() => {
+    if (phase === "playing") setIsShopOpen(false);
+  }, [phase]);
 
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
@@ -68,7 +65,7 @@ function App() {
         <AnimatePresence mode="wait">
           {phase === "menu" && (
             <Page id="menu">
-              <MenuScreen isMuted={isMuted} onToggleMute={handleToggleMute} />
+              <MenuScreen isMuted={isMuted} onToggleMute={handleToggleMute} onOpenShop={openShop} />
             </Page>
           )}
           {phase === "category-select" && (
@@ -88,16 +85,18 @@ function App() {
           )}
           {phase === "game-over" && (
             <Page id="gameover">
-              <GameOverScreen isMuted={isMuted} />
+              <GameOverScreen isMuted={isMuted} onOpenShop={openShop} />
             </Page>
           )}
         </AnimatePresence>
 
-        {/* Stage-up overlay — not in mode="wait" so it layers on top */}
         <AnimatePresence>
           {phase === "stage-up" && <StageUpScreen key="stage-up" />}
         </AnimatePresence>
       </div>
+
+      {/* Shop overlay — always mounted so it can slide over any screen */}
+      <ShopPanel isOpen={isShopOpen} onClose={closeShop} />
     </div>
   );
 }
