@@ -105,6 +105,31 @@ const extraRows: Row[] = [
   ["5to", "Filosofía", "¿Qué corriente sostiene que la existencia concreta precede a una esencia fija?", "Existencialismo", ["Existencialismo", "Empirismo", "Positivismo", "Estoicismo"], "hard"],
 ];
 
+type ReviewRow = [Subject, string, string, string[], "easy" | "medium" | "hard"];
+
+const reviewRows: ReviewRow[] = [
+  ["Ciencias Naturales", "¿Qué unidad básica forma a todos los seres vivos?", "Célula", ["Átomo", "Célula", "Tejido", "Órgano"], "easy"],
+  ["Ciencias Naturales", "¿Qué cambio de estado transforma un líquido en gas?", "Evaporación", ["Fusión", "Evaporación", "Solidificación", "Condensación"], "medium"],
+  ["Ciencias Sociales", "¿Qué proceso ocurre cuando una persona cambia de país para vivir?", "Migración", ["Migración", "Erosión", "Urbanización", "Industrialización"], "easy"],
+  ["Ciencias Sociales", "¿Qué estudia principalmente la economía?", "La producción y distribución de bienes", ["Los astros", "La producción y distribución de bienes", "Los ecosistemas", "Las lenguas"], "medium"],
+  ["Historia", "¿Qué documento declaró la independencia argentina en 1816?", "Acta de la Independencia", ["Acta de la Independencia", "Constitución de 1853", "Pacto Federal", "Tratado de Versalles"], "easy"],
+  ["Historia", "¿Qué proceso político transformó las colonias americanas en países independientes?", "Las independencias americanas", ["Las independencias americanas", "La Guerra Fría", "La Reforma Protestante", "La Revolución Industrial"], "medium"],
+  ["Geografía", "¿Qué instrumento permite ubicar puntos mediante latitud y longitud?", "Coordenadas geográficas", ["Coordenadas geográficas", "Escala cromática", "Pirámide de población", "Rosa de los vientos"], "easy"],
+  ["Geografía", "¿Qué movimiento de la Tierra produce el día y la noche?", "Rotación", ["Traslación", "Rotación", "Precesión", "Inclinación"], "medium"],
+  ["Informática", "¿Qué programa se utiliza para navegar por sitios web?", "Navegador", ["Navegador", "Compilador", "Editor de audio", "Antivirus"], "easy"],
+  ["Informática", "¿Qué característica debe tener una contraseña segura?", "Ser larga y combinar distintos caracteres", ["Ser el nombre propio", "Ser larga y combinar distintos caracteres", "Ser igual en todos los sitios", "Compartirse con amigos"], "medium"],
+  ["Cultura General", "¿Qué océano baña la costa este de Argentina?", "Atlántico", ["Pacífico", "Atlántico", "Índico", "Ártico"], "easy"],
+  ["Cultura General", "¿Qué científico argentino recibió un Premio Nobel de Medicina en 1947?", "Bernardo Houssay", ["Bernardo Houssay", "Jorge Luis Borges", "René Favaloro", "Manuel Belgrano"], "hard"],
+  ["Videojuegos", "¿Qué dispositivo se usa habitualmente para controlar un videojuego?", "Control", ["Control", "Microscopio", "Escáner", "Router"], "easy"],
+  ["Videojuegos", "¿Qué significa que un juego sea multijugador?", "Que permite jugar a varias personas", ["Que no tiene reglas", "Que permite jugar a varias personas", "Que solo funciona sin pantalla", "Que tiene un solo nivel"], "medium"],
+  ["Música", "¿Qué símbolo indica silencio en una partitura?", "Silencio", ["Silencio", "Clave", "Armadura", "Compás"], "easy"],
+  ["Música", "¿Cómo se llama la combinación de sonidos tocados al mismo tiempo?", "Armonía", ["Melodía", "Armonía", "Tempo", "Timbre"], "medium"],
+  ["Filosofía", "¿Qué disciplina filosófica reflexiona sobre la belleza y el arte?", "Estética", ["Estética", "Lógica", "Epistemología", "Política"], "easy"],
+  ["Filosofía", "¿Qué método consiste en examinar una idea mediante preguntas y respuestas?", "Diálogo socrático", ["Diálogo socrático", "Experimento", "Observación astronómica", "Cálculo diferencial"], "medium"],
+];
+
+const courses: Course[] = ["1ro", "2do", "3ro", "4to", "5to", "6to"];
+
 const toQuestion = (row: Row, id: number): Question => {
   const [course, subject, question, correct, options, difficulty] = row;
   return { id, course, subject, category: "culture" as Category, difficulty, type: "multiple", question, correct, options, points: difficulty === "easy" ? 100 : difficulty === "medium" ? 200 : 400 };
@@ -113,4 +138,7 @@ const toQuestion = (row: Row, id: number): Question => {
 export const courseQuestions: Question[] = [
   ...suppliedQuestions.map((question, index) => ({ ...question, id: 1000 + index })),
   ...extraRows.map((row, index) => toQuestion(row, 1100 + index)),
+  ...courses.flatMap((course, courseIndex) =>
+    reviewRows.map((row, rowIndex) => toQuestion([course, ...row], 2000 + courseIndex * reviewRows.length + rowIndex)),
+  ),
 ];
