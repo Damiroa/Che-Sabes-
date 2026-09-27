@@ -1,4 +1,5 @@
 name: Deploy Preguntados IGC
+# Redeploy the current course and subject question bank.
 # The repository name supplies the Pages base path automatically.
 
 on:
