@@ -1,4 +1,5 @@
 name: Deploy Preguntados IGC
+# The repository name supplies the Pages base path automatically.
 
 on:
   push:
