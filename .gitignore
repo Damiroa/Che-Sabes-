@@ -47,3 +47,7 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Local game server runtime files
+.game-server.pid
+game-server.log
