@@ -5,7 +5,6 @@ import { ScoreCounter } from "./ScoreCounter";
 import { Particles } from "./Particles";
 import { audio } from "../utils/audio";
 import { useBreakpoint } from "../hooks/useBreakpoint";
-import logoImg from "/logo.jpeg";
 
 interface Props { isMuted: boolean; onOpenShop: () => void }
 
@@ -66,6 +65,32 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
     </div>
   );
 
+  const ResultBadge = ({ size }: { size: number }) => (
+    <motion.div
+      initial={{ scale: 0.7, opacity: 0, rotate: -5 }}
+      animate={{ scale: 1, opacity: 1, rotate: 0 }}
+      transition={{ type: "spring", stiffness: 220, damping: 14 }}
+      style={{
+        width: size, height: size, borderRadius: Math.round(size * 0.24),
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        gap: size * 0.04, flexShrink: 0,
+        background: isNewRecord
+          ? "linear-gradient(145deg, #fef08a, #facc15)"
+          : "linear-gradient(145deg, #fb7185, #dc2626)",
+        border: `${Math.max(3, Math.round(size * 0.025))}px solid rgba(255,255,255,0.9)`,
+        boxShadow: isNewRecord ? "0 16px 48px rgba(250,204,21,0.38)" : "0 16px 48px rgba(127,29,29,0.36)",
+        color: isNewRecord ? "#713f12" : "#fff",
+        transform: "rotate(-2deg)",
+      }}
+    >
+      <span style={{ fontSize: size * 0.25 }}>{isNewRecord ? "🏆" : "💔"}</span>
+      <strong style={{ fontFamily: "'Outfit', sans-serif", fontSize: size * 0.14, fontWeight: 900, letterSpacing: "0.08em" }}>
+        {isNewRecord ? "¡RÉCORD!" : "PERDISTE"}
+      </strong>
+      <span style={{ fontSize: size * 0.075, fontWeight: 800, opacity: 0.86 }}>Sigue intentando</span>
+    </motion.div>
+  );
+
   /* ── Mobile ──────────────────────────────────────────────── */
   if (isMobile) {
     return (
@@ -74,13 +99,7 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
         <motion.div style={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "28px 18px 36px", gap: "14px", overflowY: "auto" }}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
         >
-          <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 220 }} style={{ position: "relative" }}>
-            <img src={logoImg} alt="¿Che Sabes?" style={{ width: 110, height: 110, borderRadius: "26px", objectFit: "cover", boxShadow: "0 12px 40px rgba(0,0,0,0.26)", border: "3px solid rgba(255,255,255,0.9)" }} />
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.28 }}
-              style={{ position: "absolute", bottom: -12, right: -12, width: 40, height: 40, borderRadius: "50%", background: isNewRecord ? "#fef9c3" : "rgba(255,255,255,0.92)", border: `3px solid ${isNewRecord ? "#fde68a" : "rgba(255,255,255,0.6)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem" }}>
-              {isNewRecord ? "🏆" : "💀"}
-            </motion.div>
-          </motion.div>
+          <ResultBadge size={150} />
           <div style={{ textAlign: "center" }}>
             <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.8rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em" }}>{isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}</h2>
             {isNewRecord && <p style={{ fontSize: "0.82rem", color: "#bbf7d0", fontWeight: 600 }}>¡Superaste tu mejor puntaje!</p>}
@@ -105,13 +124,7 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
         >
           <motion.div initial={{ scale: 0.75, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 220 }} style={{ display: "flex", alignItems: "center", gap: "18px" }}>
-            <div style={{ position: "relative" }}>
-              <img src={logoImg} alt="¿Che Sabes?" style={{ width: 120, height: 120, borderRadius: "26px", objectFit: "cover", boxShadow: "0 12px 40px rgba(0,0,0,0.26)", border: "3px solid rgba(255,255,255,0.9)" }} />
-              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.28 }}
-                style={{ position: "absolute", bottom: -13, right: -13, width: 44, height: 44, borderRadius: "50%", background: isNewRecord ? "#fef9c3" : "rgba(255,255,255,0.92)", border: `3px solid ${isNewRecord ? "#fde68a" : "rgba(255,255,255,0.6)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
-                {isNewRecord ? "🏆" : "💀"}
-              </motion.div>
-            </div>
+            <ResultBadge size={150} />
             <div>
               <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "2rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em" }}>{isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}</h2>
               {isNewRecord && <p style={{ fontSize: "0.88rem", color: "#bbf7d0", fontWeight: 600 }}>¡Superaste tu mejor puntaje!</p>}
@@ -139,18 +152,9 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
       >
         <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 220, damping: 18 }}
           style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", flexShrink: 0 }}>
-          <div style={{ position: "relative" }}>
-            <motion.img src={logoImg} alt="¿Che Sabes?"
-              animate={isNewRecord ? { y: [0,-8,0] } : {}} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              style={{ width: 160, height: 160, borderRadius: "30px", objectFit: "cover", boxShadow: isNewRecord ? "0 12px 48px rgba(250,204,21,0.4)" : "0 12px 48px rgba(0,0,0,0.28)", border: "3px solid rgba(255,255,255,0.9)" }}
-            />
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 320, damping: 14, delay: 0.28 }}
-              style={{ position: "absolute", bottom: -17, right: -17, width: 54, height: 54, borderRadius: "50%", background: isNewRecord ? "#fef9c3" : "rgba(255,255,255,0.92)", border: `3px solid ${isNewRecord ? "#fde68a" : "rgba(255,255,255,0.6)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem" }}>
-              {isNewRecord ? "🏆" : "💀"}
-            </motion.div>
-          </div>
+          <ResultBadge size={190} />
           <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.58)", textTransform: "uppercase", marginBottom: "3px" }}>¿Che Sabes?</p>
+            <p style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.58)", textTransform: "uppercase", marginBottom: "3px" }}>Preguntados Escolar</p>
             <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "2.1rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", textShadow: isNewRecord ? "0 0 30px rgba(250,204,21,0.5)" : "0 4px 20px rgba(0,0,0,0.2)" }}>
               {isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}
             </h2>

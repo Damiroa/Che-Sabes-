@@ -1,6 +1,6 @@
 kind = "web"
-previewPath = "/"
-title = "Trivia Master"
+previewPath = "/igc-juegos/"
+title = "Preguntados IGC"
 version = "1.0.0"
 id = "artifacts/trivia-game"
 router = "path"
@@ -11,7 +11,7 @@ version = "1.0.0"
 
 [[services]]
 name = "web"
-paths = [ "/" ]
+paths = [ "/igc-juegos/" ]
 localPort = 23114
 
 [services.development]
@@ -28,4 +28,4 @@ to = "/index.html"
 
 [services.env]
 PORT = "23114"
-BASE_PATH = "/"
+BASE_PATH = "/igc-juegos/"

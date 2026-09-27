@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore, getStreakMultiplier } from "../engine/gameStore";
 import { CATEGORY_COLORS, CATEGORY_ICONS } from "../data/questions";
+import { SUBJECT_ICONS, Subject } from "../data/courseQuestions";
 import { CircularTimer } from "./CircularTimer";
 import { ScoreCounter } from "./ScoreCounter";
 import { FloatingReward } from "./FloatingReward";
@@ -71,6 +72,8 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
   const diffColor     = { easy: "#4ade80", medium: "#fbbf24", hard: "#f87171" }[currentQuestion.difficulty];
   const diffLabel     = { easy: "Fácil",   medium: "Medio",   hard: "Difícil"  }[currentQuestion.difficulty];
   const catLabel      = { genius: "Genio", entertainment: "Entretenimiento", sports: "Deportes", culture: "Cultura Pop", random: "Random" }[currentQuestion.category];
+  const subjectLabel  = currentQuestion.subject ?? catLabel;
+  const subjectIcon   = SUBJECT_ICONS[currentQuestion.subject as Subject] ?? CATEGORY_ICONS[currentQuestion.category];
   const catColor      = CATEGORY_COLORS[currentQuestion.category];
   const isMC          = currentQuestion.type !== "short" && !!currentQuestion.options;
   const options       = currentQuestion.options ?? [];
@@ -202,7 +205,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
         {/* Content */}
         <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px 22px", display: "flex", flexDirection: "column", gap: "11px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textTransform: "uppercase" }}>{CATEGORY_ICONS[currentQuestion.category]} {catLabel}</span>
+            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textTransform: "uppercase" }}>{subjectIcon} {subjectLabel}</span>
             <span style={{ marginLeft: "auto", padding: "2px 7px", borderRadius: "999px", background: `${diffColor}30`, border: `1.5px solid ${diffColor}60`, fontSize: "0.66rem", fontWeight: 700, color: diffColor }}>{diffLabel}</span>
             <CircularTimer timeLeft={timeLeft} total={timerSeconds} />
           </div>
@@ -249,7 +252,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
             <motion.div key={currentQuestion.id + "-q"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}
               style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "13px" }}>
               <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                {CATEGORY_ICONS[currentQuestion.category]} {catLabel} <span style={{ color: "rgba(255,255,255,0.45)", marginLeft: 6 }}>+{currentQuestion.points * multiplier} pts</span>
+                {subjectIcon} {subjectLabel} <span style={{ color: "rgba(255,255,255,0.45)", marginLeft: 6 }}>+{currentQuestion.points * multiplier} pts</span>
               </p>
               <div style={{ background: "rgba(255,255,255,0.92)", border: "2px solid rgba(255,255,255,0.98)", borderRadius: "20px", padding: "1.5rem 1.7rem", boxShadow: "0 8px 32px rgba(0,0,0,0.14)", flex: 1, display: "flex", alignItems: "center" }}>
                 <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.15rem", fontWeight: 600, color: "#0f172a", lineHeight: 1.55 }}>{currentQuestion.question}</p>
@@ -302,8 +305,8 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
           <motion.div key={currentQuestion.id + "-q"} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.22, ease: "easeOut" }}
             style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "1rem" }}>
-              <span style={{ width: 34, height: 34, borderRadius: "9px", background: `${catColor}28`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.15rem" }}>{CATEGORY_ICONS[currentQuestion.category]}</span>
-              <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{catLabel}</span>
+              <span style={{ width: 34, height: 34, borderRadius: "9px", background: `${catColor}28`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.15rem" }}>{subjectIcon}</span>
+              <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{subjectLabel}</span>
               <span style={{ marginLeft: "auto", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.58)", background: "rgba(255,255,255,0.12)", padding: "2px 9px", borderRadius: "999px" }}>+{currentQuestion.points * multiplier} pts</span>
             </div>
             <div style={{ background: "rgba(255,255,255,0.93)", backdropFilter: "blur(20px)", border: "2px solid rgba(255,255,255,0.98)", borderRadius: "22px", padding: "1.9rem 2rem", boxShadow: "0 8px 40px rgba(0,0,0,0.16)", flex: 1, display: "flex", alignItems: "center" }}>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Transition } from "framer-motion";
 import { useGameStore } from "./engine/gameStore";
 import { AnimatedBackground } from "./components/AnimatedBackground";
 import { MenuScreen } from "./components/MenuScreen";
@@ -11,7 +11,7 @@ import { GameOverScreen } from "./components/GameOverScreen";
 import { ShopPanel } from "./components/ShopPanel";
 import { audio } from "./utils/audio";
 
-const PAGE_TRANSITION = { duration: 0.26, ease: [0.4, 0, 0.2, 1] };
+const PAGE_TRANSITION: Transition = { duration: 0.26, ease: [0.4, 0, 0.2, 1] };
 
 function Page({ children, id }: { children: React.ReactNode; id: string }) {
   return (

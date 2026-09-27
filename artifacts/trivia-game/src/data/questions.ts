@@ -4,6 +4,8 @@ export type Difficulty = "easy" | "medium" | "hard";
 
 export interface Question {
   id: number;
+  course?: string;
+  subject?: string;
   category: Category;
   difficulty: Difficulty;
   type: QuestionType;

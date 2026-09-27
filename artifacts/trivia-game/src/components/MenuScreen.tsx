@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { useGameStore } from "../engine/gameStore";
 import { audio } from "../utils/audio";
 import { useBreakpoint } from "../hooks/useBreakpoint";
-import logoImg from "/logo.jpeg";
 
 interface Props {
   isMuted: boolean;
@@ -65,12 +64,12 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
         letterSpacing: "0.02em", border: "none", cursor: "pointer",
         boxShadow: "0 8px 32px rgba(0,0,0,0.22)",
       }}
-    >¡Jugar ahora! 🎯</motion.button>
+    >Comenzar partida 🎯</motion.button>
   );
 
   const Tags = () => (
     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: isMobile ? "center" : "flex-start" }}>
-      {["❤️ 3 vidas", "⏱️ Timer", "🔥 Racha ×4", "📚 170+", "🛒 Tienda"].map(tag => (
+      {["🎓 6 cursos", "⏱️ Timer", "🔥 Racha ×4", "💡 Aprende jugando", "🛒 Tienda"].map(tag => (
         <span key={tag} style={{ padding: "0.35rem 0.9rem", borderRadius: "999px", background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.28)", fontSize: "0.76rem", fontWeight: 700, color: "#fff" }}>{tag}</span>
       ))}
     </div>
@@ -92,15 +91,10 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
           </div>
         </div>
 
-        <motion.img src={logoImg} alt="¿Che Sabes?"
-          animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-          style={{ width: 150, height: 150, borderRadius: "34px", objectFit: "cover", boxShadow: "0 16px 52px rgba(0,0,0,0.28)", border: "3px solid rgba(255,255,255,0.9)", marginBottom: "1rem" }}
-        />
-
-        <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", marginBottom: "0.2rem" }}>🎯 Trivia Game</p>
-        <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "2.8rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.5rem", textShadow: "0 4px 20px rgba(0,0,0,0.18)" }}>¿Che Sabes?</h1>
+        <p style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#fef08a", marginBottom: "0.35rem" }}>IGC · Juegos escolares</p>
+        <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "2.8rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.5rem", textShadow: "0 4px 20px rgba(0,0,0,0.18)" }}>Preguntados Escolar</h1>
         <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.75)", textAlign: "center", lineHeight: 1.55, marginBottom: "1.2rem" }}>
-          Pon a prueba tu conocimiento con más de 170 preguntas en 5 categorías.
+          Elige tu curso y demuestra cuánto sabes con preguntas y respuestas a tu nivel.
         </p>
 
         {highScore > 0 && (
@@ -135,15 +129,10 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
           <motion.button whileTap={{ scale: 0.94 }} onClick={onToggleMute} style={iconBtnStyle}>{isMuted ? "🔇" : "🔊"}</motion.button>
         </div>
 
-        <motion.img src={logoImg} alt="¿Che Sabes?"
-          animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          style={{ width: 200, height: 200, borderRadius: "40px", objectFit: "cover", boxShadow: "0 20px 64px rgba(0,0,0,0.3)", border: "3px solid rgba(255,255,255,0.9)", flexShrink: 0 }}
-        />
-
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: 380 }}>
-          <p style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.68)", marginBottom: "0.3rem" }}>🎯 Trivia Game</p>
-          <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "3rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.5rem" }}>¿Che Sabes?</h1>
-          <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: "1.2rem" }}>Pon a prueba tu conocimiento con más de 170 preguntas.</p>
+          <p style={{ fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#fef08a", marginBottom: "0.35rem" }}>IGC · Juegos escolares</p>
+          <h1 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "3rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.5rem" }}>Preguntados Escolar</h1>
+          <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.78)", lineHeight: 1.55, marginBottom: "1.2rem" }}>Elige tu curso y demuestra cuánto sabes.</p>
           {highScore > 0 && (
             <div style={{ ...glassCard, marginBottom: "1.2rem", padding: "0.6rem 1.3rem", display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ fontSize: "1.4rem" }}>🏆</span>
@@ -175,18 +164,11 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
         <motion.button whileTap={{ scale: 0.94 }} onClick={onToggleMute} style={iconBtnStyle}>{isMuted ? "🔇" : "🔊"}</motion.button>
       </div>
 
-      <motion.div initial={{ scale: 0.7, opacity: 0, x: -30 }} animate={{ scale: 1, opacity: 1, x: 0 }} transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.04 }} style={{ flexShrink: 0 }}>
-        <motion.img src={logoImg} alt="¿Che Sabes?"
-          animate={{ y: [0, -12, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          style={{ width: 280, height: 280, borderRadius: "48px", objectFit: "cover", boxShadow: "0 24px 80px rgba(0,0,0,0.32)", border: "4px solid rgba(255,255,255,0.9)", display: "block" }}
-        />
-      </motion.div>
-
-      <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1, duration: 0.35 }} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: 520 }}>
-        <motion.p initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} style={{ fontSize: "0.78rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)", marginBottom: "0.5rem" }}>🎯 Trivia Game</motion.p>
-        <motion.h1 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "4.2rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.6rem", textShadow: "0 4px 24px rgba(0,0,0,0.2)" }}>¿Che Sabes?</motion.h1>
+      <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.45 }} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", maxWidth: 620, padding: "2.8rem 3.2rem", borderRadius: "30px", background: "rgba(3,105,161,0.25)", border: "1px solid rgba(255,255,255,0.28)", boxShadow: "0 24px 70px rgba(2,56,87,0.2)", backdropFilter: "blur(14px)" }}>
+        <motion.p initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} style={{ fontSize: "0.78rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#fef08a", marginBottom: "0.5rem" }}>Preguntados IGC</motion.p>
+        <motion.h1 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "4.2rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1, marginBottom: "0.6rem", textShadow: "0 4px 24px rgba(0,0,0,0.2)" }}>Preguntados Escolar</motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.24 }} style={{ fontSize: "1.05rem", fontWeight: 500, color: "rgba(255,255,255,0.8)", marginBottom: "1.6rem", lineHeight: 1.6 }}>
-          Pon a prueba tu conocimiento con más de 170 preguntas en 5 categorías. ¡La dificultad sube cada 10 preguntas!
+          Elige tu curso y demuestra cuánto sabes con preguntas y respuestas adaptadas a tu nivel.
         </motion.p>
 
         {highScore > 0 && (

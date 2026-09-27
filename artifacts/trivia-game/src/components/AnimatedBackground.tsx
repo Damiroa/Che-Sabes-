@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, type Transition } from "framer-motion";
 import { useGameStore } from "../engine/gameStore";
 import { useBreakpoint } from "../hooks/useBreakpoint";
 
@@ -36,7 +36,13 @@ const STAGE_CFG: Record<number, StageCfg> = {
   },
 };
 
-const TRANSITION = { duration: 1.4, ease: "easeInOut" };
+const TRANSITION: Transition = { duration: 1.4, ease: "easeInOut" };
+const ACCENTS = [
+  { left: "12%", top: "18%", size: 10, delay: 0 },
+  { left: "78%", top: "23%", size: 7, delay: 1.4 },
+  { left: "22%", top: "78%", size: 8, delay: 2.6 },
+  { left: "86%", top: "74%", size: 12, delay: 0.8 },
+];
 
 export function AnimatedBackground() {
   const stage = useGameStore((s) => s.stage);
@@ -48,6 +54,7 @@ export function AnimatedBackground() {
 
   return (
     <motion.div
+      initial={false}
       animate={{ backgroundColor: cfg.bg }}
       transition={TRANSITION}
       style={{
@@ -55,6 +62,7 @@ export function AnimatedBackground() {
         overflow: "hidden", zIndex: 0, pointerEvents: "none",
       }}
     >
+      <div className="background-sheen" />
       {cfg.blobs.map((b, i) => (
         <motion.div
           key={i}
@@ -71,6 +79,18 @@ export function AnimatedBackground() {
             animationDelay: `${-(i * 2.8)}s`,
             willChange: "transform",
             transform: "translateZ(0)",
+          }}
+        />
+      ))}
+      {ACCENTS.map((accent, index) => (
+        <span
+          key={index}
+          className="background-accent"
+          style={{
+            position: "absolute", left: accent.left, top: accent.top,
+            width: accent.size, height: accent.size, borderRadius: "50%",
+            background: "rgba(255,255,255,0.92)", boxShadow: "0 0 18px rgba(255,255,255,0.7)",
+            animationDelay: `${accent.delay}s`,
           }}
         />
       ))}
