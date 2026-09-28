@@ -1,7 +1,7 @@
 import type { Category, Question } from "./questions";
 
 export type Course = "1ro" | "2do" | "3ro" | "4to" | "5to" | "6to";
-export type Subject = "Ciencias Naturales" | "Ciencias Sociales" | "Historia" | "Geografía" | "Informática" | "Cultura General" | "Videojuegos" | "Música" | "Filosofía";
+export type Subject = "Matemática" | "Ciencias Naturales" | "Ciencias Sociales" | "Historia" | "Geografía" | "Informática" | "Lengua y Literatura" | "Inglés" | "Cultura General" | "Videojuegos" | "Música" | "Arte" | "Deportes" | "Lógica" | "Filosofía";
 
 export const COURSE_LABELS: Record<Course, string> = {
   "1ro": "1ro secundario", "2do": "2do secundario", "3ro": "3ro secundario",
@@ -13,8 +13,8 @@ export const COURSE_ICONS: Record<Course, string> = {
 };
 
 export const SUBJECTS: Subject[] = [
-  "Ciencias Naturales", "Ciencias Sociales", "Historia", "Geografía", "Informática",
-  "Cultura General", "Videojuegos", "Música", "Filosofía",
+  "Matemática", "Ciencias Naturales", "Ciencias Sociales", "Historia", "Geografía", "Informática",
+  "Lengua y Literatura", "Inglés", "Cultura General", "Videojuegos", "Música", "Arte", "Deportes", "Lógica", "Filosofía",
 ];
 
 export const COURSE_SUBJECTS: Record<Course, Subject[]> = {
@@ -23,9 +23,9 @@ export const COURSE_SUBJECTS: Record<Course, Subject[]> = {
 };
 
 export const SUBJECT_ICONS: Record<Subject, string> = {
-  "Ciencias Naturales": "🔬", "Ciencias Sociales": "👥", Historia: "🏛️",
-  Geografía: "🌎", Informática: "💻", "Cultura General": "🌟",
-  Videojuegos: "🎮", Música: "🎵", Filosofía: "💭",
+  "Matemática": "📐", "Ciencias Naturales": "🔬", "Ciencias Sociales": "👥", Historia: "🏛️",
+  Geografía: "🌎", Informática: "💻", "Lengua y Literatura": "📖", Inglés: "🇬🇧",
+  "Cultura General": "🌟", Videojuegos: "🎮", Música: "🎵", Arte: "🎨", Deportes: "🏅", Lógica: "🧩", Filosofía: "💭",
 };
 
 interface CourseQuestion extends Omit<Question, "id" | "course" | "subject"> {
@@ -135,6 +135,18 @@ const reviewRows: ReviewRow[] = [
   ["Videojuegos", "¿Qué elemento permite guardar el progreso de una partida?", "Partida guardada", ["Partida guardada", "Textura", "Música", "Resolución"], "hard"],
   ["Música", "¿Qué instrumento tiene teclas blancas y negras y suele tener 88 teclas?", "Piano", ["Piano", "Violín", "Flauta", "Batería"], "hard"],
   ["Filosofía", "¿Qué rama analiza los razonamientos válidos?", "Lógica", ["Lógica", "Ética", "Estética", "Metafísica"], "hard"],
+  ["Matemática", "¿Cuánto es 25 + 37?", "62", ["52", "62", "72", "82"], "easy"],
+  ["Matemática", "¿Cuál es la solución de 3x + 5 = 20?", "5", ["3", "4", "5", "6"], "medium"],
+  ["Lengua y Literatura", "¿Qué palabra nombra una persona, animal, lugar o cosa?", "Sustantivo", ["Verbo", "Adjetivo", "Sustantivo", "Adverbio"], "easy"],
+  ["Lengua y Literatura", "¿Qué diferencia hay entre resumir y copiar?", "Resumir selecciona las ideas principales", ["Son lo mismo", "Resumir selecciona las ideas principales", "Copiar cambia el sentido", "Resumir inventa datos"], "medium"],
+  ["Inglés", "¿Qué significa ‘Good morning’?", "Buenos días", ["Buenas noches", "Buenos días", "Gracias", "Hasta luego"], "easy"],
+  ["Inglés", "¿Cuándo se usa ‘are’ en el presente del verbo to be?", "Con you, we y they", ["Solo con I", "Con he y she", "Con you, we y they", "Solo con it"], "medium"],
+  ["Arte", "¿Quién pintó la Mona Lisa?", "Leonardo da Vinci", ["Leonardo da Vinci", "Vincent van Gogh", "Pablo Picasso", "Claude Monet"], "easy"],
+  ["Arte", "¿Qué disciplina artística construye obras con volumen y materiales?", "Escultura", ["Fotografía", "Escultura", "Música", "Literatura"], "medium"],
+  ["Deportes", "¿Cuántos jugadores tiene un equipo de fútbol en la cancha?", "11", ["5", "7", "11", "15"], "easy"],
+  ["Deportes", "¿Cuánto vale un triple en básquet?", "3 puntos", ["1 punto", "2 puntos", "3 puntos", "4 puntos"], "medium"],
+  ["Lógica", "¿Qué número sigue en la serie 2, 4, 6, 8...?", "10", ["9", "10", "11", "12"], "easy"],
+  ["Lógica", "Si A es mayor que B y B es mayor que C, ¿cuál es mayor?", "A", ["A", "B", "C", "No se puede saber"], "medium"],
 ];
 
 const courses: Course[] = ["1ro", "2do", "3ro", "4to", "5to", "6to"];
