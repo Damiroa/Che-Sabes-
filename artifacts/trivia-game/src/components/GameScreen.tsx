@@ -13,7 +13,7 @@ interface Props { isMuted: boolean; onToggleMute: () => void }
 
 export function GameScreen({ isMuted, onToggleMute }: Props) {
   const {
-    lives, score, streak, skipsLeft, stage, questionsAnswered,
+    lives, score, streak, skipsLeft, stage, correctAnswers,
     currentQuestion, timerSeconds, answerQuestion, skipQuestion,
     coins, shop, activeShield, lastCoinsEarned,
   } = useGameStore();
@@ -77,7 +77,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
   const catColor      = CATEGORY_COLORS[currentQuestion.category];
   const isMC          = currentQuestion.type !== "short" && !!currentQuestion.options;
   const options       = currentQuestion.options ?? [];
-  const stageProgress = (questionsAnswered % 10) / 10;
+  const stageProgress = (correctAnswers % 4) / 4;
   const timerPct      = (timeLeft / timerSeconds) * 100;
   const timerBarColor = timeLeft > 8 ? "#4ade80" : timeLeft > 4 ? "#fbbf24" : "#f87171";
 
@@ -240,7 +240,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
           <span style={{ padding: "2px 9px", borderRadius: "999px", background: `${diffColor}28`, border: `1.5px solid ${diffColor}60`, fontSize: "0.66rem", fontWeight: 700, color: diffColor }}>{diffLabel}</span>
           {renderStreak("0.68rem")}
           {renderProgress("6px")}
-          <span style={{ fontSize: "0.66rem", color: "rgba(255,255,255,0.6)", fontWeight: 700 }}>{questionsAnswered % 10}/10</span>
+          <span style={{ fontSize: "0.66rem", color: "rgba(255,255,255,0.6)", fontWeight: 700 }}>{correctAnswers % 4}/4</span>
           <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.15rem", fontWeight: 900, color: "#fff" }} />
           {renderCoins("0.88rem")}
           <button onClick={handleSkip} disabled={skipsLeft <= 0} style={{ fontSize: "0.68rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: "transparent", border: "none", cursor: skipsLeft > 0 ? "pointer" : "default" }}>⏭ ({skipsLeft})</button>
@@ -291,7 +291,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
         {renderStreak("0.75rem")}
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "11px" }}>
           {renderProgress("8px")}
-          <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.62)", fontWeight: 700, whiteSpace: "nowrap" }}>{questionsAnswered % 10}/10</span>
+          <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.62)", fontWeight: 700, whiteSpace: "nowrap" }}>{correctAnswers % 4}/4</span>
         </div>
         <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.3rem", fontWeight: 900, color: "#fff", textShadow: "0 0 12px rgba(255,255,255,0.4)" }} />
         {renderCoins("0.92rem")}

@@ -53,6 +53,7 @@ export interface GameState {
   timerSeconds: number;
   difficulty: "easy" | "medium" | "hard";
   questionsAnswered: number;
+  correctAnswers: number;
 
   // Shop — persisted
   coins: number;
@@ -76,7 +77,7 @@ const MAX_LIVES      = 3;
 const INITIAL_TIMER  = 15;
 const MIN_TIMER      = 10;
 const TIMER_BONUS    = 4;
-const STAGE_LEN      = 10;
+const STAGE_LEN      = 4;
 
 function pickQuestion(
   usedIds: number[],
@@ -94,7 +95,13 @@ function pickQuestion(
   const fallbackPool = courseQuestions.filter(
     (q) => !usedIds.includes(q.id) && q.course === course && q.subject === subject,
   );
-  const available = pool.length ? pool : fallbackPool;
+  const recycledPool = courseQuestions.filter(
+    (q) => q.course === course && q.subject === subject && q.difficulty === difficulty,
+  );
+  const recycledFallbackPool = courseQuestions.filter(
+    (q) => q.course === course && q.subject === subject,
+  );
+  const available = pool.length ? pool : fallbackPool.length ? fallbackPool : recycledPool.length ? recycledPool : recycledFallbackPool;
   if (!available.length) return null;
   return available[Math.floor(Math.random() * available.length)];
 }
@@ -146,6 +153,7 @@ export const useGameStore = create<GameState>()(
       timerSeconds: INITIAL_TIMER,
       difficulty: "easy",
       questionsAnswered: 0,
+      correctAnswers: 0,
       coins: 0,
       shop: DEFAULT_SHOP,
       activeShield: false,
@@ -174,6 +182,7 @@ export const useGameStore = create<GameState>()(
           timerSeconds: startTimer(shop),
           difficulty: "easy",
           questionsAnswered: 0,
+          correctAnswers: 0,
           activeShield: useShield,
           lastCoinsEarned: 0,
           shop: useShield ? { ...shop, shieldCount: shop.shieldCount - 1 } : shop,
@@ -195,6 +204,7 @@ export const useGameStore = create<GameState>()(
         const newHighScore = Math.max(state.highScore, newScore);
         const newBest      = Math.max(state.bestStreak, newStreak);
         const newQA        = state.questionsAnswered + 1;
+        const newCorrectAnswers = state.correctAnswers + (isCorrect ? 1 : 0);
 
         // Shield absorbs a wrong answer
         const shieldSave    = !isCorrect && state.activeShield;
@@ -211,7 +221,7 @@ export const useGameStore = create<GameState>()(
           : state.timerSeconds;
 
         const isGameOver = newLives <= 0;
-        const advStage   = !isGameOver && newQA % STAGE_LEN === 0;
+        const advStage   = !isGameOver && newCorrectAnswers > 0 && newCorrectAnswers % STAGE_LEN === 0;
         const newStage   = advStage ? state.stage + 1 : state.stage;
 
         set({
@@ -228,6 +238,7 @@ export const useGameStore = create<GameState>()(
           timerSeconds: newTimer,
           difficulty: stageDiff(newStage),
           questionsAnswered: newQA,
+          correctAnswers: newCorrectAnswers,
           coins: newCoins,
           lastCoinsEarned: earned,
           activeShield: newShield,
@@ -301,6 +312,7 @@ export const useGameStore = create<GameState>()(
           timerSeconds: startTimer(shop),
           difficulty: "easy",
           questionsAnswered: 0,
+          correctAnswers: 0,
           lastCoinsEarned: 0,
         });
       },
