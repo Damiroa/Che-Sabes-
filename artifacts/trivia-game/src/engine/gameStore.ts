@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Question, Category } from "../data/questions";
+import { expandedCourseQuestions } from "../data/expandedCourseQuestions";
 import { additionalQuestions } from "../data/additionalQuestions";
 import { Course, Subject, courseQuestions } from "../data/courseQuestions";
 
@@ -83,7 +84,7 @@ const MIN_TIMER      = 10;
 const TIMER_BONUS    = 4;
 const STAGE_LEN      = 4;
 
-export const playableQuestions = [...courseQuestions, ...additionalQuestions];
+export const playableQuestions = [...courseQuestions, ...additionalQuestions, ...expandedCourseQuestions];
 
 function pickQuestion(
   blockedIds: number[],
