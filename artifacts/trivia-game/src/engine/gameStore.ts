@@ -109,8 +109,13 @@ function updateUsedQuestionIds(usedIds: number[], question: Question, course: Co
 }
 
 function pickNextQuestion(usedIds: number[], course: Course, subject: Subject, difficulty: "easy" | "medium" | "hard"): Question | null {
-  const question = pickQuestion(usedIds, course, subject, difficulty) ?? pickQuestion([], course, subject, difficulty);
-  return question;
+  const question = pickQuestion(usedIds, course, subject, difficulty);
+  if (question) return question;
+
+  // Start a fresh cycle, excluding the last question so it cannot repeat immediately.
+  const lastQuestionId = usedIds[usedIds.length - 1];
+  return pickQuestion(lastQuestionId === undefined ? [] : [lastQuestionId], course, subject, difficulty)
+    ?? pickQuestion(lastQuestionId === undefined ? [] : [lastQuestionId], course, subject, "easy");
 }
 
 function stageDiff(stage: number): "easy" | "medium" | "hard" {
