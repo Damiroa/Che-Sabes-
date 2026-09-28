@@ -126,6 +126,15 @@ const reviewRows: ReviewRow[] = [
   ["Música", "¿Cómo se llama la combinación de sonidos tocados al mismo tiempo?", "Armonía", ["Melodía", "Armonía", "Tempo", "Timbre"], "medium"],
   ["Filosofía", "¿Qué disciplina filosófica reflexiona sobre la belleza y el arte?", "Estética", ["Estética", "Lógica", "Epistemología", "Política"], "easy"],
   ["Filosofía", "¿Qué método consiste en examinar una idea mediante preguntas y respuestas?", "Diálogo socrático", ["Diálogo socrático", "Experimento", "Observación astronómica", "Cálculo diferencial"], "medium"],
+  ["Ciencias Naturales", "¿Qué sistema del cuerpo coordina las respuestas y movimientos?", "Sistema nervioso", ["Sistema nervioso", "Sistema digestivo", "Sistema óseo", "Sistema circulatorio"], "hard"],
+  ["Ciencias Sociales", "¿Qué documento organiza los derechos y deberes fundamentales de un país?", "Constitución", ["Constitución", "Mapa", "Censo", "Calendario"], "hard"],
+  ["Historia", "¿Qué revolución comenzó en Francia en 1789?", "Revolución Francesa", ["Revolución Francesa", "Revolución Rusa", "Revolución Industrial", "Revolución de Mayo"], "hard"],
+  ["Geografía", "¿Qué tipo de mapa muestra alturas y formas del relieve?", "Mapa físico", ["Mapa físico", "Mapa político", "Mapa histórico", "Mapa económico"], "hard"],
+  ["Informática", "¿Qué componente ejecuta las instrucciones principales de una computadora?", "Procesador", ["Procesador", "Monitor", "Teclado", "Gabinete"], "hard"],
+  ["Cultura General", "¿Qué planeta es conocido como el planeta rojo?", "Marte", ["Venus", "Marte", "Júpiter", "Saturno"], "hard"],
+  ["Videojuegos", "¿Qué elemento permite guardar el progreso de una partida?", "Partida guardada", ["Partida guardada", "Textura", "Música", "Resolución"], "hard"],
+  ["Música", "¿Qué instrumento tiene teclas blancas y negras y suele tener 88 teclas?", "Piano", ["Piano", "Violín", "Flauta", "Batería"], "hard"],
+  ["Filosofía", "¿Qué rama analiza los razonamientos válidos?", "Lógica", ["Lógica", "Ética", "Estética", "Metafísica"], "hard"],
 ];
 
 const courses: Course[] = ["1ro", "2do", "3ro", "4to", "5to", "6to"];
