@@ -31,9 +31,9 @@ export function CategorySelect({ isMuted }: Props) {
     else goToMenu();
   };
 
-  const cardColumns = isMobile ? "1fr 1fr" : isTablet ? "repeat(3, 1fr)" : "repeat(3, minmax(150px, 1fr))";
+  const cardColumns = isMobile ? "repeat(2, minmax(0, 1fr))" : isTablet ? "repeat(3, minmax(0, 1fr))" : "repeat(3, minmax(150px, 1fr))";
   const pageStyle: React.CSSProperties = {
-    width: "100%", minHeight: "100%", display: "flex", flexDirection: "column",
+    width: "100%", height: "100%", minHeight: 0, display: "flex", flexDirection: "column",
     padding: isMobile ? "24px 20px 36px" : "36px 60px", overflowY: "auto",
   };
 
@@ -79,7 +79,7 @@ export function CategorySelect({ isMuted }: Props) {
             <motion.button
               key={subject}
               initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.08 }} whileHover={{ scale: 1.04, y: -4 }} whileTap={{ scale: 0.97 }}
+              transition={{ delay: Math.min(index, 5) * 0.08 }} whileHover={{ scale: 1.04, y: -4 }} whileTap={{ scale: 0.97 }}
               onClick={() => handleSubject(subject)}
               style={courseCard}
             >
@@ -110,7 +110,7 @@ const courseCard: React.CSSProperties = {
   minHeight: 150, display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", gap: "8px",
   padding: "1.25rem", borderRadius: "20px", textAlign: "left",
   background: "rgba(255,255,255,0.9)", border: "2px solid rgba(255,255,255,0.95)",
-  boxShadow: "0 12px 34px rgba(2,56,87,0.16)", cursor: "pointer", transition: "transform 180ms ease, box-shadow 180ms ease",
+  boxShadow: "0 12px 34px rgba(2,56,87,0.16)", cursor: "pointer", transition: "box-shadow 180ms ease", minWidth: 0, overflowWrap: "anywhere",
 };
 const cardTitle: React.CSSProperties = { fontFamily: "'Outfit', sans-serif", fontSize: "1.05rem", color: "#0f172a" };
 const cardMeta: React.CSSProperties = { color: "#64748b", fontSize: "0.76rem" };

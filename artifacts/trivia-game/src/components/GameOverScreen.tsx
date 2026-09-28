@@ -9,7 +9,7 @@ import { useBreakpoint } from "../hooks/useBreakpoint";
 interface Props { isMuted: boolean; onOpenShop: () => void }
 
 export function GameOverScreen({ isMuted, onOpenShop }: Props) {
-  const { score, highScore, bestStreak, questionsAnswered, coins, resetGame, goToMenu } = useGameStore();
+  const { exhausted, score, highScore, bestStreak, questionsAnswered, coins, resetGame, goToMenu } = useGameStore();
   const isNewRecord = score >= highScore && score > 0;
   const [particleTrigger, setParticleTrigger] = useState(0);
   const { isMobile, isTablet } = useBreakpoint();
@@ -51,28 +51,28 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
     </motion.div>
   );
 
-  const CoinRow = () => (
+  const renderCoinRow = () => (
     <div style={{ padding: "0.8rem 1.4rem", borderRadius: "14px", background: "rgba(250,204,21,0.12)", backdropFilter: "blur(12px)", border: "1.5px solid rgba(250,204,21,0.32)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
       <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.65)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em" }}>🪙 Monedas totales</p>
       <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.3rem", fontWeight: 900, color: "#fde68a" }}>{coins.toLocaleString()}</p>
     </div>
   );
 
-  const HighScoreRow = () => (
+  const renderHighScoreRow = () => (
     <div style={{ padding: "0.8rem 1.4rem", borderRadius: "14px", background: "rgba(255,255,255,0.18)", backdropFilter: "blur(12px)", border: "1.5px solid rgba(255,255,255,0.33)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
       <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.65)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em" }}>🏆 Récord histórico</p>
       <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.35rem", fontWeight: 900, color: "#fff" }}>{highScore.toLocaleString()} <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>pts</span></p>
     </div>
   );
 
-  const ResultBadge = ({ size }: { size: number }) => (
+  const renderResultBadge = (size: number) => (
     <motion.div
       initial={{ scale: 0.7, opacity: 0, rotate: -5 }}
       animate={{ scale: 1, opacity: 1, rotate: 0 }}
       transition={{ type: "spring", stiffness: 220, damping: 14 }}
       style={{
         width: size, height: size, borderRadius: Math.round(size * 0.24),
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "safe center",
         gap: size * 0.04, flexShrink: 0,
         background: isNewRecord
           ? "linear-gradient(145deg, #fef08a, #facc15)"
@@ -85,9 +85,9 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
     >
       <span style={{ fontSize: size * 0.25 }}>{isNewRecord ? "🏆" : "💔"}</span>
       <strong style={{ fontFamily: "'Outfit', sans-serif", fontSize: size * 0.14, fontWeight: 900, letterSpacing: "0.08em" }}>
-        {isNewRecord ? "¡RÉCORD!" : "PERDISTE"}
+        {exhausted ? "¡LISTO!" : isNewRecord ? "¡RÉCORD!" : "PERDISTE"}
       </strong>
-      <span style={{ fontSize: size * 0.075, fontWeight: 800, opacity: 0.86 }}>Sigue intentando</span>
+      <span style={{ fontSize: size * 0.075, fontWeight: 800, opacity: 0.86 }}>{exhausted ? "Sin repeticiones" : "Sigue intentando"}</span>
     </motion.div>
   );
 
@@ -96,19 +96,19 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
     return (
       <>
         <Particles trigger={particleTrigger} originX="50%" originY="40%" />
-        <motion.div style={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", padding: "28px 18px 36px", gap: "14px", overflowY: "auto" }}
+        <motion.div style={{ width: "100%", height: "100%", minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", padding: "28px 18px 36px", gap: "14px", overflowY: "auto" }}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
         >
-          <ResultBadge size={150} />
+          {renderResultBadge(150)}
           <div style={{ textAlign: "center" }}>
-            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.8rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em" }}>{isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}</h2>
+            <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.8rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em" }}>{exhausted ? "¡Completaste todas las preguntas!" : isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}</h2>
             {isNewRecord && <p style={{ fontSize: "0.82rem", color: "#bbf7d0", fontWeight: 600 }}>¡Superaste tu mejor puntaje!</p>}
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "9px", width: "100%" }}>
             {stats.map((s, i) => renderStatCard(s, 0.1 + i * 0.07))}
           </div>
-          <HighScoreRow />
-          <CoinRow />
+          {renderHighScoreRow()}
+          {renderCoinRow()}
           {renderButtons(true)}
         </motion.div>
       </>
@@ -120,13 +120,13 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
     return (
       <>
         <Particles trigger={particleTrigger} originX="50%" originY="45%" />
-        <motion.div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 36px", gap: "16px", overflowY: "auto" }}
+        <motion.div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "safe center", padding: "24px 36px", gap: "16px", overflowY: "auto" }}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
         >
           <motion.div initial={{ scale: 0.75, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 220 }} style={{ display: "flex", alignItems: "center", gap: "18px" }}>
-            <ResultBadge size={150} />
+            {renderResultBadge(150)}
             <div>
-              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "2rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em" }}>{isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}</h2>
+              <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "2rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em" }}>{exhausted ? "¡Completaste todas las preguntas!" : isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}</h2>
               {isNewRecord && <p style={{ fontSize: "0.88rem", color: "#bbf7d0", fontWeight: 600 }}>¡Superaste tu mejor puntaje!</p>}
             </div>
           </motion.div>
@@ -134,8 +134,8 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
             {stats.map((s, i) => renderStatCard(s, 0.1 + i * 0.07))}
           </div>
           <div style={{ width: "100%", maxWidth: 500, display: "flex", flexDirection: "column", gap: "9px" }}>
-            <HighScoreRow />
-            <CoinRow />
+            {renderHighScoreRow()}
+            {renderCoinRow()}
           </div>
           <div style={{ width: "100%", maxWidth: 500 }}>{renderButtons()}</div>
         </motion.div>
@@ -147,16 +147,16 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
   return (
     <>
       <Particles trigger={particleTrigger} originX="50%" originY="45%" />
-      <motion.div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 80px", gap: "68px" }}
+      <motion.div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "safe center", padding: "40px 80px", gap: "68px" }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
       >
         <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 220, damping: 18 }}
           style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", flexShrink: 0 }}>
-          <ResultBadge size={190} />
+          {renderResultBadge(190)}
           <div style={{ textAlign: "center" }}>
             <p style={{ fontSize: "0.68rem", fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.58)", textTransform: "uppercase", marginBottom: "3px" }}>Preguntados Escolar</p>
             <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: "2.1rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", textShadow: isNewRecord ? "0 0 30px rgba(250,204,21,0.5)" : "0 4px 20px rgba(0,0,0,0.2)" }}>
-              {isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}
+              {exhausted ? "¡Completaste todas las preguntas!" : isNewRecord ? "¡Nuevo récord!" : "Fin del juego"}
             </h2>
             {isNewRecord && <p style={{ fontSize: "0.9rem", color: "#bbf7d0", fontWeight: 600 }}>¡Superaste tu mejor puntaje!</p>}
           </div>
@@ -167,8 +167,8 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "13px" }}>
             {stats.map((s, i) => renderStatCard(s, 0.2 + i * 0.07))}
           </div>
-          <HighScoreRow />
-          <CoinRow />
+          {renderHighScoreRow()}
+          {renderCoinRow()}
           {renderButtons()}
         </motion.div>
       </motion.div>

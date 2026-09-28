@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore, getStreakMultiplier } from "../engine/gameStore";
 import { Particles } from "./Particles";
@@ -19,18 +19,15 @@ export function FeedbackScreen() {
 
   const [particleTrigger, setParticleTrigger] = useState(0);
   const [showCoinReward,  setShowCoinReward]  = useState(false);
-  const hasTriggered = useRef(false);
-
   useEffect(() => {
-    if (hasTriggered.current) return;
-    hasTriggered.current = true;
-    if (isCorrect) {
-      setParticleTrigger(n => n + 1);
-      if (frozenCoins > 0) {
-        setTimeout(() => { setShowCoinReward(true); audio.coinEarn(); }, 280);
-      }
+    if (!isCorrect) return;
+    setParticleTrigger(n => n + 1);
+    if (frozenCoins > 0) {
+      const reward = setTimeout(() => { setShowCoinReward(true); audio.coinEarn(); }, 280);
+      return () => clearTimeout(reward);
     }
-  }, []);
+    return undefined;
+  }, [isCorrect, frozenCoins]);
 
   const multiplier  = getStreakMultiplier(frozenStreak, frozenMaxMulti);
   const accentColor = isCorrect ? "#16a34a" : "#dc2626";
@@ -147,7 +144,7 @@ export function FeedbackScreen() {
       <>
         <Particles trigger={particleTrigger} originX="50%" originY="45%" />
         <motion.div
-          style={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "28px 18px", gap: "14px", overflowY: "auto" }}
+          style={{ width: "100%", height: "100%", minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "safe center", padding: "28px 18px", gap: "14px", overflowY: "auto" }}
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
         >
           {renderStatusCard(true)}
@@ -165,7 +162,7 @@ export function FeedbackScreen() {
       <>
         <Particles trigger={particleTrigger} originX="50%" originY="50%" />
         <motion.div
-          style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "28px 44px", gap: "18px" }}
+          style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "safe center", padding: "28px 44px", gap: "18px" }}
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
         >
           {renderStatusCard()}
@@ -184,7 +181,7 @@ export function FeedbackScreen() {
     <>
       <Particles trigger={particleTrigger} originX="50%" originY="50%" />
       <motion.div
-        style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "52px", padding: "40px 80px" }}
+        style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "safe center", gap: "52px", padding: "40px 80px" }}
         initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
       >
         {renderStatusCard()}

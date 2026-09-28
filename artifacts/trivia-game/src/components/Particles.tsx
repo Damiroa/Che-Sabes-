@@ -43,7 +43,8 @@ export function Particles({ trigger, originX = "50%", originY = "50%" }: Props) 
     const key = Date.now();
     const particles = makeParticles(COUNT);
     setBursts(prev => [...prev, { key, particles }]);
-    setTimeout(() => setBursts(prev => prev.filter(b => b.key !== key)), 1100);
+    const timer = setTimeout(() => setBursts(prev => prev.filter(b => b.key !== key)), 1100);
+    return () => { clearTimeout(timer); };
   }, [trigger]);
 
   return (

@@ -17,15 +17,16 @@ function Page({ children, id }: { children: React.ReactNode; id: string }) {
   return (
     <motion.div
       key={id}
-      initial={{ opacity: 0, filter: "blur(10px)", scale: 0.97 }}
-      animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
-      exit={{ opacity: 0, filter: "blur(10px)", scale: 0.97 }}
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.97 }}
       transition={PAGE_TRANSITION}
       style={{
         position: "absolute", inset: 0,
         width: "100%", height: "100%",
         display: "flex", flexDirection: "column",
-        willChange: "transform, opacity, filter",
+        overflowY: "auto", overflowX: "hidden",
+        minHeight: 0,
       }}
     >
       {children}
@@ -58,33 +59,33 @@ function App() {
   }, [phase]);
 
   return (
-    <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
+    <div className="app-shell">
       <AnimatedBackground />
 
       <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100%" }}>
         <AnimatePresence mode="wait">
           {phase === "menu" && (
-            <Page id="menu">
+            <Page key="menu" id="menu">
               <MenuScreen isMuted={isMuted} onToggleMute={handleToggleMute} onOpenShop={openShop} />
             </Page>
           )}
           {phase === "category-select" && (
-            <Page id="category">
+            <Page key="category" id="category">
               <CategorySelect isMuted={isMuted} />
             </Page>
           )}
           {phase === "playing" && (
-            <Page id="playing">
+            <Page key="playing" id="playing">
               <GameScreen isMuted={isMuted} onToggleMute={handleToggleMute} />
             </Page>
           )}
           {phase === "feedback" && (
-            <Page id="feedback">
+            <Page key="feedback" id="feedback">
               <FeedbackScreen />
             </Page>
           )}
           {phase === "game-over" && (
-            <Page id="gameover">
+            <Page key="gameover" id="gameover">
               <GameOverScreen isMuted={isMuted} onOpenShop={openShop} />
             </Page>
           )}

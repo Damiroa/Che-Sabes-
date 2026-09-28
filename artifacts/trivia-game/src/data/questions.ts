@@ -1,5 +1,7 @@
+import { ACADEMIC_CATEGORIES, type AcademicCategory } from "./categories";
+
 export type QuestionType = "multiple" | "truefalse" | "short";
-export type Category = "genius" | "entertainment" | "sports" | "culture" | "random";
+export type Category = AcademicCategory | "genius" | "entertainment" | "sports" | "culture" | "random";
 export type Difficulty = "easy" | "medium" | "hard";
 
 export interface Question {
@@ -16,6 +18,7 @@ export interface Question {
 }
 
 export const CATEGORY_LABELS: Record<Category, string> = {
+  ...(Object.fromEntries(Object.entries(ACADEMIC_CATEGORIES).map(([key, value]) => [key, value.label])) as Record<AcademicCategory, string>),
   genius: "Modo Genio",
   entertainment: "Entretenimiento",
   sports: "Deportes",
@@ -24,6 +27,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 };
 
 export const CATEGORY_COLORS: Record<Category, string> = {
+  ...(Object.fromEntries(Object.keys(ACADEMIC_CATEGORIES).map(key => [key, "#3b82f6"])) as Record<AcademicCategory, string>),
   genius: "#3b82f6",
   entertainment: "#60a5fa",
   sports: "#93c5fd",
@@ -32,6 +36,7 @@ export const CATEGORY_COLORS: Record<Category, string> = {
 };
 
 export const CATEGORY_ICONS: Record<Category, string> = {
+  ...(Object.fromEntries(Object.entries(ACADEMIC_CATEGORIES).map(([key, value]) => [key, value.icon])) as Record<AcademicCategory, string>),
   genius: "🧠",
   entertainment: "🎬",
   sports: "⚽",
