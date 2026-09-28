@@ -19,7 +19,7 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
   };
 
   /* ── Shared elements ─────────────────────────────────────── */
-  const CoinBadge = ({ size = "sm" }: { size?: "sm" | "lg" }) => (
+  const renderCoinBadge = (size: "sm" | "lg" = "sm") => (
     <div style={{
       display: "flex", alignItems: "center", gap: size === "lg" ? 8 : 5,
       padding: size === "lg" ? "6px 16px" : "4px 12px",
@@ -34,7 +34,7 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
     </div>
   );
 
-  const ShopBtn = ({ full = false }) => (
+  const renderShopBtn = (full = false) => (
     <motion.button
       whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
       onClick={onOpenShop}
@@ -51,7 +51,7 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
     >🛒 Tienda</motion.button>
   );
 
-  const PlayBtn = ({ full = false }) => (
+  const renderPlayBtn = (full = false) => (
     <motion.button
       whileTap={{ scale: 0.96 }} whileHover={{ scale: 1.04, boxShadow: "0 16px 48px rgba(0,0,0,0.28)" }}
       onClick={handlePlay}
@@ -67,7 +67,7 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
     >Comenzar partida 🎯</motion.button>
   );
 
-  const Tags = () => (
+  const renderTags = () => (
     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: isMobile ? "center" : "flex-start" }}>
       {["🎓 6 cursos", "⏱️ Timer", "🔥 Racha ×4", "💡 Aprende jugando", "🛒 Tienda"].map(tag => (
         <span key={tag} style={{ padding: "0.35rem 0.9rem", borderRadius: "999px", background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.28)", fontSize: "0.76rem", fontWeight: 700, color: "#fff" }}>{tag}</span>
@@ -79,12 +79,12 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
   if (isMobile) {
     return (
       <motion.div
-        style={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "28px 20px 36px", overflowY: "auto" }}
+        style={{ width: "100%", height: "100%", minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "safe center", padding: "76px 20px 36px", overflowY: "auto" }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
       >
         {/* Top bar */}
         <div style={{ position: "absolute", top: 14, left: 16, right: 16, display: "flex", alignItems: "center", gap: "8px", justifyContent: "space-between" }}>
-          <CoinBadge />
+          {renderCoinBadge()}
           <div style={{ display: "flex", gap: "6px" }}>
             <motion.button whileTap={{ scale: 0.94 }} onClick={onOpenShop} style={iconBtnStyle}>🛒</motion.button>
             <motion.button whileTap={{ scale: 0.94 }} onClick={onToggleMute} style={iconBtnStyle}>{isMuted ? "🔇" : "🔊"}</motion.button>
@@ -108,11 +108,11 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
         )}
 
         <div style={{ width: "100%", maxWidth: 300, display: "flex", flexDirection: "column", gap: "10px", marginBottom: "1.1rem" }}>
-          <PlayBtn full />
-          <ShopBtn full />
+          {renderPlayBtn(true)}
+          {renderShopBtn(true)}
         </div>
 
-        <Tags />
+        {renderTags()}
       </motion.div>
     );
   }
@@ -121,11 +121,11 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
   if (isTablet) {
     return (
       <motion.div
-        style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "28px 40px", gap: "40px" }}
+        style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "safe center", padding: "28px 40px", gap: "40px" }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
       >
         <div style={{ position: "absolute", top: 14, right: 18, display: "flex", gap: "7px" }}>
-          <CoinBadge />
+          {renderCoinBadge()}
           <motion.button whileTap={{ scale: 0.94 }} onClick={onToggleMute} style={iconBtnStyle}>{isMuted ? "🔇" : "🔊"}</motion.button>
         </div>
 
@@ -143,10 +143,10 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
             </div>
           )}
           <div style={{ display: "flex", gap: "10px", marginBottom: "1.1rem" }}>
-            <PlayBtn />
-            <ShopBtn />
+            {renderPlayBtn()}
+            {renderShopBtn()}
           </div>
-          <Tags />
+          {renderTags()}
         </div>
       </motion.div>
     );
@@ -155,12 +155,12 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
   /* ── Desktop ─────────────────────────────────────────────── */
   return (
     <motion.div
-      style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 60px", gap: "64px" }}
+      style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "safe center", padding: "40px 60px", gap: "64px" }}
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}
     >
       {/* Top-right controls */}
       <div style={{ position: "absolute", top: 18, right: 24, display: "flex", gap: "8px", alignItems: "center" }}>
-        <CoinBadge size="sm" />
+        {renderCoinBadge()}
         <motion.button whileTap={{ scale: 0.94 }} onClick={onToggleMute} style={iconBtnStyle}>{isMuted ? "🔇" : "🔊"}</motion.button>
       </div>
 
@@ -182,12 +182,12 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
         )}
 
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32, type: "spring", stiffness: 200 }} style={{ display: "flex", gap: "12px", marginBottom: "1.4rem" }}>
-          <PlayBtn />
-          <ShopBtn />
+          {renderPlayBtn()}
+          {renderShopBtn()}
         </motion.div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.42 }}>
-          <Tags />
+          {renderTags()}
         </motion.div>
       </motion.div>
     </motion.div>
@@ -204,6 +204,6 @@ const glassCard: React.CSSProperties = {
 const iconBtnStyle: React.CSSProperties = {
   background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.28)",
   borderRadius: "50%", width: 36, height: 36,
-  display: "flex", alignItems: "center", justifyContent: "center",
+  display: "flex", alignItems: "center", justifyContent: "safe center",
   cursor: "pointer", fontSize: "1rem",
 };

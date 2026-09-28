@@ -130,21 +130,19 @@
 }
 .correct-glow { animation: correct-glow 0.65s ease-out; }
 
+/* Framer Motion owns transforms; CSS only animates the shadow. */
 /* ── Neon button hover ────────────────────────────────────── */
 .neon-btn {
-  transition: box-shadow 0.18s ease, transform 0.14s ease;
+  transition: box-shadow 0.18s ease;
   will-change: transform;
 }
 .neon-btn:hover {
   box-shadow: 0 0 16px rgba(255,255,255,0.30), 0 8px 28px rgba(0,0,0,0.20);
-  transform: translateY(-2px) scale(1.015);
 }
-.neon-btn:active { transform: scale(0.97); }
 
 @media (hover: none) and (pointer: coarse) {
   .neon-btn:hover {
     box-shadow: none;
-    transform: none;
   }
 }
 
@@ -183,3 +181,14 @@ button, a, input {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Stable viewport and scroll containers, including mobile browser chrome. */
+html, body, #root { width: 100%; height: 100%; margin: 0; }
+.app-shell {
+  width: 100%; height: 100vh; height: 100dvh;
+  position: relative; overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+button, input { touch-action: manipulation; }
+button { min-height: 44px; min-width: 44px; }
+.answer-btn { min-width: 0; overflow-wrap: anywhere; flex-shrink: 0; }

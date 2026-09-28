@@ -1,7 +1,8 @@
+import { ACADEMIC_CATEGORIES, type AcademicCategory } from "./categories";
 import type { Category, Question } from "./questions";
 
 export type Course = "1ro" | "2do" | "3ro" | "4to" | "5to" | "6to";
-export type Subject = "Matemática" | "Ciencias Naturales" | "Ciencias Sociales" | "Historia" | "Geografía" | "Informática" | "Lengua y Literatura" | "Inglés" | "Cultura General" | "Videojuegos" | "Música" | "Arte" | "Deportes" | "Lógica" | "Filosofía";
+export type Subject = "Biología" | "Física" | "Química" | "Historia Argentina" | "Matemática" | "Ciencias Naturales" | "Ciencias Sociales" | "Historia" | "Geografía" | "Informática" | "Lengua y Literatura" | "Inglés" | "Cultura General" | "Videojuegos" | "Música" | "Arte" | "Deportes" | "Lógica" | "Filosofía";
 
 export const COURSE_LABELS: Record<Course, string> = {
   "1ro": "1ro secundario", "2do": "2do secundario", "3ro": "3ro secundario",
@@ -13,6 +14,7 @@ export const COURSE_ICONS: Record<Course, string> = {
 };
 
 export const SUBJECTS: Subject[] = [
+  "Biología", "Física", "Química", "Historia Argentina",
   "Matemática", "Ciencias Naturales", "Ciencias Sociales", "Historia", "Geografía", "Informática",
   "Lengua y Literatura", "Inglés", "Cultura General", "Videojuegos", "Música", "Arte", "Deportes", "Lógica", "Filosofía",
 ];
@@ -23,6 +25,7 @@ export const COURSE_SUBJECTS: Record<Course, Subject[]> = {
 };
 
 export const SUBJECT_ICONS: Record<Subject, string> = {
+  "Biología": "🧬", "Física": "⚡", "Química": "🧪", "Historia Argentina": "🇦🇷",
   "Matemática": "📐", "Ciencias Naturales": "🔬", "Ciencias Sociales": "👥", Historia: "🏛️",
   Geografía: "🌎", Informática: "💻", "Lengua y Literatura": "📖", Inglés: "🇬🇧",
   "Cultura General": "🌟", Videojuegos: "🎮", Música: "🎵", Arte: "🎨", Deportes: "🏅", Lógica: "🧩", Filosofía: "💭",
@@ -151,9 +154,13 @@ const reviewRows: ReviewRow[] = [
 
 const courses: Course[] = ["1ro", "2do", "3ro", "4to", "5to", "6to"];
 
+const subjectCategory = Object.fromEntries(
+  Object.entries(ACADEMIC_CATEGORIES).map(([category, { label }]) => [label, category]),
+) as Partial<Record<Subject, AcademicCategory>>;
+
 const toQuestion = (row: Row, id: number): Question => {
   const [course, subject, question, correct, options, difficulty] = row;
-  return { id, course, subject, category: "culture" as Category, difficulty, type: "multiple", question, correct, options, points: difficulty === "easy" ? 100 : difficulty === "medium" ? 200 : 400 };
+  return { id, course, subject, category: subjectCategory[subject] ?? "culture" as Category, difficulty, type: "multiple", question, correct, options, points: difficulty === "easy" ? 100 : difficulty === "medium" ? 200 : 400 };
 };
 
 export const courseQuestions: Question[] = [

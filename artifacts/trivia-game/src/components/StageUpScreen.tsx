@@ -42,7 +42,6 @@ export function StageUpScreen() {
   const [frozenTimer]  = useState(() => timerSeconds);
   const [frozenScore]  = useState(() => score);
   const [countdown, setCountdown] = useState(2);
-  const [progress, setProgress] = useState(1);
 
   const [particles] = useState<Particle[]>(() => {
     const m = getMeta(stage);
@@ -62,23 +61,15 @@ export function StageUpScreen() {
     const t1 = setTimeout(() => setCountdown(1), 1000);
     const t2 = setTimeout(() => continueAfterStageUp(), AUTO_ADVANCE_MS);
 
-    // Progress bar
-    const start = Date.now();
-    const raf = setInterval(() => {
-      const elapsed = Date.now() - start;
-      setProgress(Math.max(0, 1 - elapsed / AUTO_ADVANCE_MS));
-      if (elapsed >= AUTO_ADVANCE_MS) clearInterval(raf);
-    }, 30);
-
-    return () => { clearTimeout(t1); clearTimeout(t2); clearInterval(raf); };
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
   return (
     <motion.div
       style={{
         position: "absolute", inset: 0,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        zIndex: 20, overflow: "hidden",
+        display: "flex", alignItems: "center", justifyContent: "safe center",
+        zIndex: 20, overflowY: "auto",
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -189,13 +180,15 @@ export function StageUpScreen() {
           </div>
         </div>
 
-        {/* Progress bar */}
+        {/* Progress bar: animate without rerendering the screen every 30 ms. */}
         <div style={{ width: "100%", height: "5px", borderRadius: "999px", background: "rgba(15,23,42,0.1)", overflow: "hidden" }}>
           <motion.div
+            initial={{ width: "100%" }} animate={{ width: "0%" }}
+            transition={{ duration: AUTO_ADVANCE_MS / 1000, ease: "linear" }}
             style={{
               height: "100%", borderRadius: "999px",
               background: `linear-gradient(90deg, ${meta.accent}, ${meta.glow.replace("0.4", "0.8")})`,
-              width: `${progress * 100}%`,
+              width: "100%",
             }}
           />
         </div>

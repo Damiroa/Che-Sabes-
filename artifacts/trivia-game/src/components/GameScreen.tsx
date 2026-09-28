@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore, getStreakMultiplier } from "../engine/gameStore";
-import { CATEGORY_COLORS, CATEGORY_ICONS } from "../data/questions";
+import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_LABELS } from "../data/questions";
 import { SUBJECT_ICONS, Subject } from "../data/courseQuestions";
 import { CircularTimer } from "./CircularTimer";
 import { ScoreCounter } from "./ScoreCounter";
@@ -13,7 +13,7 @@ interface Props { isMuted: boolean; onToggleMute: () => void }
 
 export function GameScreen({ isMuted, onToggleMute }: Props) {
   const {
-    lives, score, streak, skipsLeft, stage, correctAnswers,
+    phase, lives, score, streak, skipsLeft, stage, correctAnswers,
     currentQuestion, timerSeconds, answerQuestion, skipQuestion,
     coins, shop, activeShield, lastCoinsEarned,
   } = useGameStore();
@@ -25,38 +25,44 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
   const [coinTrigger, setCoinTrigger]       = useState(0);
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const answeredRef = useRef(false);
+  const answerDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mutedRef = useRef(isMuted);
+  mutedRef.current = isMuted;
   const prevCoins  = useRef(lastCoinsEarned);
   const { isMobile, isTablet } = useBreakpoint();
 
   useEffect(() => {
+    if (phase !== "playing" || !currentQuestion) return;
     setTimeLeft(timerSeconds);
     setSelectedAnswer(null);
     setAnswerState("idle");
     setShortInput("");
     answeredRef.current = false;
-
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
-        const next = Math.max(0, prev - 1);
-        if (!isMuted && next > 0) {
-          if (next <= 4) audio.urgentTick();
-          else if (next <= 8) audio.tick();
-        }
-        return next;
-      });
-    }, 1000);
-
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [currentQuestion?.id, timerSeconds]);
-
-  // Trigger timeout when timer hits 0
-  useEffect(() => {
-    if (timeLeft === 0 && !answeredRef.current) {
-      answeredRef.current = true;
+    const deadline = Date.now() + timerSeconds * 1000;
+    let previous = timerSeconds;
+    const tick = () => {
+      if (answeredRef.current) return;
+      const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      if (next === previous) return;
+      previous = next;
+      setTimeLeft(next);
+      if (next === 0) {
+        answeredRef.current = true;
+        if (timerRef.current) clearInterval(timerRef.current);
+        answerQuestion("", true);
+      } else if (!mutedRef.current) {
+        if (next <= 4) audio.urgentTick();
+        else if (next <= 8) audio.tick();
+      }
+    };
+    timerRef.current = setInterval(tick, 250);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      answerQuestion("", true);
-    }
-  }, [timeLeft]);
+      if (answerDelayRef.current) clearTimeout(answerDelayRef.current);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, [currentQuestion?.id, timerSeconds, phase, answerQuestion]);
 
   // Trigger floating coin reward when lastCoinsEarned changes
   useEffect(() => {
@@ -71,7 +77,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
   const multiplier    = getStreakMultiplier(streak, shop.maxMulti);
   const diffColor     = { easy: "#4ade80", medium: "#fbbf24", hard: "#f87171" }[currentQuestion.difficulty];
   const diffLabel     = { easy: "Fácil",   medium: "Medio",   hard: "Difícil"  }[currentQuestion.difficulty];
-  const catLabel      = { genius: "Genio", entertainment: "Entretenimiento", sports: "Deportes", culture: "Cultura Pop", random: "Random" }[currentQuestion.category];
+  const catLabel      = CATEGORY_LABELS[currentQuestion.category];
   const subjectLabel  = currentQuestion.subject ?? catLabel;
   const subjectIcon   = SUBJECT_ICONS[currentQuestion.subject as Subject] ?? CATEGORY_ICONS[currentQuestion.category];
   const catColor      = CATEGORY_COLORS[currentQuestion.category];
@@ -82,17 +88,21 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
   const timerBarColor = timeLeft > 8 ? "#4ade80" : timeLeft > 4 ? "#fbbf24" : "#f87171";
 
   const handleAnswer = (ans: string) => {
-    if (selectedAnswer || answeredRef.current) return;
+    if (phase !== "playing" || selectedAnswer || answeredRef.current) return;
     answeredRef.current = true;
     if (timerRef.current) clearInterval(timerRef.current);
     const ok = ans.toLowerCase().trim() === currentQuestion.correct.toLowerCase().trim();
     setSelectedAnswer(ans);
     setAnswerState(ok ? "correct" : "wrong");
     if (!isMuted) ok ? audio.correct() : audio.wrong();
-    setTimeout(() => answerQuestion(ans), 420);
+    answerDelayRef.current = setTimeout(() => answerQuestion(ans), 420);
   };
 
-  const handleSkip = () => { if (!isMuted) audio.click(); skipQuestion(); };
+  const handleSkip = () => {
+    if (phase !== "playing" || answeredRef.current || skipsLeft <= 0) return;
+    if (!isMuted) audio.click();
+    skipQuestion();
+  };
 
   // ── Answer buttons — plain function, not a React component
   const renderAnswers = (compact = false) => {
@@ -108,7 +118,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
             whileTap={!selectedAnswer && !compact ? { scale: 0.97 } : undefined}
             onClick={() => { if (!isMuted) audio.click(); handleAnswer(opt); }}
             disabled={!!selectedAnswer}
-            className={`${isWrongOpt ? "shake" : ""} ${isCorrectOpt ? "correct-glow" : ""} neon-btn`}
+            className={`${isWrongOpt ? "shake" : ""} ${isCorrectOpt ? "correct-glow" : ""} answer-btn`}
             style={{
               padding: compact ? "0.75rem 1rem" : "0.92rem 1.2rem",
               borderRadius: "14px", textAlign: "left",
@@ -138,8 +148,8 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
     return [
       <input key="inp" type="text" value={shortInput} onChange={e => setShortInput(e.target.value)}
         onKeyDown={e => e.key === "Enter" && shortInput.trim() && handleAnswer(shortInput.trim())}
-        placeholder="Escribí tu respuesta..." autoFocus
-        style={{ width: "100%", padding: "0.9rem 1.2rem", borderRadius: "14px", background: "rgba(255,255,255,0.92)", border: "2px solid rgba(255,255,255,0.98)", color: "#0f172a", fontFamily: "'Space Grotesk', sans-serif", fontSize: "0.97rem", outline: "none" }}
+        placeholder="Escribí tu respuesta..."
+        style={{ width: "100%", padding: "0.9rem 1.2rem", borderRadius: "14px", background: "rgba(255,255,255,0.92)", border: "2px solid rgba(255,255,255,0.98)", color: "#0f172a", fontFamily: "'Space Grotesk', sans-serif", fontSize: "1rem", outline: "none" }}
       />,
       <button key="ok" onClick={() => { if (!isMuted) audio.click(); shortInput.trim() && handleAnswer(shortInput.trim()); }}
         disabled={!shortInput.trim() || !!selectedAnswer}
@@ -184,7 +194,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
   /* ── Mobile ──────────────────────────────────────────────── */
   if (isMobile) {
     return (
-      <motion.div style={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column", position: "relative" }}
+      <motion.div style={{ width: "100%", height: "100%", minHeight: 0, display: "flex", flexDirection: "column", position: "relative" }}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
       >
         <FloatingReward trigger={coinTrigger} text={`+${lastCoinsEarned} 🪙`} offsetX="70%" offsetY="30%" />
@@ -197,12 +207,12 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
           {renderProgress("5px")}
           <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1rem", fontWeight: 900, color: "#fff" }} />
           {renderCoins("0.82rem")}
-          <button onClick={handleSkip} disabled={skipsLeft <= 0} style={{ fontSize: "0.65rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: "transparent", border: "none", cursor: skipsLeft > 0 ? "pointer" : "default" }}>⏭{skipsLeft > 0 ? `(${skipsLeft})` : "—"}</button>
-          <button onClick={onToggleMute} style={muteBtn(28)}>{isMuted ? "🔇" : "🔊"}</button>
+          <button aria-label={`Saltar pregunta (${skipsLeft} disponibles)`} onClick={handleSkip} disabled={skipsLeft <= 0 || !!selectedAnswer} style={{ fontSize: "0.65rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: "transparent", border: "none", cursor: skipsLeft > 0 ? "pointer" : "default" }}>⏭{skipsLeft > 0 ? `(${skipsLeft})` : "—"}</button>
+          <button aria-label={isMuted ? "Activar sonido" : "Silenciar"} onClick={onToggleMute} style={muteBtn(28)}>{isMuted ? "🔇" : "🔊"}</button>
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px 22px", display: "flex", flexDirection: "column", gap: "11px" }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "12px 14px 22px", display: "flex", flexDirection: "column", gap: "11px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textTransform: "uppercase" }}>{subjectIcon} {subjectLabel}</span>
             <span style={{ marginLeft: "auto", padding: "2px 7px", borderRadius: "999px", background: `${diffColor}30`, border: `1.5px solid ${diffColor}60`, fontSize: "0.66rem", fontWeight: 700, color: diffColor }}>{diffLabel}</span>
@@ -227,7 +237,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
       >
         <FloatingReward trigger={coinTrigger} text={`+${lastCoinsEarned} 🪙`} offsetX="75%" offsetY="20%" />
 
-        <div style={{ display: "flex", alignItems: "center", gap: "11px", padding: "11px 26px", background: "rgba(0,0,0,0.18)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,255,255,0.14)", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "11px", flexWrap: "wrap", padding: "11px 26px", background: "rgba(0,0,0,0.18)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,255,255,0.14)", flexShrink: 0 }}>
           {renderLives("1.2rem")}
           <span style={{ padding: "3px 11px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.33)", fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", color: "#fff" }}>FASE {stage}</span>
           <span style={{ padding: "2px 9px", borderRadius: "999px", background: `${diffColor}28`, border: `1.5px solid ${diffColor}60`, fontSize: "0.66rem", fontWeight: 700, color: diffColor }}>{diffLabel}</span>
@@ -236,14 +246,14 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
           <span style={{ fontSize: "0.66rem", color: "rgba(255,255,255,0.6)", fontWeight: 700 }}>{correctAnswers % 4}/4</span>
           <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.15rem", fontWeight: 900, color: "#fff" }} />
           {renderCoins("0.88rem")}
-          <button onClick={handleSkip} disabled={skipsLeft <= 0} style={{ fontSize: "0.68rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: "transparent", border: "none", cursor: skipsLeft > 0 ? "pointer" : "default" }}>⏭ ({skipsLeft})</button>
-          <button onClick={onToggleMute} style={muteBtn(30)}>{isMuted ? "🔇" : "🔊"}</button>
+          <button aria-label={`Saltar pregunta (${skipsLeft} disponibles)`} onClick={handleSkip} disabled={skipsLeft <= 0 || !!selectedAnswer} style={{ fontSize: "0.68rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: "transparent", border: "none", cursor: skipsLeft > 0 ? "pointer" : "default" }}>⏭ ({skipsLeft})</button>
+          <button aria-label={isMuted ? "Activar sonido" : "Silenciar"} onClick={onToggleMute} style={muteBtn(30)}>{isMuted ? "🔇" : "🔊"}</button>
         </div>
 
-        <div style={{ flex: 1, display: "flex", gap: "22px", padding: "18px 26px", overflow: "hidden" }}>
+        <div style={{ flex: 1, display: "flex", gap: "22px", padding: "18px 26px", overflowY: "auto", minHeight: 0 }}>
           <AnimatePresence mode="wait">
             <motion.div key={currentQuestion.id + "-q"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}
-              style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "13px" }}>
+              style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "safe center", minWidth: 0, gap: "13px" }}>
               <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                 {subjectIcon} {subjectLabel} <span style={{ color: "rgba(255,255,255,0.45)", marginLeft: 6 }}>+{currentQuestion.points * multiplier} pts</span>
               </p>
@@ -260,7 +270,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
           </AnimatePresence>
           <AnimatePresence mode="wait">
             <motion.div key={currentQuestion.id + "-a"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2, delay: 0.06 }}
-              style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "9px" }}>
+              style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "safe center", minWidth: 0, gap: "9px" }}>
               {renderAnswers()}
             </motion.div>
           </AnimatePresence>
@@ -277,7 +287,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
       <FloatingReward trigger={coinTrigger} text={`+${lastCoinsEarned} 🪙`} offsetX="82%" offsetY="18%" />
 
       {/* HUD */}
-      <div style={{ display: "flex", alignItems: "center", padding: "11px 38px", gap: "16px", flexShrink: 0, background: "rgba(0,0,0,0.18)", backdropFilter: "blur(10px)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
+      <div style={{ display: "flex", alignItems: "center", padding: "11px 38px", gap: "16px", flexWrap: "wrap", flexShrink: 0, background: "rgba(0,0,0,0.18)", backdropFilter: "blur(10px)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
         {renderLives("1.35rem")}
         <span style={{ padding: "4px 13px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.33)", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff" }}>FASE {stage}</span>
         <span style={{ padding: "3px 10px", borderRadius: "999px", background: `${diffColor}25`, border: `1.5px solid ${diffColor}60`, fontSize: "0.7rem", fontWeight: 700, color: diffColor, textShadow: `0 0 8px ${diffColor}80` }}>{diffLabel}</span>
@@ -288,15 +298,15 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
         </div>
         <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.3rem", fontWeight: 900, color: "#fff", textShadow: "0 0 12px rgba(255,255,255,0.4)" }} />
         {renderCoins("0.92rem")}
-        <button onClick={handleSkip} disabled={skipsLeft <= 0} style={{ fontSize: "0.7rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: skipsLeft > 0 ? "rgba(255,255,255,0.12)" : "transparent", border: skipsLeft > 0 ? "1.5px solid rgba(255,255,255,0.22)" : "none", padding: "4px 9px", borderRadius: "999px", cursor: skipsLeft > 0 ? "pointer" : "default", letterSpacing: "0.05em", textTransform: "uppercase" }}>⏭ Skip {skipsLeft > 0 ? `(${skipsLeft})` : "—"}</button>
-        <button onClick={onToggleMute} style={muteBtn(33)}>{isMuted ? "🔇" : "🔊"}</button>
+        <button aria-label={`Saltar pregunta (${skipsLeft} disponibles)`} onClick={handleSkip} disabled={skipsLeft <= 0 || !!selectedAnswer} style={{ fontSize: "0.7rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: skipsLeft > 0 ? "rgba(255,255,255,0.12)" : "transparent", border: skipsLeft > 0 ? "1.5px solid rgba(255,255,255,0.22)" : "none", padding: "4px 9px", borderRadius: "999px", cursor: skipsLeft > 0 ? "pointer" : "default", letterSpacing: "0.05em", textTransform: "uppercase" }}>⏭ Skip {skipsLeft > 0 ? `(${skipsLeft})` : "—"}</button>
+        <button aria-label={isMuted ? "Activar sonido" : "Silenciar"} onClick={onToggleMute} style={muteBtn(33)}>{isMuted ? "🔇" : "🔊"}</button>
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, display: "flex", gap: "38px", padding: "26px 46px", overflow: "hidden" }}>
+      <div style={{ flex: 1, display: "flex", gap: "38px", padding: "26px 46px", minHeight: 0, overflowY: "auto" }}>
         <AnimatePresence mode="wait">
           <motion.div key={currentQuestion.id + "-q"} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.22, ease: "easeOut" }}
-            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "safe center", minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "1rem" }}>
               <span style={{ width: 34, height: 34, borderRadius: "9px", background: `${catColor}28`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.15rem" }}>{subjectIcon}</span>
               <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{subjectLabel}</span>
