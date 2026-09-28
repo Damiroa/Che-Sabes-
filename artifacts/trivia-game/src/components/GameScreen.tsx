@@ -104,9 +104,8 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
         return (
           <motion.button
             key={opt}
-            layout
-            whileHover={!selectedAnswer ? { x: 4, scale: 1.01 } : {}}
-            whileTap={!selectedAnswer ? { scale: 0.97 } : {}}
+            whileHover={!selectedAnswer && !compact ? { x: 4, scale: 1.01 } : undefined}
+            whileTap={!selectedAnswer && !compact ? { scale: 0.97 } : undefined}
             onClick={() => { if (!isMuted) audio.click(); handleAnswer(opt); }}
             disabled={!!selectedAnswer}
             className={`${isWrongOpt ? "shake" : ""} ${isCorrectOpt ? "correct-glow" : ""} neon-btn`}
@@ -209,18 +208,12 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
             <span style={{ marginLeft: "auto", padding: "2px 7px", borderRadius: "999px", background: `${diffColor}30`, border: `1.5px solid ${diffColor}60`, fontSize: "0.66rem", fontWeight: 700, color: diffColor }}>{diffLabel}</span>
             <CircularTimer timeLeft={timeLeft} total={timerSeconds} />
           </div>
-          <AnimatePresence mode="wait">
-            <motion.div key={currentQuestion.id + "-q"} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.2 }}
-              style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(16px)", border: "2px solid rgba(255,255,255,0.98)", borderRadius: "18px", padding: "1.1rem 1rem", boxShadow: "0 6px 24px rgba(0,0,0,0.14)" }}>
+          <div style={{ background: "rgba(255,255,255,0.92)", border: "2px solid rgba(255,255,255,0.98)", borderRadius: "18px", padding: "1.1rem 1rem", boxShadow: "0 6px 24px rgba(0,0,0,0.14)" }}>
               <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.02rem", fontWeight: 600, color: "#0f172a", lineHeight: 1.55 }}>{currentQuestion.question}</p>
-            </motion.div>
-          </AnimatePresence>
-          <AnimatePresence mode="wait">
-            <motion.div key={currentQuestion.id + "-a"} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18, delay: 0.05 }}
-              style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {renderAnswers(true)}
-            </motion.div>
-          </AnimatePresence>
+          </div>
         </div>
       </motion.div>
     );

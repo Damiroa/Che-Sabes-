@@ -95,15 +95,22 @@ function pickQuestion(
   const fallbackPool = courseQuestions.filter(
     (q) => !usedIds.includes(q.id) && q.course === course && q.subject === subject,
   );
-  const recycledPool = courseQuestions.filter(
-    (q) => q.course === course && q.subject === subject && q.difficulty === difficulty,
-  );
-  const recycledFallbackPool = courseQuestions.filter(
-    (q) => q.course === course && q.subject === subject,
-  );
-  const available = pool.length ? pool : fallbackPool.length ? fallbackPool : recycledPool.length ? recycledPool : recycledFallbackPool;
+  const available = pool.length ? pool : fallbackPool;
   if (!available.length) return null;
   return available[Math.floor(Math.random() * available.length)];
+}
+
+function updateUsedQuestionIds(usedIds: number[], question: Question, course: Course, subject: Subject): number[] {
+  const subjectIds = courseQuestions
+    .filter((item) => item.course === course && item.subject === subject)
+    .map((item) => item.id);
+  const cycleComplete = subjectIds.length > 0 && subjectIds.every((id) => usedIds.includes(id));
+  return cycleComplete ? [question.id] : [...usedIds, question.id];
+}
+
+function pickNextQuestion(usedIds: number[], course: Course, subject: Subject, difficulty: "easy" | "medium" | "hard"): Question | null {
+  const question = pickQuestion(usedIds, course, subject, difficulty) ?? pickQuestion([], course, subject, difficulty);
+  return question;
 }
 
 function stageDiff(stage: number): "easy" | "medium" | "hard" {
@@ -249,11 +256,11 @@ export const useGameStore = create<GameState>()(
         const state = get();
         if (state.skipsLeft <= 0) return;
         const diff = stageDiff(state.stage);
-        const q = pickQuestion(state.usedQuestionIds, state.selectedCourse, state.selectedSubject, diff);
+        const q = pickNextQuestion(state.usedQuestionIds, state.selectedCourse, state.selectedSubject, diff);
         if (!q) { set({ phase: "game-over" }); return; }
         set({
           currentQuestion: q,
-          usedQuestionIds: [...state.usedQuestionIds, q.id],
+          usedQuestionIds: updateUsedQuestionIds(state.usedQuestionIds, q, state.selectedCourse, state.selectedSubject),
           skipsLeft: state.skipsLeft - 1,
           streak: 0,
           difficulty: diff,
@@ -263,12 +270,12 @@ export const useGameStore = create<GameState>()(
       nextQuestion: () => {
         const state = get();
         const diff = stageDiff(state.stage);
-        const q = pickQuestion(state.usedQuestionIds, state.selectedCourse, state.selectedSubject, diff);
+        const q = pickNextQuestion(state.usedQuestionIds, state.selectedCourse, state.selectedSubject, diff);
         if (!q) { set({ phase: "game-over" }); return; }
         set({
           phase: "playing",
           currentQuestion: q,
-          usedQuestionIds: [...state.usedQuestionIds, q.id],
+          usedQuestionIds: updateUsedQuestionIds(state.usedQuestionIds, q, state.selectedCourse, state.selectedSubject),
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
           timedOut: false,
@@ -280,12 +287,12 @@ export const useGameStore = create<GameState>()(
       continueAfterStageUp: () => {
         const state = get();
         const diff = stageDiff(state.stage);
-        const q = pickQuestion(state.usedQuestionIds, state.selectedCourse, state.selectedSubject, diff);
+        const q = pickNextQuestion(state.usedQuestionIds, state.selectedCourse, state.selectedSubject, diff);
         if (!q) { set({ phase: "game-over" }); return; }
         set({
           phase: "playing",
           currentQuestion: q,
-          usedQuestionIds: [...state.usedQuestionIds, q.id],
+          usedQuestionIds: updateUsedQuestionIds(state.usedQuestionIds, q, state.selectedCourse, state.selectedSubject),
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
           timedOut: false,
