@@ -63,6 +63,7 @@ export interface GameState {
   // Runtime — not persisted
   activeShield: boolean;
   lastCoinsEarned: number;
+  bankExhausted: boolean;
 
   startGame: (course: Course, subject: Subject) => void;
   answerQuestion: (answer: string, timeout?: boolean) => void;
@@ -82,22 +83,17 @@ const TIMER_BONUS    = 4;
 const STAGE_LEN      = 4;
 
 function pickQuestion(
-  blockedIds: number[],
+  blockedIds: Iterable<number>,
   course: Course,
   subject: Subject,
   difficulty: "easy" | "medium" | "hard"
 ): Question | null {
-  const pool = courseQuestions.filter(
-    (q) =>
-      !blockedIds.includes(q.id) &&
-      q.course === course &&
-      q.subject === subject &&
-      q.difficulty === difficulty
+  const blocked = blockedIds instanceof Set ? blockedIds : new Set(blockedIds);
+  const subjectPool = courseQuestions.filter(
+    (q) => q.course === course && q.subject === subject && !blocked.has(q.id),
   );
-  const fallbackPool = courseQuestions.filter(
-    (q) => !blockedIds.includes(q.id) && q.course === course && q.subject === subject,
-  );
-  const available = pool.length ? pool : fallbackPool;
+  const pool = subjectPool.filter((q) => q.difficulty === difficulty);
+  const available = pool.length ? pool : subjectPool;
   if (!available.length) return null;
   return available[Math.floor(Math.random() * available.length)];
 }
@@ -106,8 +102,29 @@ function rememberQuestion(historyIds: number[], question: Question): number[] {
   return historyIds.includes(question.id) ? historyIds : [...historyIds, question.id];
 }
 
-function pickNextQuestion(usedIds: number[], historyIds: number[], course: Course, subject: Subject, difficulty: "easy" | "medium" | "hard"): Question | null {
-  return pickQuestion([...new Set([...usedIds, ...historyIds])], course, subject, difficulty);
+interface PickResult {
+  question: Question | null;
+  /** The cross-game history had to be recycled to find a question. */
+  recycledHistory: boolean;
+}
+
+/**
+ * Questions already used in the current session are never repeated. Questions
+ * seen in previous sessions are only avoided while unseen ones remain: once the
+ * subject's bank has been fully seen, the history is recycled instead of ending
+ * the run. A run only ends when the subject has no unused question left.
+ */
+function pickNextQuestion(
+  usedIds: number[],
+  historyIds: number[],
+  course: Course,
+  subject: Subject,
+  difficulty: "easy" | "medium" | "hard",
+): PickResult {
+  const unseen = pickQuestion(new Set([...usedIds, ...historyIds]), course, subject, difficulty);
+  if (unseen) return { question: unseen, recycledHistory: false };
+  const unusedThisSession = pickQuestion(new Set(usedIds), course, subject, difficulty);
+  return { question: unusedThisSession, recycledHistory: unusedThisSession !== null };
 }
 
 function stageDiff(stage: number): "easy" | "medium" | "hard" {
@@ -163,11 +180,14 @@ export const useGameStore = create<GameState>()(
       shop: DEFAULT_SHOP,
       activeShield: false,
       lastCoinsEarned: 0,
+      bankExhausted: false,
 
       startGame: (course, subject) => {
         const { shop } = get();
         const useShield = shop.shieldCount > 0;
-        const q = pickQuestion(get().historyQuestionIds, course, subject, "easy");
+        const pick = pickNextQuestion([], get().historyQuestionIds, course, subject, "easy");
+        const q = pick.question;
+        const history = pick.recycledHistory ? [] : get().historyQuestionIds;
         set({
           phase: "playing",
           stage: 1,
@@ -178,7 +198,8 @@ export const useGameStore = create<GameState>()(
           skipsLeft: startSkips(shop),
           currentQuestion: q,
           usedQuestionIds: q ? [q.id] : [],
-          historyQuestionIds: q ? rememberQuestion(get().historyQuestionIds, q) : get().historyQuestionIds,
+          historyQuestionIds: q ? rememberQuestion(history, q) : history,
+          bankExhausted: !q,
           selectedCategory: "all",
           selectedCourse: course,
           selectedSubject: subject,
@@ -255,12 +276,12 @@ export const useGameStore = create<GameState>()(
         const state = get();
         if (state.skipsLeft <= 0) return;
         const diff = stageDiff(state.stage);
-        const q = pickNextQuestion(state.usedQuestionIds, state.historyQuestionIds, state.selectedCourse, state.selectedSubject, diff);
-        if (!q) { set({ phase: "game-over" }); return; }
+        const { question: q, recycledHistory } = pickNextQuestion(state.usedQuestionIds, state.historyQuestionIds, state.selectedCourse, state.selectedSubject, diff);
+        if (!q) { set({ phase: "game-over", bankExhausted: true }); return; }
         set({
           currentQuestion: q,
           usedQuestionIds: [...state.usedQuestionIds, q.id],
-          historyQuestionIds: rememberQuestion(state.historyQuestionIds, q),
+          historyQuestionIds: rememberQuestion(recycledHistory ? [] : state.historyQuestionIds, q),
           skipsLeft: state.skipsLeft - 1,
           streak: 0,
           difficulty: diff,
@@ -270,13 +291,13 @@ export const useGameStore = create<GameState>()(
       nextQuestion: () => {
         const state = get();
         const diff = stageDiff(state.stage);
-        const q = pickNextQuestion(state.usedQuestionIds, state.historyQuestionIds, state.selectedCourse, state.selectedSubject, diff);
-        if (!q) { set({ phase: "game-over" }); return; }
+        const { question: q, recycledHistory } = pickNextQuestion(state.usedQuestionIds, state.historyQuestionIds, state.selectedCourse, state.selectedSubject, diff);
+        if (!q) { set({ phase: "game-over", bankExhausted: true }); return; }
         set({
           phase: "playing",
           currentQuestion: q,
           usedQuestionIds: [...state.usedQuestionIds, q.id],
-          historyQuestionIds: rememberQuestion(state.historyQuestionIds, q),
+          historyQuestionIds: rememberQuestion(recycledHistory ? [] : state.historyQuestionIds, q),
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
           timedOut: false,
@@ -288,13 +309,13 @@ export const useGameStore = create<GameState>()(
       continueAfterStageUp: () => {
         const state = get();
         const diff = stageDiff(state.stage);
-        const q = pickNextQuestion(state.usedQuestionIds, state.historyQuestionIds, state.selectedCourse, state.selectedSubject, diff);
-        if (!q) { set({ phase: "game-over" }); return; }
+        const { question: q, recycledHistory } = pickNextQuestion(state.usedQuestionIds, state.historyQuestionIds, state.selectedCourse, state.selectedSubject, diff);
+        if (!q) { set({ phase: "game-over", bankExhausted: true }); return; }
         set({
           phase: "playing",
           currentQuestion: q,
           usedQuestionIds: [...state.usedQuestionIds, q.id],
-          historyQuestionIds: rememberQuestion(state.historyQuestionIds, q),
+          historyQuestionIds: rememberQuestion(recycledHistory ? [] : state.historyQuestionIds, q),
           lastAnswerCorrect: null,
           lastCorrectAnswer: "",
           timedOut: false,
@@ -323,12 +344,13 @@ export const useGameStore = create<GameState>()(
           questionsAnswered: 0,
           correctAnswers: 0,
           lastCoinsEarned: 0,
+          bankExhausted: false,
         });
       },
 
       goToMenu: () => set({ phase: "menu" }),
 
-      resetQuestionHistory: () => set({ historyQuestionIds: [], usedQuestionIds: [] }),
+      resetQuestionHistory: () => set({ historyQuestionIds: [], usedQuestionIds: [], bankExhausted: false }),
 
       purchaseItem: (itemId) => {
         const state = get();

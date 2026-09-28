@@ -6,16 +6,18 @@ import { audio } from "../utils/audio";
 import { useBreakpoint } from "../hooks/useBreakpoint";
 
 export function FeedbackScreen() {
-  const store = useGameStore();
+  // Only the action is subscribed to — the displayed values are frozen at mount,
+  // so store updates cannot re-render (and re-animate) this screen.
+  const nextQuestion = useGameStore((s) => s.nextQuestion);
   const { isMobile, isTablet } = useBreakpoint();
 
-  const [isCorrect]      = useState(() => store.lastAnswerCorrect === true);
-  const [frozenAnswer]   = useState(() => store.lastCorrectAnswer);
-  const [frozenStreak]   = useState(() => store.streak);
-  const [frozenLives]    = useState(() => store.lives);
-  const [timedOut]       = useState(() => store.timedOut);
-  const [frozenCoins]    = useState(() => store.lastCoinsEarned);
-  const [frozenMaxMulti] = useState(() => store.shop.maxMulti);
+  const [isCorrect]      = useState(() => useGameStore.getState().lastAnswerCorrect === true);
+  const [frozenAnswer]   = useState(() => useGameStore.getState().lastCorrectAnswer);
+  const [frozenStreak]   = useState(() => useGameStore.getState().streak);
+  const [frozenLives]    = useState(() => useGameStore.getState().lives);
+  const [timedOut]       = useState(() => useGameStore.getState().timedOut);
+  const [frozenCoins]    = useState(() => useGameStore.getState().lastCoinsEarned);
+  const [frozenMaxMulti] = useState(() => useGameStore.getState().shop.maxMulti);
 
   const [particleTrigger, setParticleTrigger] = useState(0);
   const [showCoinReward,  setShowCoinReward]  = useState(false);
@@ -47,7 +49,7 @@ export function FeedbackScreen() {
       style={{
         padding: compact ? "1.4rem 1.3rem" : "2.4rem 2rem",
         borderRadius: "24px", width: compact ? "100%" : 330,
-        background: bgColor, backdropFilter: "blur(20px)",
+        background: bgColor,
         border: `2.5px solid ${borderColor}`, textAlign: "center",
         boxShadow: cardShadow, flexShrink: 0, position: "relative",
       }}
@@ -106,7 +108,7 @@ export function FeedbackScreen() {
       initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.24, type: "spring", stiffness: 220 }}
       whileTap={{ scale: 0.96 }} whileHover={{ scale: 1.04 }}
-      onClick={store.nextQuestion}
+      onClick={nextQuestion}
       className="neon-btn"
       style={{
         padding: isMobile ? "1rem" : "1.05rem 3rem",
@@ -147,7 +149,8 @@ export function FeedbackScreen() {
       <>
         <Particles trigger={particleTrigger} originX="50%" originY="45%" />
         <motion.div
-          style={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "28px 18px", gap: "14px", overflowY: "auto" }}
+          className="scroll-area"
+          style={{ width: "100%", height: "100%", maxWidth: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "28px 18px", gap: "14px" }}
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
         >
           {renderStatusCard(true)}
