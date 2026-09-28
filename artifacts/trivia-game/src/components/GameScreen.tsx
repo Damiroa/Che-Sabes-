@@ -12,11 +12,20 @@ import { useBreakpoint } from "../hooks/useBreakpoint";
 interface Props { isMuted: boolean; onToggleMute: () => void }
 
 export function GameScreen({ isMuted, onToggleMute }: Props) {
-  const {
-    lives, score, streak, skipsLeft, stage, correctAnswers,
-    currentQuestion, timerSeconds, answerQuestion, skipQuestion,
-    coins, shop, activeShield, lastCoinsEarned,
-  } = useGameStore();
+  const lives           = useGameStore((s) => s.lives);
+  const score           = useGameStore((s) => s.score);
+  const streak          = useGameStore((s) => s.streak);
+  const skipsLeft       = useGameStore((s) => s.skipsLeft);
+  const stage           = useGameStore((s) => s.stage);
+  const correctAnswers  = useGameStore((s) => s.correctAnswers);
+  const currentQuestion = useGameStore((s) => s.currentQuestion);
+  const timerSeconds    = useGameStore((s) => s.timerSeconds);
+  const coins           = useGameStore((s) => s.coins);
+  const shop            = useGameStore((s) => s.shop);
+  const activeShield    = useGameStore((s) => s.activeShield);
+  const lastCoinsEarned = useGameStore((s) => s.lastCoinsEarned);
+  const answerQuestion  = useGameStore((s) => s.answerQuestion);
+  const skipQuestion    = useGameStore((s) => s.skipQuestion);
 
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [answerState, setAnswerState]       = useState<"idle" | "correct" | "wrong">("idle");
@@ -184,25 +193,29 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
   /* ── Mobile ──────────────────────────────────────────────── */
   if (isMobile) {
     return (
-      <motion.div style={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column", position: "relative" }}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
-      >
+      <div style={{ width: "100%", height: "100%", maxWidth: "100%", display: "flex", flexDirection: "column", position: "relative", overflowX: "hidden" }}>
         <FloatingReward trigger={coinTrigger} text={`+${lastCoinsEarned} 🪙`} offsetX="70%" offsetY="30%" />
 
         {/* HUD */}
-        <div style={{ display: "flex", alignItems: "center", gap: "7px", padding: "9px 12px", background: "rgba(0,0,0,0.18)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,255,255,0.14)", flexShrink: 0, flexWrap: "wrap" }}>
-          {renderLives("1rem")}
-          <span style={{ padding: "2px 8px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.33)", fontSize: "0.64rem", fontWeight: 800, textTransform: "uppercase", color: "#fff" }}>F{stage}</span>
-          {renderStreak("0.66rem")}
-          {renderProgress("5px")}
-          <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1rem", fontWeight: 900, color: "#fff" }} />
-          {renderCoins("0.82rem")}
-          <button onClick={handleSkip} disabled={skipsLeft <= 0} style={{ fontSize: "0.65rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: "transparent", border: "none", cursor: skipsLeft > 0 ? "pointer" : "default" }}>⏭{skipsLeft > 0 ? `(${skipsLeft})` : "—"}</button>
-          <button onClick={onToggleMute} style={muteBtn(28)}>{isMuted ? "🔇" : "🔊"}</button>
+        <div className="glass" style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "8px 10px", background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(255,255,255,0.14)", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "7px", flexWrap: "nowrap", minWidth: 0 }}>
+            {renderLives("1rem")}
+            <span style={{ padding: "2px 8px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.33)", fontSize: "0.64rem", fontWeight: 800, textTransform: "uppercase", color: "#fff", flexShrink: 0 }}>F{stage}</span>
+            <div style={{ flex: 1, minWidth: 0 }} />
+            <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1rem", fontWeight: 900, color: "#fff" }} />
+            {renderCoins("0.82rem")}
+            <button onClick={handleSkip} disabled={skipsLeft <= 0} style={{ fontSize: "0.65rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: "transparent", border: "none", cursor: skipsLeft > 0 ? "pointer" : "default", flexShrink: 0 }}>⏭{skipsLeft > 0 ? `(${skipsLeft})` : "—"}</button>
+            <button onClick={onToggleMute} style={muteBtn(28)}>{isMuted ? "🔇" : "🔊"}</button>
+          </div>
+          {/* Second row has a fixed height so the streak badge never reflows the HUD */}
+          <div style={{ display: "flex", alignItems: "center", gap: "7px", height: 20, minWidth: 0 }}>
+            {renderProgress("5px")}
+            <div style={{ width: 84, display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>{renderStreak("0.66rem")}</div>
+          </div>
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px 14px 22px", display: "flex", flexDirection: "column", gap: "11px" }}>
+        <div className="scroll-area" style={{ flex: 1, minHeight: 0, padding: "12px 14px 22px", display: "flex", flexDirection: "column", gap: "11px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textTransform: "uppercase" }}>{subjectIcon} {subjectLabel}</span>
             <span style={{ marginLeft: "auto", padding: "2px 7px", borderRadius: "999px", background: `${diffColor}30`, border: `1.5px solid ${diffColor}60`, fontSize: "0.66rem", fontWeight: 700, color: diffColor }}>{diffLabel}</span>
@@ -215,7 +228,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
               {renderAnswers(true)}
           </div>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -227,7 +240,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
       >
         <FloatingReward trigger={coinTrigger} text={`+${lastCoinsEarned} 🪙`} offsetX="75%" offsetY="20%" />
 
-        <div style={{ display: "flex", alignItems: "center", gap: "11px", padding: "11px 26px", background: "rgba(0,0,0,0.18)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,255,255,0.14)", flexShrink: 0 }}>
+        <div className="glass" style={{ display: "flex", alignItems: "center", gap: "11px", padding: "11px 26px", background: "rgba(0,0,0,0.28)", borderBottom: "1px solid rgba(255,255,255,0.14)", flexShrink: 0 }}>
           {renderLives("1.2rem")}
           <span style={{ padding: "3px 11px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.33)", fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", color: "#fff" }}>FASE {stage}</span>
           <span style={{ padding: "2px 9px", borderRadius: "999px", background: `${diffColor}28`, border: `1.5px solid ${diffColor}60`, fontSize: "0.66rem", fontWeight: 700, color: diffColor }}>{diffLabel}</span>
@@ -277,7 +290,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
       <FloatingReward trigger={coinTrigger} text={`+${lastCoinsEarned} 🪙`} offsetX="82%" offsetY="18%" />
 
       {/* HUD */}
-      <div style={{ display: "flex", alignItems: "center", padding: "11px 38px", gap: "16px", flexShrink: 0, background: "rgba(0,0,0,0.18)", backdropFilter: "blur(10px)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
+      <div className="glass" style={{ display: "flex", alignItems: "center", padding: "11px 38px", gap: "16px", flexShrink: 0, background: "rgba(0,0,0,0.18)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
         {renderLives("1.35rem")}
         <span style={{ padding: "4px 13px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.33)", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff" }}>FASE {stage}</span>
         <span style={{ padding: "3px 10px", borderRadius: "999px", background: `${diffColor}25`, border: `1.5px solid ${diffColor}60`, fontSize: "0.7rem", fontWeight: 700, color: diffColor, textShadow: `0 0 8px ${diffColor}80` }}>{diffLabel}</span>
@@ -302,7 +315,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
               <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{subjectLabel}</span>
               <span style={{ marginLeft: "auto", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.58)", background: "rgba(255,255,255,0.12)", padding: "2px 9px", borderRadius: "999px" }}>+{currentQuestion.points * multiplier} pts</span>
             </div>
-            <div style={{ background: "rgba(255,255,255,0.93)", backdropFilter: "blur(20px)", border: "2px solid rgba(255,255,255,0.98)", borderRadius: "22px", padding: "1.9rem 2rem", boxShadow: "0 8px 40px rgba(0,0,0,0.16)", flex: 1, display: "flex", alignItems: "center" }}>
+            <div style={{ background: "rgba(255,255,255,0.93)", border: "2px solid rgba(255,255,255,0.98)", borderRadius: "22px", padding: "1.9rem 2rem", boxShadow: "0 8px 40px rgba(0,0,0,0.16)", flex: 1, display: "flex", alignItems: "center" }}>
               <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.25rem", fontWeight: 600, color: "#0f172a", lineHeight: 1.55 }}>{currentQuestion.question}</p>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "15px", marginTop: "15px" }}>

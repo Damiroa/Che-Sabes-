@@ -8,7 +8,9 @@ import { useBreakpoint } from "../hooks/useBreakpoint";
 interface Props { isOpen: boolean; onClose: () => void }
 
 export function ShopPanel({ isOpen, onClose }: Props) {
-  const { coins, shop, purchaseItem } = useGameStore();
+  const coins        = useGameStore((s) => s.coins);
+  const shop         = useGameStore((s) => s.shop);
+  const purchaseItem = useGameStore((s) => s.purchaseItem);
   const { isMobile } = useBreakpoint();
   const [justBought, setJustBought] = useState<string | null>(null);
   const [errorItem, setErrorItem]   = useState<string | null>(null);
@@ -51,7 +53,7 @@ export function ShopPanel({ isOpen, onClose }: Props) {
   };
 
   const panelStyle: React.CSSProperties = isMobile
-    ? { bottom: 0, left: 0, right: 0, borderRadius: "24px 24px 0 0", maxHeight: "88vh" }
+    ? { bottom: 0, left: 0, right: 0, borderRadius: "24px 24px 0 0", maxHeight: "88%" }
     : { top: 0, right: 0, bottom: 0, width: 440, borderRadius: "24px 0 0 24px" };
 
   const panelMotion = isMobile
@@ -67,7 +69,7 @@ export function ShopPanel({ isOpen, onClose }: Props) {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
             onClick={onClose}
-            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 500, backdropFilter: "blur(5px)" }}
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 500 }}
           />
 
           {/* Panel */}
@@ -77,8 +79,7 @@ export function ShopPanel({ isOpen, onClose }: Props) {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             style={{
               position: "fixed", ...panelStyle,
-              background: "rgba(10,18,36,0.97)",
-              backdropFilter: "blur(24px)",
+              background: "rgba(10,18,36,0.99)",
               border: "1.5px solid rgba(255,255,255,0.10)",
               zIndex: 501,
               display: "flex", flexDirection: "column",
@@ -117,7 +118,7 @@ export function ShopPanel({ isOpen, onClose }: Props) {
             </div>
 
             {/* Items list */}
-            <div style={{ flex: 1, overflowY: "auto", padding: "14px 18px 28px", display: "flex", flexDirection: "column", gap: "10px" }}>
+            <div className="scroll-area" style={{ flex: 1, minHeight: 0, padding: "14px 18px 28px", display: "flex", flexDirection: "column", gap: "10px" }}>
               {SHOP_ITEMS.map((item, i) => {
                 const owned   = isOwned(item.id);
                 const stack   = getStack(item.id);

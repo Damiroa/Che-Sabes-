@@ -37,15 +37,14 @@ function getMeta(stage: number) {
 interface Particle { id: number; x: number; y: number; emoji: string; delay: number }
 
 export function StageUpScreen() {
-  const { stage, timerSeconds, score, continueAfterStageUp } = useGameStore();
-  const [frozenStage]  = useState(() => stage);
-  const [frozenTimer]  = useState(() => timerSeconds);
-  const [frozenScore]  = useState(() => score);
+  const continueAfterStageUp = useGameStore((s) => s.continueAfterStageUp);
+  const [frozenStage]  = useState(() => useGameStore.getState().stage);
+  const [frozenTimer]  = useState(() => useGameStore.getState().timerSeconds);
+  const [frozenScore]  = useState(() => useGameStore.getState().score);
   const [countdown, setCountdown] = useState(2);
-  const [progress, setProgress] = useState(1);
 
   const [particles] = useState<Particle[]>(() => {
-    const m = getMeta(stage);
+    const m = getMeta(useGameStore.getState().stage);
     return Array.from({ length: 10 }, (_, i) => ({
       id: i,
       x: Math.random() * 90 + 5,
@@ -61,16 +60,7 @@ export function StageUpScreen() {
     // Countdown: 2 → 1 → advance
     const t1 = setTimeout(() => setCountdown(1), 1000);
     const t2 = setTimeout(() => continueAfterStageUp(), AUTO_ADVANCE_MS);
-
-    // Progress bar
-    const start = Date.now();
-    const raf = setInterval(() => {
-      const elapsed = Date.now() - start;
-      setProgress(Math.max(0, 1 - elapsed / AUTO_ADVANCE_MS));
-      if (elapsed >= AUTO_ADVANCE_MS) clearInterval(raf);
-    }, 30);
-
-    return () => { clearTimeout(t1); clearTimeout(t2); clearInterval(raf); };
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
   return (
@@ -118,8 +108,6 @@ export function StageUpScreen() {
         style={{
           position: "relative", zIndex: 5,
           background: "rgba(255,255,255,0.92)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
           border: "2.5px solid rgba(255,255,255,0.98)",
           borderRadius: "28px",
           padding: "1.8rem 2rem 1.4rem",
@@ -191,11 +179,14 @@ export function StageUpScreen() {
 
         {/* Progress bar */}
         <div style={{ width: "100%", height: "5px", borderRadius: "999px", background: "rgba(15,23,42,0.1)", overflow: "hidden" }}>
+          {/* Animated by the compositor instead of a 30ms setState interval */}
           <motion.div
+            initial={{ width: "100%" }}
+            animate={{ width: "0%" }}
+            transition={{ duration: AUTO_ADVANCE_MS / 1000, ease: "linear" }}
             style={{
               height: "100%", borderRadius: "999px",
               background: `linear-gradient(90deg, ${meta.accent}, ${meta.glow.replace("0.4", "0.8")})`,
-              width: `${progress * 100}%`,
             }}
           />
         </div>

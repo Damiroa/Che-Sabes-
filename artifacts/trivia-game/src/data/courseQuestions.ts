@@ -1,7 +1,8 @@
 import type { Category, Question } from "./questions";
+import { bankRows } from "./questionBank";
 
 export type Course = "1ro" | "2do" | "3ro" | "4to" | "5to" | "6to";
-export type Subject = "Matemática" | "Ciencias Naturales" | "Ciencias Sociales" | "Historia" | "Geografía" | "Informática" | "Lengua y Literatura" | "Inglés" | "Cultura General" | "Videojuegos" | "Música" | "Arte" | "Deportes" | "Lógica" | "Filosofía";
+export type Subject = "Matemática" | "Ciencias Naturales" | "Biología" | "Física" | "Química" | "Ciencias Sociales" | "Historia" | "Historia Argentina" | "Geografía" | "Informática" | "Lengua y Literatura" | "Inglés" | "Cultura General" | "Videojuegos" | "Música" | "Arte" | "Deportes" | "Lógica" | "Filosofía";
 
 export const COURSE_LABELS: Record<Course, string> = {
   "1ro": "1ro secundario", "2do": "2do secundario", "3ro": "3ro secundario",
@@ -13,17 +14,14 @@ export const COURSE_ICONS: Record<Course, string> = {
 };
 
 export const SUBJECTS: Subject[] = [
-  "Matemática", "Ciencias Naturales", "Ciencias Sociales", "Historia", "Geografía", "Informática",
-  "Lengua y Literatura", "Inglés", "Cultura General", "Videojuegos", "Música", "Arte", "Deportes", "Lógica", "Filosofía",
+  "Matemática", "Ciencias Naturales", "Biología", "Física", "Química", "Ciencias Sociales", "Historia",
+  "Historia Argentina", "Geografía", "Informática", "Lengua y Literatura", "Inglés", "Cultura General",
+  "Videojuegos", "Música", "Arte", "Deportes", "Lógica", "Filosofía",
 ];
 
-export const COURSE_SUBJECTS: Record<Course, Subject[]> = {
-  "1ro": SUBJECTS, "2do": SUBJECTS, "3ro": SUBJECTS,
-  "4to": SUBJECTS, "5to": SUBJECTS, "6to": SUBJECTS,
-};
-
 export const SUBJECT_ICONS: Record<Subject, string> = {
-  "Matemática": "📐", "Ciencias Naturales": "🔬", "Ciencias Sociales": "👥", Historia: "🏛️",
+  "Matemática": "📐", "Ciencias Naturales": "🔬", "Biología": "🧬", "Física": "🧲", "Química": "⚗️",
+  "Ciencias Sociales": "👥", Historia: "🏛️", "Historia Argentina": "🇦🇷",
   Geografía: "🌎", Informática: "💻", "Lengua y Literatura": "📖", Inglés: "🇬🇧",
   "Cultura General": "🌟", Videojuegos: "🎮", Música: "🎵", Arte: "🎨", Deportes: "🏅", Lógica: "🧩", Filosofía: "💭",
 };
@@ -162,4 +160,21 @@ export const courseQuestions: Question[] = [
   ...courses.flatMap((course, courseIndex) =>
     reviewRows.map((row, rowIndex) => toQuestion([course, ...row], 2000 + courseIndex * reviewRows.length + rowIndex)),
   ),
+  // Extended bank: every row is offered in all courses, with ids in their own range.
+  ...courses.flatMap((course, courseIndex) =>
+    bankRows.map(([subject, question, correct, options, difficulty], rowIndex) =>
+      toQuestion(
+        [course, subject, question, correct, [...options], difficulty],
+        10000 + courseIndex * bankRows.length + rowIndex,
+      ),
+    ),
+  ),
 ];
+
+/** Only subjects that actually have questions for a course can be selected. */
+export const COURSE_SUBJECTS: Record<Course, Subject[]> = courses.reduce((acc, course) => {
+  acc[course] = SUBJECTS.filter((subject) =>
+    courseQuestions.some((q) => q.course === course && q.subject === subject),
+  );
+  return acc;
+}, {} as Record<Course, Subject[]>);

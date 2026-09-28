@@ -10,7 +10,8 @@ const courses: Course[] = ["1ro", "2do", "3ro", "4to", "5to", "6to"];
 interface Props { isMuted: boolean }
 
 export function CategorySelect({ isMuted }: Props) {
-  const { startGame, goToMenu } = useGameStore();
+  const startGame = useGameStore((s) => s.startGame);
+  const goToMenu  = useGameStore((s) => s.goToMenu);
   const { isMobile, isTablet } = useBreakpoint();
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
@@ -33,12 +34,12 @@ export function CategorySelect({ isMuted }: Props) {
 
   const cardColumns = isMobile ? "1fr 1fr" : isTablet ? "repeat(3, 1fr)" : "repeat(3, minmax(150px, 1fr))";
   const pageStyle: React.CSSProperties = {
-    width: "100%", minHeight: "100%", display: "flex", flexDirection: "column",
-    padding: isMobile ? "24px 20px 36px" : "36px 60px", overflowY: "auto",
+    width: "100%", height: "100%", maxWidth: "100%", display: "flex", flexDirection: "column",
+    padding: isMobile ? "24px 20px 36px" : "36px 60px",
   };
 
   return (
-    <motion.div style={pageStyle} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
+    <motion.div className="scroll-area" style={pageStyle} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
       <button onClick={handleBack} style={backBtn}>{selectedCourse ? "← Cursos" : "← Volver"}</button>
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
         <p style={eyebrow}>Preguntados IGC</p>
@@ -110,10 +111,12 @@ const courseCard: React.CSSProperties = {
   minHeight: 150, display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", gap: "8px",
   padding: "1.25rem", borderRadius: "20px", textAlign: "left",
   background: "rgba(255,255,255,0.9)", border: "2px solid rgba(255,255,255,0.95)",
-  boxShadow: "0 12px 34px rgba(2,56,87,0.16)", cursor: "pointer", transition: "transform 180ms ease, box-shadow 180ms ease",
+  // No CSS transition here: Framer Motion drives the transform, and a CSS
+  // transition on the same property fights it and causes visible jitter.
+  boxShadow: "0 12px 34px rgba(2,56,87,0.16)", cursor: "pointer",
 };
 const cardTitle: React.CSSProperties = { fontFamily: "'Outfit', sans-serif", fontSize: "1.05rem", color: "#0f172a" };
-const cardMeta: React.CSSProperties = { color: "#64748b", fontSize: "0.76rem" };
+const cardMeta: React.CSSProperties = { color: "#64748b", fontSize: "0.76rem", overflowWrap: "anywhere" };
 const backBtn: React.CSSProperties = {
   alignSelf: "flex-start", marginBottom: "1.8rem", padding: "0.45rem 1rem", borderRadius: "999px",
   background: "rgba(255,255,255,0.18)", border: "1.5px solid rgba(255,255,255,0.3)",

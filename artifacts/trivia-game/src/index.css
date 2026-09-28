@@ -55,14 +55,39 @@
 
 @layer base {
   * { @apply border-border; box-sizing: border-box; }
+  html {
+    height: 100%;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     font-family: 'Space Grotesk', system-ui, sans-serif;
     background: #29b5e8;
     color: #0f172a;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Fixed body: the layout never reacts to the mobile URL bar collapsing,
+       which is what produced the viewport jump on Android/iOS. */
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
     overflow: hidden;
+    overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
+  }
+  #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  /* Inner scroll containers keep momentum scrolling without moving the page */
+  .scroll-area {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
   h1, h2, h3, h4 {
     font-family: 'Outfit', system-ui, sans-serif;
@@ -172,8 +197,26 @@ button, a, input {
   will-change: background-position;
 }
 
+/* ── Frosted panels ───────────────────────────────────────
+   backdrop-filter over the animated background forces a full
+   re-rasterisation of the blurred region on every frame, which is what
+   made mobile GPUs drop/flash layers. Enabled only on pointer devices
+   with enough room to afford it. */
+@media (min-width: 1024px) {
+  .glass {
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+}
+
 /* ── GPU layer hint for frequently animated elements ─────── */
 .gpu { transform: translateZ(0); will-change: transform; }
+
+/* ── Mobile: fewer composited layers, no horizontal scroll ── */
+@media (max-width: 1023.98px) {
+  .background-sheen { display: none; }
+  .background-accent { display: none; }
+}
 
 /* ── Reduce motion for accessibility & perf ─────────────── */
 @media (prefers-reduced-motion: reduce) {

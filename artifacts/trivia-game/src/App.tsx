@@ -13,19 +13,21 @@ import { audio } from "./utils/audio";
 
 const PAGE_TRANSITION: Transition = { duration: 0.26, ease: [0.4, 0, 0.2, 1] };
 
+// Only opacity + transform are animated: animating `filter: blur()` repainted
+// the entire screen on every frame and was the main source of mobile flicker.
 function Page({ children, id }: { children: React.ReactNode; id: string }) {
   return (
     <motion.div
       key={id}
-      initial={{ opacity: 0, filter: "blur(10px)", scale: 0.97 }}
-      animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
-      exit={{ opacity: 0, filter: "blur(10px)", scale: 0.97 }}
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.98 }}
       transition={PAGE_TRANSITION}
       style={{
         position: "absolute", inset: 0,
-        width: "100%", height: "100%",
+        width: "100%", height: "100%", maxWidth: "100%",
         display: "flex", flexDirection: "column",
-        willChange: "transform, opacity, filter",
+        overflowX: "hidden",
       }}
     >
       {children}
@@ -58,7 +60,7 @@ function App() {
   }, [phase]);
 
   return (
-    <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
+    <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
       <AnimatedBackground />
 
       <div style={{ position: "relative", zIndex: 1, width: "100%", height: "100%" }}>
