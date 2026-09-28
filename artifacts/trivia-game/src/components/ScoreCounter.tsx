@@ -1,33 +1,33 @@
 import { useEffect, useRef, useState } from "react";
-
-interface Props {
+import { useReducedMotion } from "framer-motion";
+export function ScoreCounter({
+  value,
+  style,
+}: {
   value: number;
   style?: React.CSSProperties;
-}
-
-export function ScoreCounter({ value, style }: Props) {
+}) {
   const [display, setDisplay] = useState(value);
-  const prev = useRef(value);
-
+  const current = useRef(value);
+  const reducedMotion = useReducedMotion();
   useEffect(() => {
-    if (value === prev.current) return;
-    const start = prev.current;
-    const end = value;
-    const diff = end - start;
-    const duration = Math.min(600, Math.abs(diff) * 2);
-    const startTime = performance.now();
-
-    const animate = (now: number) => {
-      const elapsed = now - startTime;
-      const t = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 3); // cubic ease-out
-      setDisplay(Math.round(start + diff * eased));
-      if (t < 1) requestAnimationFrame(animate);
-      else prev.current = end;
+    if (reducedMotion) {
+      current.current = value;
+      setDisplay(value);
+      return;
+    }
+    const start = current.current;
+    const startedAt = performance.now();
+    let frame: number;
+    const tick = (now: number) => {
+      const t = Math.min((now - startedAt) / 400, 1);
+      const eased = (1 - Math.cos(Math.PI * t)) / 2;
+      current.current = Math.round(start + (value - start) * eased);
+      setDisplay(current.current);
+      if (t < 1) frame = requestAnimationFrame(tick);
     };
-
-    requestAnimationFrame(animate);
-  }, [value]);
-
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value, reducedMotion]);
   return <span style={style}>{display.toLocaleString()}</span>;
 }

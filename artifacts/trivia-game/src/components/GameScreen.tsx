@@ -1,343 +1,213 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { forwardRef, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useIsPresent } from "framer-motion";
+import { SkipForward, Flame } from "lucide-react";
 import { useGameStore, getStreakMultiplier } from "../engine/gameStore";
-import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_LABELS } from "../data/questions";
-import { SUBJECT_ICONS, Subject } from "../data/courseQuestions";
-import { CircularTimer } from "./CircularTimer";
+import { CATEGORY_LABELS } from "../data/questions";
+import { QuestionTimer } from "./QuestionTimer";
 import { ScoreCounter } from "./ScoreCounter";
-import { FloatingReward } from "./FloatingReward";
+import {
+  CoinBadge,
+  GameButton,
+  Lives,
+  SoundButton,
+  UI_TRANSITION,
+} from "./GameUI";
 import { audio } from "../utils/audio";
-import { useBreakpoint } from "../hooks/useBreakpoint";
 
-interface Props { isMuted: boolean; onToggleMute: () => void }
-
-export function GameScreen({ isMuted, onToggleMute }: Props) {
-  const {
-    phase, lives, score, streak, skipsLeft, stage, correctAnswers,
-    currentQuestion, timerSeconds, answerQuestion, skipQuestion,
-    coins, shop, activeShield, lastCoinsEarned,
-  } = useGameStore();
-
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [answerState, setAnswerState]       = useState<"idle" | "correct" | "wrong">("idle");
-  const [shortInput, setShortInput]         = useState("");
-  const [timeLeft, setTimeLeft]             = useState(timerSeconds);
-  const [coinTrigger, setCoinTrigger]       = useState(0);
-  const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
-  const answeredRef = useRef(false);
-  const answerDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const mutedRef = useRef(isMuted);
-  mutedRef.current = isMuted;
-  const prevCoins  = useRef(lastCoinsEarned);
-  const { isMobile, isTablet } = useBreakpoint();
-
-  useEffect(() => {
-    if (phase !== "playing" || !currentQuestion) return;
-    setTimeLeft(timerSeconds);
-    setSelectedAnswer(null);
-    setAnswerState("idle");
-    setShortInput("");
-    answeredRef.current = false;
-    const deadline = Date.now() + timerSeconds * 1000;
-    let previous = timerSeconds;
-    const tick = () => {
-      if (answeredRef.current) return;
-      const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-      if (next === previous) return;
-      previous = next;
-      setTimeLeft(next);
-      if (next === 0) {
-        answeredRef.current = true;
-        if (timerRef.current) clearInterval(timerRef.current);
-        answerQuestion("", true);
-      } else if (!mutedRef.current) {
-        if (next <= 4) audio.urgentTick();
-        else if (next <= 8) audio.tick();
-      }
-    };
-    timerRef.current = setInterval(tick, 250);
-    document.addEventListener("visibilitychange", tick);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (answerDelayRef.current) clearTimeout(answerDelayRef.current);
-      document.removeEventListener("visibilitychange", tick);
-    };
-  }, [currentQuestion?.id, timerSeconds, phase, answerQuestion]);
-
-  // Trigger floating coin reward when lastCoinsEarned changes
-  useEffect(() => {
-    if (lastCoinsEarned > 0 && lastCoinsEarned !== prevCoins.current) {
-      setCoinTrigger(n => n + 1);
-      prevCoins.current = lastCoinsEarned;
-    }
-  }, [lastCoinsEarned]);
-
-  if (!currentQuestion) return null;
-
-  const multiplier    = getStreakMultiplier(streak, shop.maxMulti);
-  const diffColor     = { easy: "#4ade80", medium: "#fbbf24", hard: "#f87171" }[currentQuestion.difficulty];
-  const diffLabel     = { easy: "Fácil",   medium: "Medio",   hard: "Difícil"  }[currentQuestion.difficulty];
-  const catLabel      = CATEGORY_LABELS[currentQuestion.category];
-  const subjectLabel  = currentQuestion.subject ?? catLabel;
-  const subjectIcon   = SUBJECT_ICONS[currentQuestion.subject as Subject] ?? CATEGORY_ICONS[currentQuestion.category];
-  const catColor      = CATEGORY_COLORS[currentQuestion.category];
-  const isMC          = currentQuestion.type !== "short" && !!currentQuestion.options;
-  const options       = currentQuestion.options ?? [];
-  const stageProgress = (correctAnswers % 4) / 4;
-  const timerPct      = (timeLeft / timerSeconds) * 100;
-  const timerBarColor = timeLeft > 8 ? "#4ade80" : timeLeft > 4 ? "#fbbf24" : "#f87171";
-
-  const handleAnswer = (ans: string) => {
-    if (phase !== "playing" || selectedAnswer || answeredRef.current) return;
-    answeredRef.current = true;
-    if (timerRef.current) clearInterval(timerRef.current);
-    const ok = ans.toLowerCase().trim() === currentQuestion.correct.toLowerCase().trim();
-    setSelectedAnswer(ans);
-    setAnswerState(ok ? "correct" : "wrong");
-    if (!isMuted) ok ? audio.correct() : audio.wrong();
-    answerDelayRef.current = setTimeout(() => answerQuestion(ans), 420);
-  };
-
-  const handleSkip = () => {
-    if (phase !== "playing" || answeredRef.current || skipsLeft <= 0) return;
-    if (!isMuted) audio.click();
-    skipQuestion();
-  };
-
-  // ── Answer buttons — plain function, not a React component
-  const renderAnswers = (compact = false) => {
-    if (isMC) {
-      return options.map((opt, idx) => {
-        const isSelected   = selectedAnswer === opt;
-        const isCorrectOpt = isSelected && answerState === "correct";
-        const isWrongOpt   = isSelected && answerState === "wrong";
-        return (
-          <motion.button
-            key={opt}
-            whileHover={!selectedAnswer && !compact ? { x: 4, scale: 1.01 } : undefined}
-            whileTap={!selectedAnswer && !compact ? { scale: 0.97 } : undefined}
-            onClick={() => { if (!isMuted) audio.click(); handleAnswer(opt); }}
-            disabled={!!selectedAnswer}
-            className={`${isWrongOpt ? "shake" : ""} ${isCorrectOpt ? "correct-glow" : ""} answer-btn`}
-            style={{
-              padding: compact ? "0.75rem 1rem" : "0.92rem 1.2rem",
-              borderRadius: "14px", textAlign: "left",
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: compact ? "0.86rem" : "0.97rem", fontWeight: 600,
-              color: isCorrectOpt ? "#fff" : isWrongOpt ? "#fff" : "#1e293b",
-              background: isCorrectOpt
-                ? "linear-gradient(135deg,#16a34a,#4ade80)"
-                : isWrongOpt
-                ? "linear-gradient(135deg,#dc2626,#f87171)"
-                : "rgba(255,255,255,0.91)",
-              border: `2px solid ${isCorrectOpt ? "#4ade80" : isWrongOpt ? "#f87171" : "rgba(255,255,255,0.95)"}`,
-              cursor: selectedAnswer ? "default" : "pointer",
-              boxShadow: isCorrectOpt ? "0 6px 20px rgba(74,222,128,0.45)" : isWrongOpt ? "0 6px 20px rgba(248,113,113,0.45)" : "0 2px 10px rgba(0,0,0,0.07)",
-              display: "flex", alignItems: "center", gap: "10px",
-              transition: "background 0.18s, border 0.18s, color 0.18s, box-shadow 0.18s",
-            }}
-          >
-            <span style={{ width: 26, height: 26, borderRadius: "7px", flexShrink: 0, background: isSelected ? "rgba(255,255,255,0.22)" : "rgba(15,23,42,0.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.74rem", fontWeight: 900, color: isSelected ? "#fff" : "#64748b" }}>
-              {["A","B","C","D"][idx]}
-            </span>
-            {opt}
-          </motion.button>
-        );
-      });
-    }
-    return [
-      <input key="inp" type="text" value={shortInput} onChange={e => setShortInput(e.target.value)}
-        onKeyDown={e => e.key === "Enter" && shortInput.trim() && handleAnswer(shortInput.trim())}
-        placeholder="Escribí tu respuesta..."
-        style={{ width: "100%", padding: "0.9rem 1.2rem", borderRadius: "14px", background: "rgba(255,255,255,0.92)", border: "2px solid rgba(255,255,255,0.98)", color: "#0f172a", fontFamily: "'Space Grotesk', sans-serif", fontSize: "1rem", outline: "none" }}
-      />,
-      <button key="ok" onClick={() => { if (!isMuted) audio.click(); shortInput.trim() && handleAnswer(shortInput.trim()); }}
-        disabled={!shortInput.trim() || !!selectedAnswer}
-        style={{ padding: "0.9rem", borderRadius: "14px", background: "#0369a1", color: "#fff", fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: "0.97rem", opacity: !shortInput.trim() ? 0.35 : 1, cursor: shortInput.trim() ? "pointer" : "default", border: "none" }}>
-        Confirmar →
-      </button>,
-    ];
-  };
-
-  // ── Shared HUD helpers (plain functions) ─────────────────
-  const renderLives = (size: string) => (
-    <div style={{ display: "flex", gap: "2px", alignItems: "center" }}>
-      {Array.from({ length: 3 }).map((_, i) => (
-        <motion.span key={i} animate={{ opacity: i < lives ? 1 : 0.22, scale: i < lives ? 1 : 0.72 }} transition={{ type: "spring", stiffness: 300 }} style={{ fontSize: size }}>❤️</motion.span>
-      ))}
-      {activeShield && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} title="Escudo activo" style={{ fontSize: size, marginLeft: 2 }}>🛡️</motion.span>}
-    </div>
-  );
-
-  const renderStreak = (size: string) => streak >= 3 ? (
-    <AnimatePresence>
-      <motion.span initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-        style={{ padding: "3px 10px", borderRadius: "999px", background: "rgba(251,191,36,0.2)", border: "1.5px solid rgba(251,191,36,0.5)", fontSize: size, fontWeight: 700, color: "#fde68a" }}>
-        🔥 {streak} ×{multiplier}
-      </motion.span>
-    </AnimatePresence>
-  ) : null;
-
-  const renderCoins = (size: string) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "4px", padding: "3px 10px", borderRadius: "999px", background: "rgba(250,204,21,0.12)", border: "1.5px solid rgba(250,204,21,0.3)" }}>
-      <span style={{ fontSize: size }}>🪙</span>
-      <span style={{ fontFamily: "'Outfit', sans-serif", fontSize: size, fontWeight: 800, color: "#fde68a" }}>{coins}</span>
-    </div>
-  );
-
-  const renderProgress = (h = "8px") => (
-    <div style={{ flex: 1, height: h, borderRadius: "999px", background: "rgba(255,255,255,0.22)", overflow: "hidden" }}>
-      <motion.div animate={{ width: `${stageProgress * 100}%` }} transition={{ duration: 0.5, ease: "easeOut" }} className="progress-shimmer" style={{ height: "100%", borderRadius: "999px" }} />
-    </div>
-  );
-
-  /* ── Mobile ──────────────────────────────────────────────── */
-  if (isMobile) {
-    return (
-      <motion.div style={{ width: "100%", height: "100%", minHeight: 0, display: "flex", flexDirection: "column", position: "relative" }}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
-      >
-        <FloatingReward trigger={coinTrigger} text={`+${lastCoinsEarned} 🪙`} offsetX="70%" offsetY="30%" />
-
-        {/* HUD */}
-        <div style={{ display: "flex", alignItems: "center", gap: "7px", padding: "9px 12px", background: "rgba(0,0,0,0.18)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,255,255,0.14)", flexShrink: 0, flexWrap: "wrap" }}>
-          {renderLives("1rem")}
-          <span style={{ padding: "2px 8px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.33)", fontSize: "0.64rem", fontWeight: 800, textTransform: "uppercase", color: "#fff" }}>F{stage}</span>
-          {renderStreak("0.66rem")}
-          {renderProgress("5px")}
-          <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1rem", fontWeight: 900, color: "#fff" }} />
-          {renderCoins("0.82rem")}
-          <button aria-label={`Saltar pregunta (${skipsLeft} disponibles)`} onClick={handleSkip} disabled={skipsLeft <= 0 || !!selectedAnswer} style={{ fontSize: "0.65rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: "transparent", border: "none", cursor: skipsLeft > 0 ? "pointer" : "default" }}>⏭{skipsLeft > 0 ? `(${skipsLeft})` : "—"}</button>
-          <button aria-label={isMuted ? "Activar sonido" : "Silenciar"} onClick={onToggleMute} style={muteBtn(28)}>{isMuted ? "🔇" : "🔊"}</button>
-        </div>
-
-        {/* Content */}
-        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "12px 14px 22px", display: "flex", flexDirection: "column", gap: "11px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textTransform: "uppercase" }}>{subjectIcon} {subjectLabel}</span>
-            <span style={{ marginLeft: "auto", padding: "2px 7px", borderRadius: "999px", background: `${diffColor}30`, border: `1.5px solid ${diffColor}60`, fontSize: "0.66rem", fontWeight: 700, color: diffColor }}>{diffLabel}</span>
-            <CircularTimer timeLeft={timeLeft} total={timerSeconds} />
-          </div>
-          <div style={{ background: "rgba(255,255,255,0.92)", border: "2px solid rgba(255,255,255,0.98)", borderRadius: "18px", padding: "1.1rem 1rem", boxShadow: "0 6px 24px rgba(0,0,0,0.14)" }}>
-              <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.02rem", fontWeight: 600, color: "#0f172a", lineHeight: 1.55 }}>{currentQuestion.question}</p>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {renderAnswers(true)}
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
-
-  /* ── Tablet ──────────────────────────────────────────────── */
-  if (isTablet) {
-    return (
-      <motion.div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", position: "relative" }}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
-      >
-        <FloatingReward trigger={coinTrigger} text={`+${lastCoinsEarned} 🪙`} offsetX="75%" offsetY="20%" />
-
-        <div style={{ display: "flex", alignItems: "center", gap: "11px", flexWrap: "wrap", padding: "11px 26px", background: "rgba(0,0,0,0.18)", backdropFilter: "blur(8px)", borderBottom: "1px solid rgba(255,255,255,0.14)", flexShrink: 0 }}>
-          {renderLives("1.2rem")}
-          <span style={{ padding: "3px 11px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.33)", fontSize: "0.68rem", fontWeight: 800, textTransform: "uppercase", color: "#fff" }}>FASE {stage}</span>
-          <span style={{ padding: "2px 9px", borderRadius: "999px", background: `${diffColor}28`, border: `1.5px solid ${diffColor}60`, fontSize: "0.66rem", fontWeight: 700, color: diffColor }}>{diffLabel}</span>
-          {renderStreak("0.68rem")}
-          {renderProgress("6px")}
-          <span style={{ fontSize: "0.66rem", color: "rgba(255,255,255,0.6)", fontWeight: 700 }}>{correctAnswers % 4}/4</span>
-          <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.15rem", fontWeight: 900, color: "#fff" }} />
-          {renderCoins("0.88rem")}
-          <button aria-label={`Saltar pregunta (${skipsLeft} disponibles)`} onClick={handleSkip} disabled={skipsLeft <= 0 || !!selectedAnswer} style={{ fontSize: "0.68rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: "transparent", border: "none", cursor: skipsLeft > 0 ? "pointer" : "default" }}>⏭ ({skipsLeft})</button>
-          <button aria-label={isMuted ? "Activar sonido" : "Silenciar"} onClick={onToggleMute} style={muteBtn(30)}>{isMuted ? "🔇" : "🔊"}</button>
-        </div>
-
-        <div style={{ flex: 1, display: "flex", gap: "22px", padding: "18px 26px", overflowY: "auto", minHeight: 0 }}>
-          <AnimatePresence mode="wait">
-            <motion.div key={currentQuestion.id + "-q"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}
-              style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "safe center", minWidth: 0, gap: "13px" }}>
-              <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                {subjectIcon} {subjectLabel} <span style={{ color: "rgba(255,255,255,0.45)", marginLeft: 6 }}>+{currentQuestion.points * multiplier} pts</span>
-              </p>
-              <div style={{ background: "rgba(255,255,255,0.92)", border: "2px solid rgba(255,255,255,0.98)", borderRadius: "20px", padding: "1.5rem 1.7rem", boxShadow: "0 8px 32px rgba(0,0,0,0.14)", flex: 1, display: "flex", alignItems: "center" }}>
-                <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.15rem", fontWeight: 600, color: "#0f172a", lineHeight: 1.55 }}>{currentQuestion.question}</p>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "11px" }}>
-                <CircularTimer timeLeft={timeLeft} total={timerSeconds} />
-                <div style={{ flex: 1, height: "5px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", overflow: "hidden" }}>
-                  <motion.div animate={{ width: `${timerPct}%` }} transition={{ duration: 0.8, ease: "linear" }} style={{ height: "100%", borderRadius: "999px", background: timerBarColor }} />
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-          <AnimatePresence mode="wait">
-            <motion.div key={currentQuestion.id + "-a"} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2, delay: 0.06 }}
-              style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "safe center", minWidth: 0, gap: "9px" }}>
-              {renderAnswers()}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </motion.div>
-    );
-  }
-
-  /* ── Desktop ─────────────────────────────────────────────── */
+interface Props {
+  isMuted: boolean;
+  onToggleMute: () => void;
+}
+const QuestionContent = forwardRef<
+  HTMLDivElement,
+  { children: React.ReactNode }
+>(function QuestionContent({ children }, ref) {
+  const present = useIsPresent();
   return (
-    <motion.div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", position: "relative" }}
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
+    <motion.div
+      ref={ref}
+      className="question-layout"
+      initial={{ opacity: 0.7, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={UI_TRANSITION}
+      inert={!present}
     >
-      <FloatingReward trigger={coinTrigger} text={`+${lastCoinsEarned} 🪙`} offsetX="82%" offsetY="18%" />
-
-      {/* HUD */}
-      <div style={{ display: "flex", alignItems: "center", padding: "11px 38px", gap: "16px", flexWrap: "wrap", flexShrink: 0, background: "rgba(0,0,0,0.18)", backdropFilter: "blur(10px)", borderBottom: "1px solid rgba(255,255,255,0.14)" }}>
-        {renderLives("1.35rem")}
-        <span style={{ padding: "4px 13px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", border: "1.5px solid rgba(255,255,255,0.33)", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#fff" }}>FASE {stage}</span>
-        <span style={{ padding: "3px 10px", borderRadius: "999px", background: `${diffColor}25`, border: `1.5px solid ${diffColor}60`, fontSize: "0.7rem", fontWeight: 700, color: diffColor, textShadow: `0 0 8px ${diffColor}80` }}>{diffLabel}</span>
-        {renderStreak("0.75rem")}
-        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: "11px" }}>
-          {renderProgress("8px")}
-          <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.62)", fontWeight: 700, whiteSpace: "nowrap" }}>{correctAnswers % 4}/4</span>
-        </div>
-        <ScoreCounter value={score} style={{ fontFamily: "'Outfit', sans-serif", fontSize: "1.3rem", fontWeight: 900, color: "#fff", textShadow: "0 0 12px rgba(255,255,255,0.4)" }} />
-        {renderCoins("0.92rem")}
-        <button aria-label={`Saltar pregunta (${skipsLeft} disponibles)`} onClick={handleSkip} disabled={skipsLeft <= 0 || !!selectedAnswer} style={{ fontSize: "0.7rem", fontWeight: 700, color: skipsLeft > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", background: skipsLeft > 0 ? "rgba(255,255,255,0.12)" : "transparent", border: skipsLeft > 0 ? "1.5px solid rgba(255,255,255,0.22)" : "none", padding: "4px 9px", borderRadius: "999px", cursor: skipsLeft > 0 ? "pointer" : "default", letterSpacing: "0.05em", textTransform: "uppercase" }}>⏭ Skip {skipsLeft > 0 ? `(${skipsLeft})` : "—"}</button>
-        <button aria-label={isMuted ? "Activar sonido" : "Silenciar"} onClick={onToggleMute} style={muteBtn(33)}>{isMuted ? "🔇" : "🔊"}</button>
-      </div>
-
-      {/* Content */}
-      <div style={{ flex: 1, display: "flex", gap: "38px", padding: "26px 46px", minHeight: 0, overflowY: "auto" }}>
-        <AnimatePresence mode="wait">
-          <motion.div key={currentQuestion.id + "-q"} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.22, ease: "easeOut" }}
-            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "safe center", minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "1rem" }}>
-              <span style={{ width: 34, height: 34, borderRadius: "9px", background: `${catColor}28`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.15rem" }}>{subjectIcon}</span>
-              <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "rgba(255,255,255,0.88)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{subjectLabel}</span>
-              <span style={{ marginLeft: "auto", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.58)", background: "rgba(255,255,255,0.12)", padding: "2px 9px", borderRadius: "999px" }}>+{currentQuestion.points * multiplier} pts</span>
-            </div>
-            <div style={{ background: "rgba(255,255,255,0.93)", backdropFilter: "blur(20px)", border: "2px solid rgba(255,255,255,0.98)", borderRadius: "22px", padding: "1.9rem 2rem", boxShadow: "0 8px 40px rgba(0,0,0,0.16)", flex: 1, display: "flex", alignItems: "center" }}>
-              <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.25rem", fontWeight: 600, color: "#0f172a", lineHeight: 1.55 }}>{currentQuestion.question}</p>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "15px", marginTop: "15px" }}>
-              <CircularTimer timeLeft={timeLeft} total={timerSeconds} />
-              <div style={{ flex: 1, height: "5px", borderRadius: "999px", background: "rgba(255,255,255,0.2)", overflow: "hidden" }}>
-                <motion.div animate={{ width: `${timerPct}%` }} transition={{ duration: 0.8, ease: "linear" }} style={{ height: "100%", borderRadius: "999px", background: timerBarColor, boxShadow: timeLeft <= 4 ? `0 0 8px ${timerBarColor}` : "none" }} />
-              </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-
-        <AnimatePresence mode="wait">
-          <motion.div key={currentQuestion.id + "-a"} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.22, delay: 0.06, ease: "easeOut" }}
-            style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "10px" }}>
-            {renderAnswers()}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      {children}
     </motion.div>
   );
-}
-
-const muteBtn = (size: number): React.CSSProperties => ({
-  background: "rgba(255,255,255,0.14)", border: "1.5px solid rgba(255,255,255,0.22)",
-  borderRadius: "50%", width: size, height: size,
-  display: "flex", alignItems: "center", justifyContent: "center",
-  cursor: "pointer", fontSize: size * 0.46 + "px", flexShrink: 0,
 });
+
+export function GameScreen({ isMuted, onToggleMute }: Props) {
+  const s = useGameStore();
+  const present = useIsPresent();
+  const [selected, setSelected] = useState<string | null>(null);
+  const [shortInput, setShortInput] = useState("");
+  const answered = useRef(false);
+  const delay = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const q = s.currentQuestion;
+  useEffect(() => {
+    answered.current = false;
+    setSelected(null);
+    setShortInput("");
+    return () => {
+      if (delay.current) clearTimeout(delay.current);
+    };
+  }, [q?.id]);
+  useEffect(() => {
+    if (s.phase !== "playing" && delay.current) clearTimeout(delay.current);
+  }, [s.phase]);
+  if (!q) return null;
+  const multiplier = getStreakMultiplier(s.streak, s.shop.maxMulti);
+  const active = present && s.phase === "playing";
+  const answer = (value: string) => {
+    if (!active || answered.current) return;
+    answered.current = true;
+    setSelected(value);
+    const correct =
+      value.trim().toLowerCase() === q.correct.trim().toLowerCase();
+    if (!isMuted) correct ? audio.correct() : audio.wrong();
+    delay.current = setTimeout(() => s.answerQuestion(value), 350);
+  };
+  const timeout = () => {
+    if (!active || answered.current) return;
+    answered.current = true;
+    s.answerQuestion("", true);
+  };
+  return (
+    <section className="screen game-screen">
+      <header className="game-hud">
+        <Lives count={s.lives} shield={s.activeShield} />
+        <span className="badge">Fase {s.stage}</span>
+        <span className="score" aria-label={`${s.score} puntos`}>
+          <ScoreCounter value={s.score} /> <small>pts</small>
+        </span>
+        <CoinBadge value={s.coins} />
+        <GameButton
+          className="secondary skip-button"
+          aria-label={`Saltar pregunta (${s.skipsLeft} disponibles)`}
+          disabled={!active || selected !== null || s.skipsLeft <= 0}
+          onClick={() => {
+            if (answered.current) return;
+            if (!isMuted) audio.click();
+            s.skipQuestion();
+          }}
+        >
+          <SkipForward aria-hidden="true" size={20} />
+          <span>{s.skipsLeft}</span>
+        </GameButton>
+        <SoundButton muted={isMuted} onToggle={onToggleMute} />
+      </header>
+      <div className="game-content">
+        <div className="question-meta">
+          <div>
+            <p className="eyebrow">
+              {q.subject ?? CATEGORY_LABELS[q.category]}
+            </p>
+            <span className={`difficulty ${q.difficulty}`}>
+              {
+                { easy: "Fácil", medium: "Medio", hard: "Difícil" }[
+                  q.difficulty
+                ]
+              }
+            </span>
+          </div>
+          <QuestionTimer
+            questionId={q.id}
+            seconds={s.timerSeconds}
+            paused={!active || selected !== null}
+            muted={isMuted}
+            onExpire={timeout}
+          />
+        </div>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <QuestionContent key={q.id}>
+            <div className="question-card">
+              <span className="question-points">
+                +{q.points * multiplier} puntos
+              </span>
+              <h1 data-screen-title tabIndex={-1}>
+                {q.question}
+              </h1>
+            </div>
+            <div className="answers" aria-label="Respuestas">
+              {q.type !== "short" && q.options ? (
+                q.options.map((option, index) => {
+                  const chosen = selected === option;
+                  const correct =
+                    chosen &&
+                    option.trim().toLowerCase() ===
+                      q.correct.trim().toLowerCase();
+                  return (
+                    <GameButton
+                      key={`${q.id}-${option}`}
+                      className={`answer-btn${chosen ? (correct ? " is-correct" : " is-wrong") : ""}`}
+                      disabled={!active || selected !== null}
+                      onClick={() => answer(option)}
+                      aria-pressed={chosen}
+                    >
+                      <span className="answer-letter" aria-hidden="true">
+                        {"ABCD"[index]}
+                      </span>
+                      <span>{option}</span>
+                    </GameButton>
+                  );
+                })
+              ) : (
+                <form
+                  className="answers"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    if (shortInput.trim()) answer(shortInput.trim());
+                  }}
+                >
+                  <label htmlFor="short-answer">Tu respuesta</label>
+                  <input
+                    id="short-answer"
+                    value={shortInput}
+                    onChange={(e) => setShortInput(e.target.value)}
+                    disabled={selected !== null}
+                    autoComplete="off"
+                  />
+                  <GameButton
+                    type="submit"
+                    disabled={!shortInput.trim() || selected !== null}
+                  >
+                    Confirmar respuesta
+                  </GameButton>
+                </form>
+              )}
+            </div>
+          </QuestionContent>
+        </AnimatePresence>
+        <footer className="game-progress">
+          <div className="progress-label">
+            <span>
+              {s.correctAnswers % 4} de 4 aciertos para la próxima fase
+            </span>
+            {s.streak >= 3 && (
+              <span className="streak">
+                <Flame aria-hidden="true" size={18} />
+                {s.streak} · ×{multiplier}
+              </span>
+            )}
+          </div>
+          <div
+            className="progress-track"
+            role="progressbar"
+            aria-label="Avance de fase"
+            aria-valuemin={0}
+            aria-valuemax={4}
+            aria-valuenow={s.correctAnswers % 4}
+          >
+            <motion.div
+              className="progress-fill"
+              animate={{ scaleX: (s.correctAnswers % 4) / 4 }}
+              transition={UI_TRANSITION}
+            />
+          </div>
+        </footer>
+      </div>
+    </section>
+  );
+}
