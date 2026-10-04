@@ -23,7 +23,7 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
         <div className="menu-card">
           <p className="eyebrow">Un desafío, muchas formas de aprender</p>
           <h1 data-screen-title tabIndex={-1}>
-            Che Sabe
+            Che Sabés
           </h1>
           <p className="lead">
             Elegí tu curso, encontrá tu materia y poné a prueba lo que sabés.

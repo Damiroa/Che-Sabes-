@@ -83,5 +83,5 @@ createServer(async (req, res) => {
     res.writeHead(404).end("Not found");
   }
 }).listen(port, "0.0.0.0", () =>
-  console.log(`Che Sabe listening on port ${port}`),
+  console.log(`Che Sabés listening on port ${port}`),
 );

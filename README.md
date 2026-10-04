@@ -1,17 +1,19 @@
-# Che Sabe
+# Che Sabés
 
 Trivia escolar en español: **6 cursos, 19 materias y 965 preguntas activas**. React, Vite, Zustand y Framer Motion. Funciona en el navegador, sin cuentas de jugadores ni servicios externos.
 
 ## Jugar y probar
 
-| Entorno                       | Dirección                                                                                                             | Estado                                                                                                                          |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Público, GitHub Pages         | https://damiroa.github.io/Preguntados-IGC/                                                                            | Hosting existente. Esta actualización se publica cuando sus cambios llegan a `main` y finaliza el workflow **Deploy Preguntados IGC**. |
-| Testing en esta tarea         | Abrir **Preview → Che Sabe — pruebas de producción** en la tarea `00750239-2971-4962-9ccb-f8b3e91ade7c` de CodeRabbit | Vista previa del entorno de trabajo; requiere acceso a la tarea.                                                                |
-| Desarrollo local              | http://localhost:3000/                                                                                                | Disponible tras iniciar el servidor de desarrollo.                                                                              |
-| Producción local para pruebas | http://localhost:3001/                                                                                                | Disponible tras compilar e iniciar con `PORT=3001`.                                                                             |
+| Entorno                       | Dirección                                                                                                              | Estado                                                                                                                                 |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Público, GitHub Pages         | https://damiroa.github.io/Preguntados-IGC/                                                                             | Hosting existente. Esta actualización se publica cuando sus cambios llegan a `main` y finaliza el workflow **Deploy Preguntados IGC**. |
+| Testing en esta tarea         | Abrir **Preview → Che Sabés — pruebas de producción** en la tarea `00750239-2971-4962-9ccb-f8b3e91ade7c` de CodeRabbit | Vista previa del entorno de trabajo; requiere acceso a la tarea.                                                                       |
+| Desarrollo local              | http://localhost:3000/                                                                                                 | Disponible tras iniciar el servidor de desarrollo.                                                                                     |
+| Producción local para pruebas | http://localhost:3001/                                                                                                 | Disponible tras compilar e iniciar con `PORT=3001`.                                                                                    |
 
-El nombre del repositorio y la ruta pública siguen siendo `Preguntados-IGC` para conservar el enlace existente. La marca visible es **Che Sabe**.
+La marca visible es **Che Sabés** y el nombre previsto para la URL es `che-sabes` (sin espacios, tildes ni signos).
+
+**URL pública solicitada, pendiente de activar:** `https://damiroa.github.io/che-sabes/`. Requiere renombrar el repositorio en GitHub de `Preguntados-IGC` a `che-sabes` y volver a publicar desde `main`. El workflow existente toma automáticamente el nombre del repositorio para `BASE_PATH`; no necesita editarse. Cambiar el título del juego no cambia la dirección del hosting. No se debe dar por activo el nuevo enlace hasta verificar el despliegue. El enlace de Pages anterior puede dejar de funcionar al renombrar el repositorio.
 
 **Testing privado:** se utiliza Preview dentro de CodeRabbit. No se ha creado un dominio privado independiente ni un panel de administración. `localhost` es una dirección local, no un enlace público ni un mecanismo de autenticación. Si se necesita una URL externa protegida, hay que configurar autenticación en el hosting antes de compartirla.
 
@@ -75,7 +77,7 @@ Para añadir contenido, mantener los IDs existentes, asignar IDs nuevos y ejecut
 - `QuestionTimer.tsx`: cuenta regresiva por fecha límite, aislada del contenido de la pregunta; limpia intervalos y listeners y no reinicia al silenciar.
 - `App.tsx`: pantallas identificadas por fase; la saliente queda inerte mientras la entrante ya permite interacción.
 - `index.css`: espaciado, contraste, tipografía local, altura dinámica, áreas seguras y scroll interno.
-- La fuente Outfit se distribuye con su licencia OFL en `public/fonts/`. El logotipo es SVG; la imagen para compartir es PNG.
+- La fuente Outfit se distribuye con su licencia OFL en `public/fonts/`. La imagen proporcionada por el usuario se usa como favicon PNG (32 y 192 px), ícono de iOS (180 px) e imagen social JPEG (1200×1200). Los archivos se redimensionaron sin recortar y sin metadata de la foto. No se vuelve a colocar un ícono sobre el título del menú.
 - Las animaciones respetan `prefers-reduced-motion`. Se conservan respuestas, sonidos, feedback, tienda, rachas y fases.
 
 ## Publicación

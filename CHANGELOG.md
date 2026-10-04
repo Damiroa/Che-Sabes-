@@ -1,4 +1,12 @@
-# Changelog — Che Sabe
+# Changelog — Che Sabés
+
+## 2026-10-04 — Che Sabés e imagen proporcionada
+
+- Marca **Che Sabés** en título, cabeceras, metadata social y documentación; se conserva la clave `che-sabes-store` del progreso.
+- La imagen enviada reemplaza el ícono activo del navegador y la imagen al compartir. Se generan PNG de 32, 180 y 192 px y JPEG social de 1200×1200, sin recortar ni conservar metadata de la foto.
+- Se conserva el fondo celeste animado y el menú sin ícono sobre el título.
+- Se documenta la URL pública deseada `/che-sabes/` y el renombrado del repositorio necesario para activarla. El despliegue y una URL privada independiente siguen pendientes; Preview permite probar dentro de la tarea.
+- El workflow de publicación existente no se modifica.
 
 ## 2026-09-28 — Refactor y ampliación
 

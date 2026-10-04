@@ -1,4 +1,4 @@
-# Che Sabe
+# Che Sabés
 
 Juego de trivia escolar en español sobre React + Vite, Zustand y Framer Motion. Ver [README.md](README.md) para ejecución, arquitectura, URLs y publicación; [CHANGELOG.md](CHANGELOG.md) para cambios y validación.
 
