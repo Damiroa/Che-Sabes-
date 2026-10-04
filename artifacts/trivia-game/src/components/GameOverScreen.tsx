@@ -21,7 +21,7 @@ export function GameOverScreen({ isMuted, onOpenShop }: Props) {
     <section className="screen result-screen">
       {record && <Particles trigger={1} />}
       <header className="screen-header">
-        <span className="wordmark">Che Sabe</span>
+        <span className="wordmark">Che Sabés</span>
         <CoinBadge value={coins} />
       </header>
       <div className="center-content">

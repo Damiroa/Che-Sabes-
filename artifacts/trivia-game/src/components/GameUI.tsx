@@ -78,16 +78,3 @@ export function Lives({
     </span>
   );
 }
-
-export function BrandMark() {
-  return (
-    <img
-      className="brand-mark"
-      src={`${import.meta.env.BASE_URL}che-sabe.svg`}
-      width="80"
-      height="80"
-      alt=""
-      aria-hidden="true"
-    />
-  );
-}

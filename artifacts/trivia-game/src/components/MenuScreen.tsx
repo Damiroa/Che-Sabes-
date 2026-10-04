@@ -1,7 +1,7 @@
 import { ArrowRight, ShoppingBag, Trophy } from "lucide-react";
 import { useGameStore } from "../engine/gameStore";
 import { audio } from "../utils/audio";
-import { BrandMark, CoinBadge, GameButton, SoundButton } from "./GameUI";
+import { CoinBadge, GameButton, SoundButton } from "./GameUI";
 
 interface Props {
   isMuted: boolean;
@@ -21,10 +21,9 @@ export function MenuScreen({ isMuted, onToggleMute, onOpenShop }: Props) {
       </header>
       <div className="center-content">
         <div className="menu-card">
-          <BrandMark />
           <p className="eyebrow">Un desafío, muchas formas de aprender</p>
           <h1 data-screen-title tabIndex={-1}>
-            Che Sabe
+            Che Sabés
           </h1>
           <p className="lead">
             Elegí tu curso, encontrá tu materia y poné a prueba lo que sabés.

@@ -141,9 +141,6 @@ svg {
   border-radius: 28px;
   text-align: center;
 }
-.brand-mark {
-  flex-shrink: 0;
-}
 .menu-card h1 {
   font-size: clamp(3rem, 7vw, 5rem);
 }
@@ -718,32 +715,46 @@ svg {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 90% 15%, #196e87, transparent 60%), #104969;
+  background: #104969;
   transition: background-color 400ms ease-in-out;
   pointer-events: none;
 }
 .animated-background.stage-2 {
-  background:
-    radial-gradient(ellipse at 90% 15%, #965223, transparent 60%), #683019;
+  background: #105474;
 }
 .animated-background.stage-3 {
-  background:
-    radial-gradient(ellipse at 90% 15%, #9b3e58, transparent 60%), #682539;
+  background: #164668;
 }
-.background-orbit {
+.background-glow {
   position: absolute;
-  width: 220px;
-  height: 220px;
-  bottom: -90px;
-  right: -60px;
-  border: 1px solid #ffffff22;
+  width: clamp(300px, 70vmin, 720px);
+  aspect-ratio: 1;
   border-radius: 50%;
-  animation: drift 16s ease-in-out infinite alternate;
+  background: radial-gradient(
+    circle,
+    #5dd5ee55 0%,
+    #5dd5ee24 42%,
+    transparent 72%
+  );
 }
-@keyframes drift {
+.background-glow-top {
+  top: -12%;
+  left: -18%;
+  animation: float-top 17s ease-in-out infinite alternate;
+}
+.background-glow-bottom {
+  right: -18%;
+  bottom: -12%;
+  animation: float-bottom 21s ease-in-out infinite alternate;
+}
+@keyframes float-top {
   to {
-    transform: translate(-24px, -18px);
+    transform: translate3d(24%, 18%, 0) scale(1.12);
+  }
+}
+@keyframes float-bottom {
+  to {
+    transform: translate3d(-22%, -18%, 0) scale(1.08);
   }
 }
 .particles {
@@ -822,10 +833,6 @@ svg {
     padding: 20px;
     gap: 12px;
   }
-  .brand-mark {
-    width: 56px;
-    height: 56px;
-  }
   .screen-header {
     margin-bottom: 8px;
   }
@@ -846,7 +853,7 @@ svg {
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
-  .background-orbit {
+  .background-glow {
     animation: none;
   }
 }

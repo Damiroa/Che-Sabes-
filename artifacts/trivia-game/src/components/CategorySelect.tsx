@@ -34,7 +34,7 @@ export function CategorySelect({ isMuted }: { isMuted: boolean }) {
           <ArrowLeft aria-hidden="true" />
           {course ? "Cursos" : "Volver"}
         </GameButton>
-        <span className="wordmark">Che Sabe</span>
+        <span className="wordmark">Che Sabés</span>
       </header>
       <div className="selection-content">
         <p className="eyebrow">
