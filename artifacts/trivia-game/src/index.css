@@ -130,19 +130,78 @@ svg {
   padding: 16px 0;
 }
 .menu-card {
-  width: min(100%, 680px);
+  width: min(100%, 960px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding: clamp(18px, 4vw, 48px);
-  background: #07344cd9;
-  border: 1px solid #a5def34d;
-  border-radius: 28px;
+  gap: 24px;
+  padding: clamp(20px, 4vw, 40px);
+  background: #f7fbff;
+  color: var(--ink);
+  border: 1px solid #ffffff;
+  border-radius: 32px;
+  box-shadow: 0 20px 60px #03253f40;
   text-align: center;
 }
+.menu-artwork {
+  display: block;
+  width: clamp(128px, 30vw, 200px);
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 24px;
+  border: 4px solid #fff;
+  box-shadow: 0 8px 24px #293a7029;
+}
+.menu-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  width: 100%;
+}
 .menu-card h1 {
-  font-size: clamp(3rem, 7vw, 5rem);
+  font-size: clamp(2.35rem, 6vw, 3.8rem);
+  color: #342177;
+}
+.menu-card .eyebrow {
+  color: #67409d;
+}
+.menu-card .lead {
+  color: #44556e;
+}
+.menu-card .record-row {
+  color: #674408;
+  background: #fff0bf;
+  padding: 10px 18px;
+  border-radius: 16px;
+}
+.menu-card .game-button:not(.secondary) {
+  background: #6233ce;
+  color: #fff;
+  box-shadow: 0 4px 0 #44218e;
+}
+.menu-card .game-button.secondary {
+  color: #4f2a99;
+  background: #eee7fc;
+  border-color: #c8b7eb;
+}
+.menu-card .game-button:focus-visible {
+  outline-color: #6233ce;
+}
+.menu-card .menu-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  color: #4f6075;
+  font-size: 0.8rem;
+}
+.menu-facts span {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #e8f2f8;
 }
 .eyebrow {
   font-size: 0.85rem;
@@ -161,9 +220,6 @@ svg {
   color: #d5eaf5;
   font-size: 0.9rem;
   line-height: 1.5;
-}
-.menu-facts span {
-  margin-inline: 6px;
 }
 .record-row {
   display: flex;
@@ -263,6 +319,14 @@ svg {
   padding: 16px;
   position: relative;
   border-radius: var(--radius);
+  border-top: 4px solid #a084e9;
+  box-shadow: 0 5px 16px #03253f26;
+}
+.selection-card:nth-child(3n + 2) {
+  border-top-color: #47c8dc;
+}
+.selection-card:nth-child(3n) {
+  border-top-color: #e590bd;
 }
 .selection-card strong {
   overflow-wrap: anywhere;
@@ -270,6 +334,12 @@ svg {
   line-height: 1.35;
 }
 .category-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #f1edfb;
   font-family: system-ui, sans-serif;
   font-size: 1.6rem;
   line-height: 1.3;
@@ -441,9 +511,9 @@ svg {
   height: 30px;
   flex-shrink: 0;
   font-size: 0.85rem;
-  background: #e4edf2;
-  border-radius: 8px;
-  color: #264b61;
+  background: #eee8fc;
+  border-radius: 10px;
+  color: #51308c;
 }
 .answer-btn:disabled {
   background: #f5f8fa;
@@ -772,7 +842,25 @@ svg {
   height: 7px;
   border-radius: 2px;
 }
+@media (hover: hover) and (pointer: fine) {
+  .selection-card:hover,
+  .answer-btn:not(:disabled):hover {
+    background: #f3efff;
+    border-color: #b29ade;
+  }
+  .menu-card .game-button:not(.secondary):hover {
+    background: #5125b5;
+  }
+}
 @media (min-width: 768px) {
+  .menu-card {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: 32px;
+  }
+  .menu-artwork {
+    width: 100%;
+  }
   .selection-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
@@ -829,6 +917,12 @@ svg {
   }
 }
 @media (max-height: 500px) {
+  .menu-artwork {
+    width: 112px;
+  }
+  .menu-copy {
+    gap: 12px;
+  }
   .menu-card {
     padding: 20px;
     gap: 12px;

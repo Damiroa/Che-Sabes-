@@ -59,6 +59,8 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
   }, [s.phase]);
   if (!q) return null;
   const multiplier = getStreakMultiplier(s.streak, s.shop.maxMulti);
+  // The reward uses the streak after this answer, just like answerQuestion.
+  const answerMultiplier = getStreakMultiplier(s.streak + 1, s.shop.maxMulti);
   const active = present && s.phase === "playing";
   const answer = (value: string) => {
     if (!active || answered.current) return;
@@ -124,7 +126,7 @@ export function GameScreen({ isMuted, onToggleMute }: Props) {
           <QuestionContent key={q.id}>
             <div className="question-card">
               <span className="question-points">
-                +{q.points * multiplier} puntos
+                +{q.points * answerMultiplier} puntos
               </span>
               <h1 data-screen-title tabIndex={-1}>
                 {q.question}
